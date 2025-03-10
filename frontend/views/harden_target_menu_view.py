@@ -12,6 +12,10 @@ class HardenTargetMenuView(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.initUI()
+
+    # Function to init harden target menu UI
+    def initUI(self):
         self.mainLayout = QVBoxLayout()
 
         self.hLayout1 = QHBoxLayout()
@@ -35,10 +39,10 @@ class HardenTargetMenuView(QWidget):
         self.hLayout3 = QHBoxLayout()
         self.backBtn = QPushButton("Back to Main Menu")
         addWidgetToLayout(self.backBtn, self.hLayout3)
-        addChildLayoutToMainLayout(self.hLayout2, self.hLayout3)
+        addChildLayoutToParentLayout(self.hLayout2, self.hLayout3)
         
-        addChildLayoutToMainLayout(self.hLayout1, self.mainLayout)
-        addChildLayoutToMainLayout(self.vLayout1, self.mainLayout)
-        addChildLayoutToMainLayout(self.hLayout3, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout1, self.mainLayout)
+        addChildLayoutToParentLayout(self.vLayout1, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout3, self.mainLayout)
 
         self.setLayout(self.mainLayout)

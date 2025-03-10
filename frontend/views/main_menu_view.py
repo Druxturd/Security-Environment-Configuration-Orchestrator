@@ -1,4 +1,3 @@
-from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout, 
@@ -6,31 +5,33 @@ from PyQt5.QtWidgets import (
     QLabel,
     QWidget
 )
+from utils.layout_utils import *
 
 class MainMenuView(QWidget):
-    targetListChangedSignal = pyqtSignal()
-
     def __init__(self):
         super().__init__()
+        self.initUI()
 
+    # Function to init main menu UI
+    def initUI(self):
         self.mainLayout = QVBoxLayout()
 
+        self.mainMenuLbl = QLabel("Main Menu")
+
         self.hLayout1 = QHBoxLayout()
-        self.hLayout2 = QHBoxLayout()
-
-        self.totalTargetLbl = QLabel("Total target: ")
-
         self.targetListMenuBtn = QPushButton("Target List Menu")
+        self.totalTargetLbl = QLabel("Total target: ")
+        addWidgetToLayout(self.targetListMenuBtn, self.hLayout1)
+        addWidgetToLayout(self.totalTargetLbl, self.hLayout1)
+
+        self.hLayout2 = QHBoxLayout()
         self.hardenTargetMenuBtn = QPushButton("Harden Target Menu")
         self.patchTargetMenuBtn = QPushButton("Patch Target Menu")
+        addWidgetToLayout(self.hardenTargetMenuBtn, self.hLayout2)
+        addWidgetToLayout(self.patchTargetMenuBtn, self.hLayout2)
 
-        self.hLayout1.addWidget(self.targetListMenuBtn)
-        self.hLayout1.addWidget(self.totalTargetLbl)
-
-        self.hLayout2.addWidget(self.hardenTargetMenuBtn)
-        self.hLayout2.addWidget(self.patchTargetMenuBtn)
-        
-        self.mainLayout.addLayout(self.hLayout1)
-        self.mainLayout.addLayout(self.hLayout2)
+        addWidgetToLayout(self.mainMenuLbl, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout1, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout2, self.mainLayout)
 
         self.setLayout(self.mainLayout)

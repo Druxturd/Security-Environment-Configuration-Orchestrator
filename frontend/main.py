@@ -1,3 +1,4 @@
+import sys
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (
     QMainWindow, 
@@ -14,55 +15,87 @@ from controllers.harden_target_menu_controller import HardenTargetMenuController
 from controllers.patch_target_menu_controller import PatchTargetMenuController
 from controllers.target_list_menu_controller import TargetListMenuController
 
+# Class for whole application window
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.initWindowConfig()
+        self.initModels()
+        self.initViews()
+        self.initControllers()
+
+        # To show main menu UI
+        self.switchToMainMenu()
+
+    # Function to configure the window of application
+    def initWindowConfig(self):
+        # Set window title
         self.setWindowTitle("SECOR")
+
+        # Set minimum size
         self.setMinimumSize(QSize(600, 400))
 
+    # Function to init models / data that will be processed within application
+    def initModels(self):
+        # Set target model / data that will be processed within application
         self.model = TargetModel()
 
+    # Function to init views / UI within application
+    def initViews(self):
+        """
+        Set application views / UI which consist of 4 menus:
+        1. Main Menu
+        2. Target List Menu
+        3. Harden Target Menu
+        4. Patch Target Menu
+        """
         self.mainMenuView = MainMenuView()
+        self.targetListMenuView = TargetListMenuView()
         self.hardenTargetMenuView = HardenTargetMenuView()
         self.patchTargetMenuView = PatchTargetMenuView()
-        self.targetListMenuView = TargetListMenuView()
 
         self.stackedWidget = QStackedWidget()
         self.stackedWidget.addWidget(self.mainMenuView)
+        self.stackedWidget.addWidget(self.targetListMenuView)
         self.stackedWidget.addWidget(self.hardenTargetMenuView)
         self.stackedWidget.addWidget(self.patchTargetMenuView)
-        self.stackedWidget.addWidget(self.targetListMenuView)
         self.setCentralWidget(self.stackedWidget)
         
+    # Function to controllers / logic within application
+    def initControllers(self):
+        # Set application controllers which consist of logic for each view / mmenu
         self.mainMenuController = MainMenuController(self.mainMenuView, self.model, self)
+        self.targetListMenuController = TargetListMenuController(self.targetListMenuView, self.model, self)
         self.hardenTargetMenuController = HardenTargetMenuController(self.hardenTargetMenuView, self.model, self)
         self.patchTargetMenuController = PatchTargetMenuController(self.patchTargetMenuView, self.model, self)
-        self.targetListMenuController = TargetListMenuController(self.targetListMenuView, self.model, self)
 
-        self.switchToMainMenu()
-        self.show()
-
+    # Function to show main menu UI
     def switchToMainMenu(self):
         self.setWindowTitle("SECOR - Main Menu")
         self.stackedWidget.setCurrentWidget(self.mainMenuView)
 
-    def switchToHardenTargetMenu(self):
-        self.setWindowTitle("SECOR - Harden Menu")
-        self.stackedWidget.setCurrentWidget(self.hardenTargetMenuView)
-    
-    def switchToPatchTargetMenu(self):
-        self.setWindowTitle("SECOR - Patch Menu")
-        self.stackedWidget.setCurrentWidget(self.patchTargetMenuView)
-
+    # Function to show target list menu UI
     def switchToTargetListMenu(self):
         self.setWindowTitle("SECOR - Target List Menu")
         self.stackedWidget.setCurrentWidget(self.targetListMenuView)
 
+    # Function to show harden target menu UI
+    def switchToHardenTargetMenu(self):
+        self.setWindowTitle("SECOR - Harden Menu")
+        self.stackedWidget.setCurrentWidget(self.hardenTargetMenuView)
+    
+    # Function to show patch target menu UI
+    def switchToPatchTargetMenu(self):
+        self.setWindowTitle("SECOR - Patch Menu")
+        self.stackedWidget.setCurrentWidget(self.patchTargetMenuView)
+
+# Run the app
 if __name__ == "__main__":
-    app = QApplication([])
+    app = QApplication(sys.argv)
+    app.setApplicationName("Security Environment Configuration Orchestrator")
 
     window = MainWindow()
     window.show()
 
-    app.exec()
+    sys.exit(app.exec())
