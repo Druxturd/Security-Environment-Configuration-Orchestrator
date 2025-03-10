@@ -3,8 +3,11 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, 
     QPushButton, 
     QLabel,
+    QLineEdit,
+    QTextEdit,
     QWidget
 )
+from utils.layout_utils import *
 
 class TargetListMenuView(QWidget):
     def __init__(self):
@@ -12,10 +15,50 @@ class TargetListMenuView(QWidget):
 
         self.mainLayout = QVBoxLayout()
 
-        self.label = QLabel("Target List Menu")
-        self.backBtn = QPushButton("Back to Main Menu")
+        self.hLayout1 = QHBoxLayout()
+        self.targetListMenuLbl = QLabel("Target List Menu")
+        self.uploadCSVBtn = QPushButton("Upload CSV")
+        addWidgetToLayout(self.targetListMenuLbl, self.hLayout1)
+        addWidgetToLayout(self.uploadCSVBtn, self.hLayout1)
 
-        self.mainLayout.addWidget(self.label)
-        self.mainLayout.addWidget(self.backBtn)
+        self.vLayout1 = QVBoxLayout()
+        self.IPAddressLbl = QLabel("IP Address")
+        self.IPAddressInput = QLineEdit()
+        addWidgetToLayout(self.IPAddressLbl, self.vLayout1)
+        addWidgetToLayout(self.IPAddressInput, self.vLayout1)
+
+        self.vLayout2 = QVBoxLayout()
+        self.hostNameLbl = QLabel("Host Name")
+        self.hostNameInput = QLineEdit()
+        addWidgetToLayout(self.hostNameLbl, self.vLayout2)
+        addWidgetToLayout(self.hostNameInput, self.vLayout2)
+
+        self.hLayout2 = QHBoxLayout()
+        addChildLayoutToMainLayout(self.vLayout1, self.hLayout2)
+        addChildLayoutToMainLayout(self.vLayout2, self.hLayout2)
+
+        self.hLayout3 = QHBoxLayout()
+        self.SSHKeyLbl = QLabel("SSH Key")
+        self.SSHKeyInput = QTextEdit()
+        addWidgetToLayout(self.SSHKeyLbl, self.hLayout3)
+        addWidgetToLayout(self.SSHKeyInput, self.hLayout3)
+
+        self.hLayout4 = QHBoxLayout()
+        self.clearTargetBtn = QPushButton("Clear Target")
+        self.addTargetBtn = QPushButton("Add Target") # currently just add counter
+        self.totalTargetLbl = QLabel("Total Target: ")
+        addWidgetToLayout(self.clearTargetBtn, self.hLayout4)
+        addWidgetToLayout(self.addTargetBtn, self.hLayout4)
+        addWidgetToLayout(self.totalTargetLbl, self.hLayout4)
+
+        self.hLayout5 = QHBoxLayout()
+        self.backBtn = QPushButton("Back to Main Menu")
+        addWidgetToLayout(self.backBtn, self.hLayout5)
+        addChildLayoutToMainLayout(self.hLayout4, self.hLayout5)
+
+        addChildLayoutToMainLayout(self.hLayout1, self.mainLayout)
+        addChildLayoutToMainLayout(self.hLayout2, self.mainLayout)
+        addChildLayoutToMainLayout(self.hLayout3, self.mainLayout)
+        addChildLayoutToMainLayout(self.hLayout5, self.mainLayout)
 
         self.setLayout(self.mainLayout)

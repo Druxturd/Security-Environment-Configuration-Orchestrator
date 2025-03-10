@@ -13,11 +13,17 @@ class MainMenuController:
         self.view.patchTargetMenuBtn.clicked.connect(self.goToPatchTargetMenu)
         self.view.targetListMenuBtn.clicked.connect(self.goToTargetListMenu)
 
+        # self.model.targetListUpdated.connect(self.updateTotalTargetCounter)
+
     def goToHardenTargetMenu(self):
         self.main_window.switchToHardenTargetMenu()
 
     def goToPatchTargetMenu(self):
         self.main_window.switchToPatchTargetMenu()
+        # print(f"{self.model.getCountTargetList()}")
 
     def goToTargetListMenu(self):
         self.main_window.switchToTargetListMenu()
+
+    def updateTotalTargetCounter(self):
+        self.view.totalTargetLbl.setText(f"Total Target: {self.model.getCountTargetList()}")

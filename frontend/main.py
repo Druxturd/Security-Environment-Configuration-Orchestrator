@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (
     QMainWindow, 
     QApplication,
@@ -18,6 +19,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("SECOR")
+        self.setMinimumSize(QSize(600, 400))
 
         self.model = TargetModel()
 

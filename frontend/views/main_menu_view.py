@@ -1,3 +1,4 @@
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout, 
@@ -7,6 +8,8 @@ from PyQt5.QtWidgets import (
 )
 
 class MainMenuView(QWidget):
+    targetListChangedSignal = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
