@@ -12,6 +12,10 @@ class PatchTargetMenuView(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.initUI()
+
+    # Function to init patch target menu UI
+    def initUI(self):
         self.mainLayout = QVBoxLayout()
 
         self.patchMenuLbl = QLabel("Patch Target Menu")
@@ -31,10 +35,10 @@ class PatchTargetMenuView(QWidget):
         self.hLayout2 = QHBoxLayout()
         self.backBtn = QPushButton("Back to Main Menu")
         addWidgetToLayout(self.backBtn, self.hLayout2)
-        addChildLayoutToMainLayout(self.hLayout1, self.hLayout2)
+        addChildLayoutToParentLayout(self.hLayout1, self.hLayout2)
 
         addWidgetToLayout(self.patchMenuLbl, self.mainLayout)
-        addChildLayoutToMainLayout(self.vLayout1, self.mainLayout)
-        addChildLayoutToMainLayout(self.hLayout2, self.mainLayout)
+        addChildLayoutToParentLayout(self.vLayout1, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout2, self.mainLayout)
 
         self.setLayout(self.mainLayout)

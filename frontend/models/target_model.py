@@ -1,19 +1,11 @@
 from PyQt5.QtCore import QObject, pyqtSignal
+from typing import List
 import random
 
 
 class TargetModel(QObject):
-    # This variable holds the single instance (singelton)
-    _instance = None
-
+    # Signal to trigger function updateTotalTargetCounter in every menu when changes occur to the target list
     targetListUpdated = pyqtSignal()
-
-    def __new__(cls, *args, **kwargs):
-        # Check if the instance already exists
-        if cls._instance is None:
-            cls._instance = super(TargetModel, cls).__new__(cls)
-        
-        return cls._instance
 
     # Initialize
     def __init__(self, IPAddress: str = "", hostName: str = "", SSHKey: str = ""):
@@ -21,18 +13,28 @@ class TargetModel(QObject):
         self.IPAddress = IPAddress
         self.hostName = hostName
         self.SSHKey = SSHKey
-        self.targetList = [] # Initialize an empty list
+
+    # Set empty target list will be used to store target list data from user input / CSV file
+    targetList:List['TargetModel'] = []
 
     # Function to get target list data
     def getTargetList(self):
         return self.targetList
     
+    # Function to get total target list
     def getCountTargetList(self):
         return len(self.getTargetList())
     
     # Function to set target list data
     def setTargetList(self, newData):
         self.targetList = newData
+
+    # Function to clear target list data
+    def clearTargetList(self):
+        self.targetList.clear()
+
+        # Send signal to trigger function updateTotalTargetCounter
+        self.targetListUpdated.emit()
 
     # Temp function to add counter
     def addCounter(self):

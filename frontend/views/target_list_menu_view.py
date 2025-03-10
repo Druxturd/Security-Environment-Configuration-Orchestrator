@@ -12,6 +12,11 @@ from utils.layout_utils import *
 class TargetListMenuView(QWidget):
     def __init__(self):
         super().__init__()
+        
+        self.initUI()
+
+    # Function to ini target list menu UI
+    def initUI(self):
 
         self.mainLayout = QVBoxLayout()
 
@@ -34,8 +39,8 @@ class TargetListMenuView(QWidget):
         addWidgetToLayout(self.hostNameInput, self.vLayout2)
 
         self.hLayout2 = QHBoxLayout()
-        addChildLayoutToMainLayout(self.vLayout1, self.hLayout2)
-        addChildLayoutToMainLayout(self.vLayout2, self.hLayout2)
+        addChildLayoutToParentLayout(self.vLayout1, self.hLayout2)
+        addChildLayoutToParentLayout(self.vLayout2, self.hLayout2)
 
         self.hLayout3 = QHBoxLayout()
         self.SSHKeyLbl = QLabel("SSH Key")
@@ -54,11 +59,11 @@ class TargetListMenuView(QWidget):
         self.hLayout5 = QHBoxLayout()
         self.backBtn = QPushButton("Back to Main Menu")
         addWidgetToLayout(self.backBtn, self.hLayout5)
-        addChildLayoutToMainLayout(self.hLayout4, self.hLayout5)
+        addChildLayoutToParentLayout(self.hLayout4, self.hLayout5)
 
-        addChildLayoutToMainLayout(self.hLayout1, self.mainLayout)
-        addChildLayoutToMainLayout(self.hLayout2, self.mainLayout)
-        addChildLayoutToMainLayout(self.hLayout3, self.mainLayout)
-        addChildLayoutToMainLayout(self.hLayout5, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout1, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout2, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout3, self.mainLayout)
+        addChildLayoutToParentLayout(self.hLayout5, self.mainLayout)
 
         self.setLayout(self.mainLayout)

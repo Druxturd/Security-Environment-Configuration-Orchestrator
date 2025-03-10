@@ -3,22 +3,27 @@ from views.target_list_menu_view import TargetListMenuView
 
 class TargetListMenuController:
     def __init__(self, view:TargetListMenuView, model:TargetModel, main_window):
+        # Store the view, model, main window that being passed into the controller
         self.view = view
         self.model = model
         self.main_window = main_window
 
-        self.view.totalTargetLbl.setText("Total Target: " + str(self.model.getCountTargetList()))
+        # Set the initial total target counter
+        self.view.totalTargetLbl.setText(f"Total Target: {self.model.getCountTargetList()}")
 
-        self.view.addTargetBtn.clicked.connect(self.addTarget)
-        
+        # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
+        self.view.clearTargetBtn.clicked.connect(self.model.clearTargetList)
+        self.view.addTargetBtn.clicked.connect(self.addTarget) # temporary add function
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
-        # self.model.targetListUpdated.connect(self.updateTotalTargetCounter)
+        # Receive signal to update total target counter when changes occur to the target list data
+        self.model.targetListUpdated.connect(self.updateTotalTargetCounter)
 
+    # Function to go back to main menu from target list menu
     def goToMainMenu(self):
         self.main_window.switchToMainMenu()
-        # self.main_window.updateTotalTargetCounter()
 
+    # Function to update total target counter
     def updateTotalTargetCounter(self):
         self.view.totalTargetLbl.setText("Total Target: " + str(self.model.getCountTargetList()))
 
