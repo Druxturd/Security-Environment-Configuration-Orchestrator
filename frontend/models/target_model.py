@@ -25,23 +25,16 @@ class TargetModel(QObject):
     def getCountTargetList(self):
         return len(self.getTargetList())
     
-    # Function to set target list data
-    def setTargetList(self, newData):
-        self.targetList = newData
+    # Function to add a new target into target list data
+    def addNewTarget(self, newData):
+        self.targetList.append(newData)
+
+        # Send signal to trigger function updateTotalTargetCounter
+        self.targetListUpdated.emit()
 
     # Function to clear target list data
     def clearTargetList(self):
         self.targetList.clear()
 
         # Send signal to trigger function updateTotalTargetCounter
-        self.targetListUpdated.emit()
-
-    # Temp function to add counter
-    def addCounter(self):
-        IPAdd = f"{random.randint(0,1000)}"
-        hostNmae = f"{random.randint(2000,3000)}"
-        SSHKey = f"{random.randint(4000,5000)}"
-        newData = TargetModel(IPAdd, hostNmae, SSHKey)
-        self.targetList.append(newData)
-        
         self.targetListUpdated.emit()

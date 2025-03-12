@@ -50,7 +50,7 @@ class TargetListMenuView(QWidget):
 
         self.hLayout4 = QHBoxLayout()
         self.clearTargetBtn = QPushButton("Clear Target")
-        self.addTargetBtn = QPushButton("Add Target") # currently just add counter
+        self.addTargetBtn = QPushButton("Add Target")
         self.totalTargetLbl = QLabel("Total Target: ")
         addWidgetToLayout(self.clearTargetBtn, self.hLayout4)
         addWidgetToLayout(self.addTargetBtn, self.hLayout4)
