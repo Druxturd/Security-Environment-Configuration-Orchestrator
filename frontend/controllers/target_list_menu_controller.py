@@ -8,6 +8,12 @@ class TargetListMenuController:
         self.model = model
         self.main_window = main_window
 
+        self.errorMsg = [
+            "IP Address must be fill!",
+            "Host name must be fill!",
+            "SSH Key must be fill"
+        ]
+
         # Set the initial total target counter
         self.view.totalTargetLbl.setText(f"Total Target: {self.model.getCountTargetList()}")
 
@@ -27,7 +33,37 @@ class TargetListMenuController:
     def updateTotalTargetCounter(self):
         self.view.totalTargetLbl.setText("Total Target: " + str(self.model.getCountTargetList()))
 
-    # Temp function to add counter
+    # Function to add new target
     def addTarget(self):
-        self.model.addCounter()
-        self.updateTotalTargetCounter()
+        if self.validateInput():
+            return
+        else:
+            newTarget = TargetModel(
+                IPAddress=self.view.IPAddressInput.text(),
+                hostName=self.view.hostNameInput.text(),
+                SSHKey=self.view.SSHKeyInput.toPlainText()
+            )
+            self.model.addNewTarget(newTarget)
+            # self.model.addCounter()
+            self.updateTotalTargetCounter()
+            self.clearInput()
+
+    # Function to clear input
+    def clearInput(self):
+        self.view.IPAddressInput.clear()
+        self.view.hostNameInput.clear()
+        self.view.SSHKeyInput.clear()
+
+    # Function to validate input
+    def validateInput(self):
+        if self.view.IPAddressInput.text().strip() == "":
+            self.main_window.showError(self.errorMsg[0])
+            return True
+        elif self.view.hostNameInput.text().strip() == "":
+            self.main_window.showError(self.errorMsg[1])
+            return True
+        elif self.view.SSHKeyInput.toPlainText().strip() == "":
+            self.main_window.showError(self.errorMsg[2])
+            return True
+        else:
+            return False

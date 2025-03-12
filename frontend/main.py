@@ -10,6 +10,7 @@ from views.main_menu_view import MainMenuView
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.patch_target_menu_view import PatchTargetMenuView
 from views.target_list_menu_view import TargetListMenuView
+from views.error_view import ErrorView
 from controllers.main_menu_controller import MainMenuController
 from controllers.harden_target_menu_controller import HardenTargetMenuController
 from controllers.patch_target_menu_controller import PatchTargetMenuController
@@ -89,6 +90,11 @@ class MainWindow(QMainWindow):
     def switchToPatchTargetMenu(self):
         self.setWindowTitle("SECOR - Patch Menu")
         self.stackedWidget.setCurrentWidget(self.patchTargetMenuView)
+
+    # Function to show error dialog UI
+    def showError(self, message):
+        errorDialog = ErrorView(message)
+        errorDialog.exec()
 
 # Run the app
 if __name__ == "__main__":

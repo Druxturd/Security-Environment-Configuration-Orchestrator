@@ -8,29 +8,41 @@ class MainMenuController:
         self.model = model
         self.main_window = main_window
 
+        self.errorMsg = "Empty List!"
+
         # Set the initial total target counter
         self.view.totalTargetLbl.setText("Total Target: " + str(self.model.getCountTargetList()))
 
         # Connect every button in main menu with respective function (e.g. hardenTargetMenuBtn when clicked will trigger function goToHardenTargetMenu)
+        self.view.targetListMenuBtn.clicked.connect(self.goToTargetListMenu)
         self.view.hardenTargetMenuBtn.clicked.connect(self.goToHardenTargetMenu)
         self.view.patchTargetMenuBtn.clicked.connect(self.goToPatchTargetMenu)
-        self.view.targetListMenuBtn.clicked.connect(self.goToTargetListMenu)
 
         # Receive signal to update total target counter when changes occur to the target list data
         self.model.targetListUpdated.connect(self.updateTotalTargetCounter)
-
-    # Function to go to the harden target menu from main menu
-    def goToHardenTargetMenu(self):
-        self.main_window.switchToHardenTargetMenu()
-
-    # Function to go to the patch target menu from main menu
-    def goToPatchTargetMenu(self):
-        self.main_window.switchToPatchTargetMenu()
 
     # Function to go to the target list menu from main menu
     def goToTargetListMenu(self):
         self.main_window.switchToTargetListMenu()
 
+    # Function to go to the harden target menu from main menu
+    def goToHardenTargetMenu(self):
+        if self.isEmptyList():
+            self.main_window.showError(self.errorMsg)
+        else:
+            self.main_window.switchToHardenTargetMenu()
+
+    # Function to go to the patch target menu from main menu
+    def goToPatchTargetMenu(self):
+        if self.isEmptyList():
+            self.main_window.showError(self.errorMsg)
+        else:
+            self.main_window.switchToPatchTargetMenu()
+
     # Function to update total target counter in main menu
     def updateTotalTargetCounter(self):
         self.view.totalTargetLbl.setText(f"Total Target: {self.model.getCountTargetList()}")
+
+    # Function to validate empty list
+    def isEmptyList(self):
+        return True if self.model.getCountTargetList() == 0 else False
