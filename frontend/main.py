@@ -34,8 +34,8 @@ class MainWindow(QMainWindow):
         # Set window title
         self.setWindowTitle("SECOR")
 
-        # Set minimum size
-        self.setMinimumSize(QSize(600, 400))
+        # Set fixed size
+        self.setFixedSize(QSize(640, 480))
 
     # Function to init models / data that will be processed within application
     def initModels(self):

@@ -1,10 +1,13 @@
+from tabnanny import check
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout, 
     QPushButton, 
     QLabel,
     QLineEdit,
-    QWidget
+    QWidget,
+    QScrollArea,
+    QCheckBox
 )
 from utils.layout_utils import *
 
@@ -26,9 +29,25 @@ class HardenTargetMenuView(QWidget):
 
         self.vLayout1 = QVBoxLayout()
         self.hardenListLbl = QLabel("Harden List")
-        self.hardenListInp = QLineEdit() # temporary placeholder
+
+        # Scroll area
+        self.scrollArea = QScrollArea()
+        self.scrollArea.setFixedHeight(200)
+
+        # Widget to store checklist of harden list
+        self.contentWidget = QWidget()
+        self.checkBoxLayout = QVBoxLayout(self.contentWidget)
+        self.checkboxes = []
+        self.contentWidget.setLayout(self.checkBoxLayout)
+        self.scrollArea.setWidget(self.contentWidget)
+        ############### temporary widget
+        self.checkBtn = QPushButton("check")
+        self.checkBtn.clicked.connect(self.checkItem)
+        #########################
+
         addWidgetToLayout(self.hardenListLbl, self.vLayout1)
-        addWidgetToLayout(self.hardenListInp, self.vLayout1)
+        addWidgetToLayout(self.scrollArea, self.vLayout1)
+        addWidgetToLayout(self.checkBtn, self.vLayout1)
 
         self.hLayout2 = QHBoxLayout()
         self.executeHardenBtn = QPushButton("Execute Harden")
@@ -46,3 +65,20 @@ class HardenTargetMenuView(QWidget):
         addChildLayoutToParentLayout(self.hLayout3, self.mainLayout)
 
         self.setLayout(self.mainLayout)
+
+    def updateHardenList(self, files):
+        for file in files:
+            print(file)
+            checkbox = QCheckBox(file)
+            self.checkboxes.append(checkbox)
+            addWidgetToLayout(checkbox,self.checkBoxLayout)
+
+        # self.contentWidget.setFixedHeight(len(self.checkboxes) * 25)
+
+        self.contentWidget.adjustSize()
+        self.scrollArea.update()
+        self.repaint()
+
+    def checkItem(self):
+        checked = [cb.text() for cb in self.checkboxes if cb.isChecked()]
+        print("Checked: ", checked)
