@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QCheckBox
-from models.target_model import TargetModel
+from models.target_data_manager import TargetDataManager
 from views.harden_target_menu_view import HardenTargetMenuView
 from utils.layout_utils import *
 from dotenv import load_dotenv
@@ -10,20 +10,20 @@ load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
 
 class HardenTargetMenuController:
-    def __init__(self, view:HardenTargetMenuView, model:TargetModel, main_window):
-        # Store the view, model, main window that being passed into the controller
+    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window):
+        # Store the view, model manager, main window that being passed into the controller
         self.view = view
-        self.model = model
+        self.model_manager = model_manager
         self.main_window = main_window
         
         # Set the initial total target counter
-        self.view.totalTargetLbl.setText(f"Total Target: {self.model.getCountTargetList()}")
+        self.view.totalTargetLbl.setText(f"Total Target: {self.model_manager.getCountTargetList()}")
 
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
         # Receive signal to update total target counter when changes occur to the target list data
-        self.model.targetListUpdated.connect(self.updateTotalTargetCounter)
+        self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
 
         self.fetchFiles()
 
@@ -33,7 +33,7 @@ class HardenTargetMenuController:
 
     # Function to update total target counter in main menu
     def updateTotalTargetCounter(self):
-        self.view.totalTargetLbl.setText("Total Target: " + str(self.model.getCountTargetList()))
+        self.view.totalTargetLbl.setText("Total Target: " + str(self.model_manager.getCountTargetList()))
 
     # Function to fetch harden list
     def fetchFiles(self):

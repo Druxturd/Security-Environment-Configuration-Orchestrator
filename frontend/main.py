@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget
 )
 from models.target_model import TargetModel
+from models.target_data_manager import TargetDataManager
 from views.main_menu_view import MainMenuView
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.patch_target_menu_view import PatchTargetMenuView
@@ -37,10 +38,10 @@ class MainWindow(QMainWindow):
         # Set fixed size
         self.setFixedSize(QSize(640, 480))
 
-    # Function to init models / data that will be processed within application
+    # Function to init models that will be processed within application
     def initModels(self):
-        # Set target model / data that will be processed within application
-        self.model = TargetModel()
+        # Set target model manager that will be processing data within application
+        self.modelManager = TargetDataManager()
 
     # Function to init views / UI within application
     def initViews(self):
@@ -66,10 +67,10 @@ class MainWindow(QMainWindow):
     # Function to controllers / logic within application
     def initControllers(self):
         # Set application controllers which consist of logic for each view / mmenu
-        self.mainMenuController = MainMenuController(self.mainMenuView, self.model, self)
-        self.targetListMenuController = TargetListMenuController(self.targetListMenuView, self.model, self)
-        self.hardenTargetMenuController = HardenTargetMenuController(self.hardenTargetMenuView, self.model, self)
-        self.patchTargetMenuController = PatchTargetMenuController(self.patchTargetMenuView, self.model, self)
+        self.mainMenuController = MainMenuController(self.mainMenuView, self.modelManager, self)
+        self.targetListMenuController = TargetListMenuController(self.targetListMenuView, self.modelManager, self)
+        self.hardenTargetMenuController = HardenTargetMenuController(self.hardenTargetMenuView, self.modelManager, self)
+        self.patchTargetMenuController = PatchTargetMenuController(self.patchTargetMenuView, self.modelManager, self)
 
     # Function to show main menu UI
     def switchToMainMenu(self):
