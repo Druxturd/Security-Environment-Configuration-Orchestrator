@@ -1,20 +1,22 @@
-import datetime
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from models.target_model import TargetModel
+from models.target_data_manager import TargetDataManager
 from views.target_list_menu_view import TargetListMenuView
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
 import os
 import requests
+import csv
 
 load_dotenv()
 TEMPLATE_URL = f"{os.getenv("BACKEND_URL")}/download-template"
 
 class TargetListMenuController:
-    def __init__(self, view:TargetListMenuView, model:TargetModel, main_window):
+    def __init__(self, view:TargetListMenuView, model_manager:TargetDataManager, main_window):
         # Store the view, model, main window that being passed into the controller
         self.view = view
-        self.model = model
+        self.model_manager = model_manager
         self.main_window = main_window
 
         self.errorMsg = [
@@ -24,16 +26,17 @@ class TargetListMenuController:
         ]
 
         # Set the initial total target counter
-        self.view.totalTargetLbl.setText(f"Total Target: {self.model.getCountTargetList()}")
+        self.view.totalTargetLbl.setText(f"Total Target: {self.model_manager.getCountTargetList()}")
 
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
-        self.view.clearTargetBtn.clicked.connect(self.model.clearTargetList)
+        self.view.clearTargetBtn.clicked.connect(self.model_manager.clearTargetList)
         self.view.downloadTemplateBtn.clicked.connect(self.downloadTemplate)
+        self.view.uploadCSVBtn.clicked.connect(self.uploadCSVFile)
         self.view.addTargetBtn.clicked.connect(self.addTarget)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
         # Receive signal to update total target counter when changes occur to the target list data
-        self.model.targetListUpdated.connect(self.updateTotalTargetCounter)
+        self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
 
     # Function to go back to main menu from target list menu
     def goToMainMenu(self):
@@ -41,7 +44,7 @@ class TargetListMenuController:
 
     # Function to update total target counter
     def updateTotalTargetCounter(self):
-        self.view.totalTargetLbl.setText("Total Target: " + str(self.model.getCountTargetList()))
+        self.view.totalTargetLbl.setText("Total Target: " + str(self.model_manager.getCountTargetList()))
 
     # Function to download template.csv
     def downloadTemplate(self):
@@ -61,6 +64,12 @@ class TargetListMenuController:
 
             with open(file_path, "wb") as f:
                 f.write(resp.content)
+
+            QMessageBox.information(
+                self.main_window,
+                "Download Successful",
+                f"The template has been downloaded to:\n{file_path}"
+            )
         
         except requests.exceptions.Timeout:
             print("timeout")
@@ -71,37 +80,79 @@ class TargetListMenuController:
         except Exception as e:
             print(e)
 
+    # Function to upload target list csv
+    def uploadCSVFile(self):
+        options = QFileDialog.Options()
+        filePath, _ = QFileDialog.getOpenFileName(
+            self.main_window,
+            "Open CSV File",
+            "",
+            "CSV Files (*.csv)",
+            options=options
+        )
+
+        if not filePath:
+            return
+        
+        try:
+            newTargetAdded = 0
+            with open(filePath, newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    try:
+                        target = TargetModel(
+                            IPAddress=row['IPAddress'],
+                            hostName=row['hostName'],
+                            SSHKey=row['SSHKey']
+                        )
+                    except Exception as e:
+                        QMessageBox.warning(self.main_window, "Row Error", f"Skipping invalid row: {str(e)}") # need to be fixed
+                        continue
+
+                    if self.model_manager.addNewTarget(target):
+                        newTargetAdded += 1
+
+            QMessageBox.information(self.main_window, "Upload Successful", f"Added {newTargetAdded} new target(s).\nTotal target list: {self.model_manager.getCountTargetList()}")
+
+            self.updateTotalTargetCounter()
+
+        except Exception as e:
+            QMessageBox.critical(
+                self.main_window,
+                "Error",
+                f"Failed to read CSV:\n{str(e)}"
+            )
+
     # Function to add new target
     def addTarget(self):
-        if self.validateInput():
+        IPAddress = self.view.IPAddressInput.text().strip()
+        hostName = self.view.hostNameInput.text().strip()
+        SSHKey = self.view.SSHKeyInput.toPlainText().strip()
+
+        if not IPAddress:
+            QMessageBox.warning(self.main_window, "Input Error", self.errorMsg[0])
             return
-        else:
-            newTarget = TargetModel(
-                IPAddress=self.view.IPAddressInput.text(),
-                hostName=self.view.hostNameInput.text(),
-                SSHKey=self.view.SSHKeyInput.toPlainText()
-            )
-            self.model.addNewTarget(newTarget)
-            # self.model.addCounter()
+        
+        elif not hostName:
+            QMessageBox.warning(self.main_window, "Input Error", self.errorMsg[1])
+            return
+        
+        elif not SSHKey:
+            QMessageBox.warning(self.main_window, "Input Error", self.errorMsg[2])
+            return
+        
+        newTarget = TargetModel(IPAddress, hostName, SSHKey)
+
+        if self.model_manager.addNewTarget(newTarget):
             self.updateTotalTargetCounter()
-            self.clearInput()
+            QMessageBox.information(self.main_window, "Add New Target Successful", f"Added new target.\nTotal target list: {self.model_manager.getCountTargetList()}")
+        else:
+            QMessageBox.information(self.main_window, "Add New Target Failed", f"Duplicated target list!")
+        
+        self.clearInput()
 
     # Function to clear input
     def clearInput(self):
         self.view.IPAddressInput.clear()
         self.view.hostNameInput.clear()
         self.view.SSHKeyInput.clear()
-
-    # Function to validate input
-    def validateInput(self):
-        if self.view.IPAddressInput.text().strip() == "":
-            self.main_window.showError(self.errorMsg[0])
-            return True
-        elif self.view.hostNameInput.text().strip() == "":
-            self.main_window.showError(self.errorMsg[1])
-            return True
-        elif self.view.SSHKeyInput.toPlainText().strip() == "":
-            self.main_window.showError(self.errorMsg[2])
-            return True
-        else:
-            return False
