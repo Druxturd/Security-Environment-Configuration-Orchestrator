@@ -1,7 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from typing import List
-import random
-
 
 class TargetModel(QObject):
     # Signal to trigger function updateTotalTargetCounter in every menu when changes occur to the target list

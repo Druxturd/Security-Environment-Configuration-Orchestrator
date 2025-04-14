@@ -1,5 +1,14 @@
+import datetime
 from models.target_model import TargetModel
 from views.target_list_menu_view import TargetListMenuView
+from dotenv import load_dotenv
+from pathlib import Path
+from datetime import datetime
+import os
+import requests
+
+load_dotenv()
+TEMPLATE_URL = f"{os.getenv("BACKEND_URL")}/download-template"
 
 class TargetListMenuController:
     def __init__(self, view:TargetListMenuView, model:TargetModel, main_window):
@@ -19,7 +28,8 @@ class TargetListMenuController:
 
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
         self.view.clearTargetBtn.clicked.connect(self.model.clearTargetList)
-        self.view.addTargetBtn.clicked.connect(self.addTarget) # temporary add function
+        self.view.downloadTemplateBtn.clicked.connect(self.downloadTemplate)
+        self.view.addTargetBtn.clicked.connect(self.addTarget)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
         # Receive signal to update total target counter when changes occur to the target list data
@@ -32,6 +42,34 @@ class TargetListMenuController:
     # Function to update total target counter
     def updateTotalTargetCounter(self):
         self.view.totalTargetLbl.setText("Total Target: " + str(self.model.getCountTargetList()))
+
+    # Function to download template.csv
+    def downloadTemplate(self):
+        try:
+            resp = requests.get(TEMPLATE_URL, timeout=10)
+
+            if resp.status_code == 404:
+                print("error download template")
+                return
+
+            resp.raise_for_status() # Raises HTTPError for 4xx/5xx
+
+            downloads_folder = Path.home() / "Downloads"
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = f"template_{timestamp}.csv"
+            file_path = downloads_folder / filename
+
+            with open(file_path, "wb") as f:
+                f.write(resp.content)
+        
+        except requests.exceptions.Timeout:
+            print("timeout")
+        except requests.exceptions.ConnectionError:
+            print("connection error")
+        except requests.exceptions.HTTPError as http_err:
+            print(http_err)
+        except Exception as e:
+            print(e)
 
     # Function to add new target
     def addTarget(self):
