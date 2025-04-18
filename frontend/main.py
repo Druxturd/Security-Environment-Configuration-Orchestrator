@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (
@@ -5,6 +6,7 @@ from PyQt5.QtWidgets import (
     QApplication,
     QStackedWidget
 )
+from qasync import QEventLoop, asyncSlot
 from models.target_model import TargetModel
 from models.target_data_manager import TargetDataManager
 from views.main_menu_view import MainMenuView
@@ -97,12 +99,27 @@ class MainWindow(QMainWindow):
         errorDialog = ErrorView(message)
         errorDialog.exec()
 
+    async def testF(self):
+        print("hit")
+        await asyncio.sleep(2)
+        print("work")
+
 # Run the app
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setApplicationName("Security Environment Configuration Orchestrator")
 
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    async def cleanup():
+        print("Cleaning up...")
+
+    with loop:
+        try:
+            loop.run_forever()
+        finally:
+            loop.run_until_complete(cleanup())

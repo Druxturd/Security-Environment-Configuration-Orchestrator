@@ -1,0 +1,28 @@
+- name: Uninstall NGINX on Debian/Ubuntu
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure Python 3 is installed (required by Ansible)
+      raw: test -e /usr/bin/python3 || (apt update && apt install python3 -y)
+      changed_when: false
+
+    - name: Gather facts now that Python is installed
+      setup:
+
+    - name: Stop NGINX service if running
+      service:
+        name: nginx
+        state: stopped
+      ignore_errors: yes
+
+    - name: Disable NGINX service
+      service:
+        name: nginx
+        enabled: no
+      ignore_errors: yes
+
+    - name: Uninstall NGINX
+      apt:
+        name: nginx
+        state: absent
+        purge: yes

@@ -1,0 +1,22 @@
+- name: Ensure NGINX is installed and running (Debian & Ubuntu)
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure Python 3 is installed (required by Ansible)
+      raw: test -e /usr/bin/python3 || (apt update && apt install python3 -y)
+      changed_when: false
+
+    - name: Gather facts now that Python is installed
+      setup:
+
+    - name: Install NGINX
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Ensure NGINX is running and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes

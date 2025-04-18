@@ -27,6 +27,13 @@ class TargetListMenuView(QWidget):
         addWidgetToLayout(self.targetListMenuLbl, self.hLayout1)
         addWidgetToLayout(self.downloadTemplateBtn, self.hLayout1)
         addWidgetToLayout(self.uploadCSVBtn, self.hLayout1)
+        
+        ### temporary button
+        self.checkBtn = QPushButton("Check")
+        self.installNginxBtn = QPushButton("install nginx")
+        addWidgetToLayout(self.checkBtn, self.hLayout1)
+        addWidgetToLayout(self.installNginxBtn, self.hLayout1)
+        ########
 
         self.vLayout1 = QVBoxLayout()
         self.IPAddressLbl = QLabel("IP Address")

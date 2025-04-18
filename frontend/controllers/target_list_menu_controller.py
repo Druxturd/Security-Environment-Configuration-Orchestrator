@@ -1,4 +1,9 @@
+import asyncio
+import json
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
+import httpx
+from qasync import asyncSlot
 from models.target_model import TargetModel
 from models.target_data_manager import TargetDataManager
 from views.target_list_menu_view import TargetListMenuView
@@ -12,8 +17,13 @@ import csv
 load_dotenv()
 TEMPLATE_URL = f"{os.getenv("BACKEND_URL")}/download-template"
 
-class TargetListMenuController:
+### temporary endpoint test ansible runner URL
+INSTALL_NGINX_URL = f"{os.getenv("BACKEND_URL")}/install-nginx"
+############
+
+class TargetListMenuController(QObject):
     def __init__(self, view:TargetListMenuView, model_manager:TargetDataManager, main_window):
+        super().__init__()
         # Store the view, model, main window that being passed into the controller
         self.view = view
         self.model_manager = model_manager
@@ -35,8 +45,32 @@ class TargetListMenuController:
         self.view.addTargetBtn.clicked.connect(self.addTarget)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
+        ### temporary connection
+        self.view.checkBtn.clicked.connect(self.checkData)
+        self.view.installNginxBtn.clicked.connect(self.installNginx)
+        #######
+
         # Receive signal to update total target counter when changes occur to the target list data
         self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
+
+    ### temporary function
+    @asyncSlot()
+    async def checkData(self):
+        print(self.model_manager.getJSONPayload())
+        await asyncio.sleep(2)
+        print("finish")
+
+    @asyncSlot()
+    async def installNginx(self):
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(INSTALL_NGINX_URL, json=self.model_manager.getPayload())
+                data =response.json()
+                print("Server response:", data)
+        except Exception as e:
+            print("Error:", e)
+
+    ############
 
     # Function to go back to main menu from target list menu
     def goToMainMenu(self):
@@ -96,23 +130,46 @@ class TargetListMenuController:
         
         try:
             newTargetAdded = 0
-            with open(filePath, newline='', encoding='utf-8') as csvfile:
+            with open(filePath, mode='r', newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
-                for row in reader:
+                requiredFields = {"IPAddress", "hostName", "SSHKey"}
+                
+                # Validate header
+                if not requiredFields.issubset(reader.fieldnames):
+                    missing = requiredFields - set(reader.fieldnames or [])
+                    raise ValueError(f"Missing required column(s): {', '.join(missing)}")
+
+                for i, row in enumerate(reader, start=2):
+                    print(f"row {i}: {row}")
                     try:
-                        target = TargetModel(
-                            IPAddress=row['IPAddress'],
-                            hostName=row['hostName'],
-                            SSHKey=row['SSHKey']
-                        )
+                        ip = row['IPAddress'].strip()
+                        print(ip)
+                        host = row['hostName'].strip()
+                        print(host)
+                        key = row['SSHKey'].strip()
+                        print(key)
+
+                        if not ip or not host or not key:
+                            raise ValueError("One or more required fields are empty")
+
+                        target = TargetModel(IPAddress=ip, hostName=host, SSHKey=key)
+
+                        if self.model_manager.addNewTarget(target):
+                            newTargetAdded += 1
+
                     except Exception as e:
-                        QMessageBox.warning(self.main_window, "Row Error", f"Skipping invalid row: {str(e)}") # need to be fixed
+                        QMessageBox.warning(
+                            self.main_window,
+                            "Row Error",
+                            f"Skipping invalid row {i}: {str(e)}"
+                        )
                         continue
 
-                    if self.model_manager.addNewTarget(target):
-                        newTargetAdded += 1
-
-            QMessageBox.information(self.main_window, "Upload Successful", f"Added {newTargetAdded} new target(s).\nTotal target list: {self.model_manager.getCountTargetList()}")
+            QMessageBox.information(
+                self.main_window,
+                "Upload Successful",
+                f"Added {newTargetAdded} new target(s).\nTotal target list: {self.model_manager.getCountTargetList()}"
+            )
 
             self.updateTotalTargetCounter()
 
@@ -122,6 +179,7 @@ class TargetListMenuController:
                 "Error",
                 f"Failed to read CSV:\n{str(e)}"
             )
+
 
     # Function to add new target
     def addTarget(self):

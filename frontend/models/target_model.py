@@ -1,3 +1,4 @@
+import json
 from PyQt5.QtCore import QObject
 
 class TargetModel(QObject):
@@ -20,3 +21,10 @@ class TargetModel(QObject):
     
     def __hash__(self):
         return hash((self.IPAddress, self.hostName, self.SSHKey))
+    
+    def toPayload(self) -> dict:
+        return {
+            "IPAddress": self.IPAddress,
+            "hostName": self.hostName,
+            "SSHKey": self.SSHKey
+        }
