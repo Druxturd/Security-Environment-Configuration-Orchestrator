@@ -109,7 +109,6 @@ async def run_on_multiple_target(payload: TargetList):
 
 
         inventory_lines = ["[target]"]
-        # """
         if target.hostName == "ansible-debian": # test unit
             inventory_lines.append(
                 f"{target.IPAddress} ansible_port=2222 ansible_user=root ansible_ssh_private_key_file={key_path}"
@@ -122,7 +121,6 @@ async def run_on_multiple_target(payload: TargetList):
             inventory_lines.append(
                 f"{target.IPAddress} ansible_user={target.hostName} ansible_ssh_private_key_file={key_path}"
             )
-        # """
 
         inventory_path = os.path.join(runner_dir, "inventory")
         with open(inventory_path, "w") as f:
