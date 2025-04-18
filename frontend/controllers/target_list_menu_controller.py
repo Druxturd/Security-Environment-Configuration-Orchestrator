@@ -19,6 +19,7 @@ TEMPLATE_URL = f"{os.getenv("BACKEND_URL")}/download-template"
 
 ### temporary endpoint test ansible runner URL
 INSTALL_NGINX_URL = f"{os.getenv("BACKEND_URL")}/install-nginx"
+UNINSTALL_NGINX_URL = f"{os.getenv("BACKEND_URL")}/uninstall-nginx"
 ############
 
 class TargetListMenuController(QObject):
@@ -48,6 +49,7 @@ class TargetListMenuController(QObject):
         ### temporary connection
         self.view.checkBtn.clicked.connect(self.checkData)
         self.view.installNginxBtn.clicked.connect(self.installNginx)
+        self.view.uninstallNginxBtn.clicked.connect(self.uninstallNginx)
         #######
 
         # Receive signal to update total target counter when changes occur to the target list data
@@ -70,6 +72,15 @@ class TargetListMenuController(QObject):
         except Exception as e:
             print("Error:", e)
 
+    @asyncSlot()
+    async def uninstallNginx(self):
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(UNINSTALL_NGINX_URL, json=self.model_manager.getPayload())
+                data =response.json()
+                print("Server response:", data)
+        except Exception as e:
+            print("Error:", e)
     ############
 
     # Function to go back to main menu from target list menu
@@ -140,14 +151,10 @@ class TargetListMenuController(QObject):
                     raise ValueError(f"Missing required column(s): {', '.join(missing)}")
 
                 for i, row in enumerate(reader, start=2):
-                    print(f"row {i}: {row}")
                     try:
                         ip = row['IPAddress'].strip()
-                        print(ip)
                         host = row['hostName'].strip()
-                        print(host)
                         key = row['SSHKey'].strip()
-                        print(key)
 
                         if not ip or not host or not key:
                             raise ValueError("One or more required fields are empty")
