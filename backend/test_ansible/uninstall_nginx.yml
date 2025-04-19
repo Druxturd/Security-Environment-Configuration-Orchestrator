@@ -1,45 +1,127 @@
+# uninstall_nginx.yml
 - name: Uninstall NGINX on Debian/Ubuntu
   hosts: all
   become: yes
   gather_facts: no
-  tasks:
-    - name: Ensure Python 3 is installed (required by Ansible)
-      apt:
-        name:
-          - python3
-          - python3-apt
-        state: present
-        update_cache: yes
 
-    - name: Gather facts now that Python is installed
+  pre_tasks:
+    - name: Ensure Python 3 is installed (required by Ansible)
+      raw: apt-get update -y && apt-get install -y python3 python3-apt
+      register: python_bootstrap
+      changed_when: "'Setting up python3' in python_bootstrap.stdout"
+      failed_when: false
+
+    - name: Set Python interpreter manually
+      set_fact:
+        ansible_python_interpreter: /usr/bin/python3
+
+    - name: Gather system facts
       setup:
+
+  tasks:
+    - name: Check if nginx.service exists
+      stat:
+        path: /lib/systemd/system/nginx.service
+      register: nginx_service_file
 
     - name: Stop NGINX service if running
       service:
         name: nginx
         state: stopped
+      when: nginx_service_file.stat.exists
       ignore_errors: yes
 
     - name: Disable NGINX service
       service:
         name: nginx
         enabled: no
+      when: nginx_service_file.stat.exists
       ignore_errors: yes
 
-    - name: Uninstall NGINX
+    - name: Purge all NGINX packages
       apt:
-        name: nginx
+        name:
+          - nginx
+          - nginx-core
+          - nginx-common
+          - nginx-full
+          - nginx-light
+          - nginx-extras
         state: absent
         purge: yes
-      
-    - name: Remove NGINX config directory (if still exists)
+        autoremove: yes
+
+    - name: Remove lingering systemd nginx unit
+      file:
+        path: /lib/systemd/system/nginx.service
+        state: absent
+      ignore_errors: yes
+
+    - name: Reload systemd
+      command: systemctl daemon-reload
+
+    - name: Remove NGINX config directory
       file:
         path: /etc/nginx
         state: absent
       ignore_errors: yes
 
-    - name: Remove NGINX log directory (if still exists)
+    - name: Remove NGINX log directory
       file:
         path: /var/log/nginx
         state: absent
       ignore_errors: yes
+
+
+
+# - name: Uninstall NGINX on Debian/Ubuntu
+#   hosts: all
+#   become: yes
+#   gather_facts: no
+#   pre_tasks:
+#     - name: Ensure Python 3 is installed (required by Ansible)
+#       raw: |
+#         apt-get update -y && apt-get install -y python3 python3-apt
+#       register: python_install
+#       changed_when: "'Setting up python3' in python_install.stdout"
+
+#     - name: Set Python interpreter manually after install
+#       set_fact:
+#         ansible_python_interpreter: /usr/bin/python3
+
+#     - name: Gather facts now that Python is installed
+#       setup:
+#   tasks:
+#     - name: Stop NGINX service if running
+#       service:
+#         name: nginx
+#         state: stopped
+#       ignore_errors: yes
+
+#     - name: Disable NGINX service
+#       service:
+#         name: nginx
+#         enabled: no
+#       ignore_errors: yes
+
+#     - name: Uninstall NGINX
+#       apt:
+#         name: nginx
+#         state: absent
+#         purge: yes
+
+#     - name: Autoremove leftover dependencies
+#       apt:
+#         autoremove: yes
+      
+#     - name: Remove NGINX config directory (if still exists)
+#       file:
+#         path: /etc/nginx
+#         state: absent
+#       ignore_errors: yes
+
+#     - name: Remove NGINX log directory (if still exists)
+#       file:
+#         path: /var/log/nginx
+#         state: absent
+#       ignore_errors: yes

@@ -37,11 +37,11 @@ async def run_on_multiple_target(payload: TargetList):
 
         inventory_lines = ["[target]"]
         # """
-        if target.hostName == "ansible-debian": # test unit debian 12
+        if target.hostName == "test-debian-12": # test unit debian 12
             inventory_lines.append(
                 f"{target.IPAddress} ansible_port=2222 ansible_user=root ansible_ssh_private_key_file={key_path}"
             )
-        elif target.hostName == "ansible-ubuntu": # test unit ubuntu 24
+        elif target.hostName == "test-ubuntu-24": # test unit ubuntu 24
             inventory_lines.append(
                 f"{target.IPAddress} ansible_port=2223 ansible_user=root ansible_ssh_private_key_file={key_path}"
             )
@@ -98,7 +98,7 @@ async def run_on_multiple_target(payload: TargetList):
         os.makedirs(project_dir, exist_ok=True)
 
         playbook_src = os.path.join(os.getcwd(), "test_ansible", "uninstall_nginx.yml")
-        playbook_dst = os.path.join(project_dir, "install_nginx.yml")
+        playbook_dst = os.path.join(project_dir, "uninstall_nginx.yml")
         shutil.copyfile(playbook_src, playbook_dst)
 
         key_file = NamedTemporaryFile(delete=False, mode='w', dir=runner_dir)
@@ -109,11 +109,11 @@ async def run_on_multiple_target(payload: TargetList):
 
 
         inventory_lines = ["[target]"]
-        if target.hostName == "ansible-debian": # test unit
+        if target.hostName == "test-debian-12": # test unit
             inventory_lines.append(
                 f"{target.IPAddress} ansible_port=2222 ansible_user=root ansible_ssh_private_key_file={key_path}"
             )
-        elif target.hostName == "ansible-ubuntu": # test unit
+        elif target.hostName == "test-ubuntu-24": # test unit
             inventory_lines.append(
                 f"{target.IPAddress} ansible_port=2223 ansible_user=root ansible_ssh_private_key_file={key_path}"
             )
