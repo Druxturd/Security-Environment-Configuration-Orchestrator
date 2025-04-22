@@ -1,0 +1,53 @@
+# uninstall_cockpit.yml
+- name: Uninstall Cockpit on Debian/Ubuntu
+  hosts: all
+  become: yes
+  gather_facts: no
+
+  pre_tasks:
+    - name: Ensure Python 3 is installed
+      raw: apt-get update -y && apt-get install -y python3 python3-apt
+      register: python_bootstrap
+      changed_when: "'Setting up python3' in python_bootstrap.stdout"
+      failed_when: false
+
+    - name: Set Python interpreter manually
+      set_fact:
+        ansible_python_interpreter: /usr/bin/python3
+
+    - name: Gather facts
+      setup:
+
+  tasks:
+    - name: Stop Cockpit service if running
+      service:
+        name: cockpit
+        state: stopped
+      ignore_errors: yes
+
+    - name: Disable Cockpit service
+      service:
+        name: cockpit
+        enabled: no
+      ignore_errors: yes
+
+    - name: Uninstall Cockpit and related packages
+      apt:
+        name:
+          - cockpit
+          - cockpit-bridge
+          - cockpit-networkmanager
+          - cockpit-packagekit
+          - cockpit-system
+          - cockpit-ws
+        state: absent
+        purge: yes
+        autoremove: yes
+
+    - name: Remove firewall rule (if UFW is active)
+      ufw:
+        rule: deny
+        port: 9090
+        proto: tcp
+      when: ansible_facts['distribution'] == "Ubuntu"
+      ignore_errors: yes

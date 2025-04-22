@@ -99,11 +99,6 @@ class MainWindow(QMainWindow):
         errorDialog = ErrorView(message)
         errorDialog.exec()
 
-    async def testF(self):
-        print("hit")
-        await asyncio.sleep(2)
-        print("work")
-
 # Run the app
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -1,5 +1,4 @@
 import asyncio
-import json
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 import httpx
@@ -47,9 +46,9 @@ class TargetListMenuController(QObject):
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
         ### temporary connection
-        self.view.checkBtn.clicked.connect(self.checkData)
-        self.view.installNginxBtn.clicked.connect(self.installNginx)
-        self.view.uninstallNginxBtn.clicked.connect(self.uninstallNginx)
+        self.view.checkBtn.clicked.connect(self.checkData)  # type: ignore
+        self.view.installNginxBtn.clicked.connect(self.installNginx)  # type: ignore
+        self.view.uninstallNginxBtn.clicked.connect(self.uninstallNginx)  # type: ignore
         #######
 
         # Receive signal to update total target counter when changes occur to the target list data
@@ -58,7 +57,7 @@ class TargetListMenuController(QObject):
     ### temporary function
     @asyncSlot()
     async def checkData(self):
-        print(self.model_manager.getJSONPayload())
+        print(self.model_manager.getPayload())
         await asyncio.sleep(2)
         print("finish")
 
@@ -67,7 +66,7 @@ class TargetListMenuController(QObject):
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(INSTALL_NGINX_URL, json=self.model_manager.getPayload())
-                data =response.json()
+                data = response.json()
                 print("Server response:", data)
         except Exception as e:
             print("Error:", e)
@@ -77,7 +76,7 @@ class TargetListMenuController(QObject):
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(UNINSTALL_NGINX_URL, json=self.model_manager.getPayload())
-                data =response.json()
+                data = response.json()
                 print("Server response:", data)
         except Exception as e:
             print("Error:", e)
@@ -146,7 +145,7 @@ class TargetListMenuController(QObject):
                 requiredFields = {"IPAddress", "hostName", "SSHKey"}
                 
                 # Validate header
-                if not requiredFields.issubset(reader.fieldnames):
+                if not requiredFields.issubset(reader.fieldnames):  # type: ignore
                     missing = requiredFields - set(reader.fieldnames or [])
                     raise ValueError(f"Missing required column(s): {', '.join(missing)}")
 

@@ -2,30 +2,24 @@ import asyncio
 import shutil
 from tempfile import NamedTemporaryFile, mkdtemp
 from fastapi import APIRouter
-from pydantic import BaseModel
+from models.target import Target, TargetList
 import ansible_runner
 import os
 
 router = APIRouter()
 
-class Target(BaseModel):
-    IPAddress: str
-    hostName: str
-    SSHKey: str
-
-class TargetList(BaseModel):
-    target_list: list[Target]
-
 @router.post("/install-nginx")
-async def run_on_multiple_target(payload: TargetList):    
+async def install_nginx_on_multiple_target(payload: TargetList):    
     
     async def run_on_single_target(target: Target):
         runner_dir = mkdtemp(prefix="runner_")
         project_dir = os.path.join(runner_dir, "project")
         os.makedirs(project_dir, exist_ok=True)
 
-        playbook_src = os.path.join(os.getcwd(), "test_ansible", "install_nginx.yml")
-        playbook_dst = os.path.join(project_dir, "install_nginx.yml")
+        # playbook_src = os.path.join(os.getcwd(), "test_ansible", "install_nginx.yml")
+        # playbook_dst = os.path.join(project_dir, "install_nginx.yml")
+        playbook_src = os.path.join(os.getcwd(), "test_ansible", "install_cockpit.yml")
+        playbook_dst = os.path.join(project_dir, "install_cockpit.yml")
         shutil.copyfile(playbook_src, playbook_dst)
 
         key_file = NamedTemporaryFile(delete=False, mode='w', dir=runner_dir)
@@ -71,7 +65,7 @@ async def run_on_multiple_target(payload: TargetList):
                 "target": target.IPAddress,
                 "status": result.status,
                 "rc": result.rc,
-                "stdout": result.stdout.read() if result.stdout else "No output"
+                "stdout": result.stdout.read() if result.stdout else "No output" # type: ignore
             }
 
         finally:
@@ -90,15 +84,17 @@ async def run_on_multiple_target(payload: TargetList):
     return {"results": results}
 
 @router.post("/uninstall-nginx")
-async def run_on_multiple_target(payload: TargetList):    
+async def uninstall_nginx_on_multiple_target(payload: TargetList):    
     
     async def run_on_single_target(target: Target):
         runner_dir = mkdtemp(prefix="runner_")
         project_dir = os.path.join(runner_dir, "project")
         os.makedirs(project_dir, exist_ok=True)
 
-        playbook_src = os.path.join(os.getcwd(), "test_ansible", "uninstall_nginx.yml")
-        playbook_dst = os.path.join(project_dir, "uninstall_nginx.yml")
+        # playbook_src = os.path.join(os.getcwd(), "test_ansible", "uninstall_nginx.yml")
+        # playbook_dst = os.path.join(project_dir, "uninstall_nginx.yml")
+        playbook_src = os.path.join(os.getcwd(), "test_ansible", "uninstall_cockpit.yml")
+        playbook_dst = os.path.join(project_dir, "uninstall_cockpit.yml")
         shutil.copyfile(playbook_src, playbook_dst)
 
         key_file = NamedTemporaryFile(delete=False, mode='w', dir=runner_dir)
@@ -142,7 +138,7 @@ async def run_on_multiple_target(payload: TargetList):
                 "target": target.IPAddress,
                 "status": result.status,
                 "rc": result.rc,
-                "stdout": result.stdout.read() if result.stdout else "No output"
+                "stdout": result.stdout.read() if result.stdout else "No output" # type: ignore
             }
 
         finally:

@@ -22,9 +22,6 @@ class TargetDataManager(QObject):
             "target_list": [target.toPayload() for target in self._targetList]
         }
     
-    def getJSONPayload(self) -> str:
-        return json.dumps(self.getPayload())
-    
     # Function to get total target list
     def getCountTargetList(self) -> int:
         return len(self._targetList)
