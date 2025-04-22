@@ -31,11 +31,7 @@ class TargetListMenuView(QWidget):
         ### temporary button
         self.tempLayout = QVBoxLayout()
         self.checkBtn = QPushButton("Check")
-        self.installNginxBtn = QPushButton("install nginx")
-        self.uninstallNginxBtn = QPushButton("uninstall nginx")
         addWidgetToLayout(self.checkBtn, self.hLayout1)
-        addWidgetToLayout(self.installNginxBtn, self.tempLayout)
-        addWidgetToLayout(self.uninstallNginxBtn, self.tempLayout)
         addChildLayoutToParentLayout(self.tempLayout, self.hLayout1)
         ########
 

@@ -47,8 +47,6 @@ class TargetListMenuController(QObject):
 
         ### temporary connection
         self.view.checkBtn.clicked.connect(self.checkData)  # type: ignore
-        self.view.installNginxBtn.clicked.connect(self.installNginx)  # type: ignore
-        self.view.uninstallNginxBtn.clicked.connect(self.uninstallNginx)  # type: ignore
         #######
 
         # Receive signal to update total target counter when changes occur to the target list data
@@ -60,26 +58,6 @@ class TargetListMenuController(QObject):
         print(self.model_manager.getPayload())
         await asyncio.sleep(2)
         print("finish")
-
-    @asyncSlot()
-    async def installNginx(self):
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(INSTALL_NGINX_URL, json=self.model_manager.getPayload())
-                data = response.json()
-                print("Server response:", data)
-        except Exception as e:
-            print("Error:", e)
-
-    @asyncSlot()
-    async def uninstallNginx(self):
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(UNINSTALL_NGINX_URL, json=self.model_manager.getPayload())
-                data = response.json()
-                print("Server response:", data)
-        except Exception as e:
-            print("Error:", e)
     ############
 
     # Function to go back to main menu from target list menu
