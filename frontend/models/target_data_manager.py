@@ -1,3 +1,4 @@
+import json
 from PyQt5.QtCore import QObject, pyqtSignal
 from typing import List, Set
 from models.target_model import TargetModel
@@ -15,6 +16,11 @@ class TargetDataManager(QObject):
     # Function to get target list data
     def getTargetList(self) -> List[TargetModel]:
         return self._targetList
+    
+    def getPayload(self) -> dict:
+        return {
+            "target_list": [target.toPayload() for target in self._targetList]
+        }
     
     # Function to get total target list
     def getCountTargetList(self) -> int:
