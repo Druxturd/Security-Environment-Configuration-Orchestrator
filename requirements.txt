@@ -8,3 +8,4 @@ qasync
 asyncio
 python-dotenv
 requests
+ansi2html

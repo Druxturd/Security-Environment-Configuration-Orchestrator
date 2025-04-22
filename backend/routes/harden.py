@@ -110,5 +110,3 @@ async def execute_selected_playbook_on_target_list(playbooks: list[str], targets
 
     tasks = [execute_selected_playbook_on_single_target(target) for target in targets.target_list]
     results = await asyncio.gather(*tasks)
-
-    return {"results": results}
