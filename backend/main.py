@@ -1,6 +1,5 @@
-from typing import Union
 from fastapi import FastAPI
-from routes import harden, patch
+from routes import harden, patch, file
 
 app = FastAPI()
 
@@ -10,6 +9,7 @@ def read_root():
 
 app.include_router(harden.router)
 app.include_router(patch.router)
+app.include_router(file.router)
 
 if __name__ == "__main__":
     import uvicorn

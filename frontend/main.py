@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (
@@ -5,7 +6,9 @@ from PyQt5.QtWidgets import (
     QApplication,
     QStackedWidget
 )
+from qasync import QEventLoop, asyncSlot
 from models.target_model import TargetModel
+from models.target_data_manager import TargetDataManager
 from views.main_menu_view import MainMenuView
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.patch_target_menu_view import PatchTargetMenuView
@@ -37,10 +40,10 @@ class MainWindow(QMainWindow):
         # Set fixed size
         self.setFixedSize(QSize(640, 480))
 
-    # Function to init models / data that will be processed within application
+    # Function to init models that will be processed within application
     def initModels(self):
-        # Set target model / data that will be processed within application
-        self.model = TargetModel()
+        # Set target model manager that will be processing data within application
+        self.modelManager = TargetDataManager()
 
     # Function to init views / UI within application
     def initViews(self):
@@ -66,10 +69,10 @@ class MainWindow(QMainWindow):
     # Function to controllers / logic within application
     def initControllers(self):
         # Set application controllers which consist of logic for each view / mmenu
-        self.mainMenuController = MainMenuController(self.mainMenuView, self.model, self)
-        self.targetListMenuController = TargetListMenuController(self.targetListMenuView, self.model, self)
-        self.hardenTargetMenuController = HardenTargetMenuController(self.hardenTargetMenuView, self.model, self)
-        self.patchTargetMenuController = PatchTargetMenuController(self.patchTargetMenuView, self.model, self)
+        self.mainMenuController = MainMenuController(self.mainMenuView, self.modelManager, self)
+        self.targetListMenuController = TargetListMenuController(self.targetListMenuView, self.modelManager, self)
+        self.hardenTargetMenuController = HardenTargetMenuController(self.hardenTargetMenuView, self.modelManager, self)
+        self.patchTargetMenuController = PatchTargetMenuController(self.patchTargetMenuView, self.modelManager, self)
 
     # Function to show main menu UI
     def switchToMainMenu(self):
@@ -101,7 +104,17 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setApplicationName("Security Environment Configuration Orchestrator")
 
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    async def cleanup():
+        print("Cleaning up...")
+
+    with loop:
+        try:
+            loop.run_forever()
+        finally:
+            loop.run_until_complete(cleanup())
