@@ -87,7 +87,7 @@ class HardenTargetMenuController(QObject):
         }
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.post(EXECUTE_SELECTED_HARDEN_URL, json=payload)
+                response = await client.post(EXECUTE_SELECTED_HARDEN_URL, json=payload, timeout=None)
                 result = response.json()
         except httpx.TimeoutException:
             result = {"error": "Requrest timed out."}
