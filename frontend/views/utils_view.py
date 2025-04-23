@@ -9,23 +9,6 @@ from PyQt5.QtCore import QSize
 from utils.layout_utils import addWidgetToLayout
 from ansi2html import Ansi2HTMLConverter
 
-class ErrorView(QDialog):
-    def __init__(self, message):
-        super().__init__()
-        self.setWindowTitle("Error!")
-        self.setFixedSize(QSize(300, 150))
-        self.setModal(True)
-
-        layout = QVBoxLayout()
-        self.errorLbl = QLabel(message)
-        self.closeBtn = QPushButton("Close")
-        self.closeBtn.clicked.connect(self.accept)
-
-        addWidgetToLayout(self.errorLbl, layout)
-        addWidgetToLayout(self.closeBtn, layout)
-
-        self.setLayout(layout)
-
 class ReportWindow(QDialog):
     def __init__(self, report_text: str):
         super().__init__()

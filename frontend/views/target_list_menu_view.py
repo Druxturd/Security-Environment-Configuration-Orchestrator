@@ -28,13 +28,6 @@ class TargetListMenuView(QWidget):
         addWidgetToLayout(self.downloadTemplateBtn, self.hLayout1)
         addWidgetToLayout(self.uploadCSVBtn, self.hLayout1)
         
-        ### temporary button
-        self.tempLayout = QVBoxLayout()
-        self.checkBtn = QPushButton("Check")
-        addWidgetToLayout(self.checkBtn, self.hLayout1)
-        addChildLayoutToParentLayout(self.tempLayout, self.hLayout1)
-        ########
-
         self.vLayout1 = QVBoxLayout()
         self.IPAddressLbl = QLabel("IP Address")
         self.IPAddressInput = QLineEdit()

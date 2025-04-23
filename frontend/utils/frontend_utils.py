@@ -14,6 +14,5 @@ def uploadCSVHandler(main_window:QMainWindow):
     )
 
     if not filePath:
-        
-        return
+        return # User cancelled upload file
     

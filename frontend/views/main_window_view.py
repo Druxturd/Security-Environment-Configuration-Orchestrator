@@ -1,95 +1,33 @@
-from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (
     QMainWindow, 
     QStackedWidget
 )
-from models.target_data_manager import TargetDataManager
-from views.main_menu_view import MainMenuView
-from views.harden_target_menu_view import HardenTargetMenuView
-from views.patch_target_menu_view import PatchTargetMenuView
-from views.target_list_menu_view import TargetListMenuView
-from views.utils_view import ErrorView
-from controllers.main_menu_controller import MainMenuController
-from controllers.harden_target_menu_controller import HardenTargetMenuController
-from controllers.patch_target_menu_controller import PatchTargetMenuController
-from controllers.target_list_menu_controller import TargetListMenuController
+
+from pages import Page
 
 # Class for whole application window
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self._initWindowConfig()
-        self._initModels()
-        self._initViews()
-        self._initControllers()
-
-        # To show main menu UI
-        self.switchToMainMenu()
-
-    # Function to configure the window of application
-    def _initWindowConfig(self):
-        # Set window title
-        self.setWindowTitle("SECOR")
-
-        # Set fixed size
-        self.setFixedSize(QSize(640, 480))
-
-    # Function to init models that will be processed within application
-    def _initModels(self):
-        # Set target model manager that will be processing data within application
-        self.modelManager = TargetDataManager()
-
-    # Function to init views / UI within application
-    def _initViews(self):
-        """
-        Set application views / UI which consist of 4 menus:
-        1. Main Menu
-        2. Target List Menu
-        3. Harden Target Menu
-        4. Patch Target Menu
-        """
-        self.mainMenuView = MainMenuView()
-        self.targetListMenuView = TargetListMenuView()
-        self.hardenTargetMenuView = HardenTargetMenuView()
-        self.patchTargetMenuView = PatchTargetMenuView()
-
-        self.stackedWidget = QStackedWidget()
-        self.stackedWidget.addWidget(self.mainMenuView)
-        self.stackedWidget.addWidget(self.targetListMenuView)
-        self.stackedWidget.addWidget(self.hardenTargetMenuView)
-        self.stackedWidget.addWidget(self.patchTargetMenuView)
-        self.setCentralWidget(self.stackedWidget)
-        
-    # Function to controllers / logic within application
-    def _initControllers(self):
-        # Set application controllers which consist of logic for each view / mmenu
-        self.mainMenuController = MainMenuController(self.mainMenuView, self.modelManager, self)
-        self.targetListMenuController = TargetListMenuController(self.targetListMenuView, self.modelManager, self)
-        self.hardenTargetMenuController = HardenTargetMenuController(self.hardenTargetMenuView, self.modelManager, self)
-        self.patchTargetMenuController = PatchTargetMenuController(self.patchTargetMenuView, self.modelManager, self)
+        self.stacked_widget = QStackedWidget()
 
     # Function to show main menu UI
     def switchToMainMenu(self):
         self.setWindowTitle("SECOR - Main Menu")
-        self.stackedWidget.setCurrentWidget(self.mainMenuView)
+        self.stacked_widget.setCurrentIndex(Page.MAIN_MENU)
 
     # Function to show target list menu UI
     def switchToTargetListMenu(self):
         self.setWindowTitle("SECOR - Target List Menu")
-        self.stackedWidget.setCurrentWidget(self.targetListMenuView)
+        self.stacked_widget.setCurrentIndex(Page.TARGET_LIST_MENU)
 
     # Function to show harden target menu UI
     def switchToHardenTargetMenu(self):
         self.setWindowTitle("SECOR - Harden Menu")
-        self.stackedWidget.setCurrentWidget(self.hardenTargetMenuView)
+        self.stacked_widget.setCurrentIndex(Page.HARDEN_TARGET_MENU)
     
     # Function to show patch target menu UI
     def switchToPatchTargetMenu(self):
         self.setWindowTitle("SECOR - Patch Menu")
-        self.stackedWidget.setCurrentWidget(self.patchTargetMenuView)
-
-    # Function to show error dialog UI
-    def showError(self, message):
-        errorDialog = ErrorView(message)
-        errorDialog.exec()
+        self.stacked_widget.setCurrentIndex(Page.PATCH_TARGET_MENU)

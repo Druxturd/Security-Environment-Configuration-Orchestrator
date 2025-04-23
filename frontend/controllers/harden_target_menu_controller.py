@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QCheckBox
 from qasync import asyncSlot
 from models.target_data_manager import TargetDataManager
 from views.harden_target_menu_view import HardenTargetMenuView
+from views.main_window_view import MainWindow
 from utils.layout_utils import *
 from utils.backend_utils import *
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
 EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
 
 class HardenTargetMenuController(QObject):
-    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window):
+    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window:MainWindow):
         # Store the view, model manager, main window that being passed into the controller
         super().__init__()
         self.view = view
