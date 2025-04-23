@@ -1,7 +1,5 @@
-import asyncio
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
-import httpx
 from qasync import asyncSlot
 from models.target_model import TargetModel
 from models.target_data_manager import TargetDataManager
@@ -9,6 +7,7 @@ from views.target_list_menu_view import TargetListMenuView
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
+import asyncio
 import os
 import requests
 import csv
