@@ -9,16 +9,16 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QCheckBox
 )
-from utils.layout_utils import *
+from utils.layout_util import *
 
 class HardenTargetMenuView(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.initUI()
+        self._initUI()
 
     # Function to init harden target menu UI
-    def initUI(self):
+    def _initUI(self):
         self.mainLayout = QVBoxLayout()
 
         self.hLayout1 = QHBoxLayout()
@@ -42,11 +42,6 @@ class HardenTargetMenuView(QWidget):
         self.scrollArea.setWidget(self.contentWidget)
         addWidgetToLayout(self.hardenListLbl, self.vLayout1)
         addWidgetToLayout(self.scrollArea, self.vLayout1)
-
-        ############### temporary widget
-        self.checkBtn = QPushButton("check")
-        addWidgetToLayout(self.checkBtn, self.vLayout1)
-        #########################
 
         self.hLayout2 = QHBoxLayout()
         self.executeHardenBtn = QPushButton("Execute Harden")

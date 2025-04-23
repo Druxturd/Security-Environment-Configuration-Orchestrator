@@ -4,8 +4,8 @@ from qasync import asyncSlot
 from models.target_data_manager import TargetDataManager
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.main_window_view import MainWindow
-from utils.layout_utils import *
-from utils.backend_utils import *
+from utils.layout_util import *
+from utils.backend_util import *
 from dotenv import load_dotenv
 import os
 import requests
@@ -28,9 +28,6 @@ class HardenTargetMenuController(QObject):
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
-        ### temporary button to check selectd item(s)
-        self.view.checkBtn.clicked.connect(self.checkItem)
-        
         # execute selected playbook
         self.view.executeHardenBtn.clicked.connect(self.executeSelectedHarden) # type: ignore
 

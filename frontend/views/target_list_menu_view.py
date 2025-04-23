@@ -7,16 +7,16 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QWidget
 )
-from utils.layout_utils import *
+from utils.layout_util import *
 
 class TargetListMenuView(QWidget):
     def __init__(self):
         super().__init__()
         
-        self.initUI()
+        self._initUI()
 
     # Function to ini target list menu UI
-    def initUI(self):
+    def _initUI(self):
 
         self.mainLayout = QVBoxLayout()
 

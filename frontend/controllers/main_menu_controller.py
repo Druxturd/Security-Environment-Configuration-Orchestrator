@@ -3,7 +3,7 @@ from views.main_window_view import MainWindow
 
 from models.target_data_manager import TargetDataManager
 
-from utils.layout_utils import addWarningMsgBox
+from utils.message_box_util import addWarningMsgBox
 
 class MainMenuController:
     def __init__(self, view:MainMenuView, model_manager:TargetDataManager, main_window:MainWindow):
