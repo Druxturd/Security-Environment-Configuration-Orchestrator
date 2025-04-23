@@ -1,11 +1,10 @@
 from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtWidgets import QCheckBox,QProgressDialog, QMessageBox
-import httpx
+from PyQt5.QtWidgets import QCheckBox
 from qasync import asyncSlot
 from models.target_data_manager import TargetDataManager
 from views.harden_target_menu_view import HardenTargetMenuView
-from views.report_window import ReportWindow
 from utils.layout_utils import *
+from utils.backend_utils import *
 from dotenv import load_dotenv
 import os
 import requests
@@ -74,39 +73,16 @@ class HardenTargetMenuController(QObject):
     # Function to execute harden list
     @asyncSlot()
     async def executeSelectedHarden(self):
-        self.view.executeHardenBtn.setEnabled(False)
-        progress = QProgressDialog("Running playbooks...", None, 0, 0,self.main_window, Qt.WindowType.FramelessWindowHint)
-        progress.setWindowTitle("Please wait")
-        progress.setModal(True)
-        progress.setCancelButton(None)
-        progress.setEnabled(False)
-        progress.show()
         payload = {
             "playbooks": [cb.text() for cb in self.view.checkboxes if cb.isChecked()],
             "targets": self.model_manager.getPayload()
         }
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(EXECUTE_SELECTED_HARDEN_URL, json=payload, timeout=None)
-                result = response.json()
-        except httpx.TimeoutException:
-            result = {"error": "Requrest timed out."}
-        except Exception as e:
-            result = {"error:", e}
-        finally:
-            progress.close()
-        
-        if "error" in result:
-            QMessageBox.critical(self.main_window, "Erorr", result["error"]) # type: ignore
-        else:
-            report = "\n\n".join(
-                f"IPAddress: {x['host']}\nPlaybook: {y['playbook']}\nStatus: {y['Status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['results'] for y in x['results'] # type: ignore
-            )
-            dialog = ReportWindow(report)
-            dialog.exec()
+        self.view.executeHardenBtn.setEnabled(False)
+
+        await executeHarden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
+
         self.uncheckAllSelectedItems()
         self.view.executeHardenBtn.setEnabled(True)
-
 
     ### temporary function to check selected item(s)
     def checkItem(self):
