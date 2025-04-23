@@ -5,15 +5,15 @@ from PyQt5.QtWidgets import (
     QLabel,
     QWidget
 )
-from utils.layout_utils import *
+from utils.layout_util import *
 
 class MainMenuView(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
+        self._initUI()
 
     # Function to init main menu UI
-    def initUI(self):
+    def _initUI(self):
         self.mainLayout = QVBoxLayout()
 
         self.mainMenuLbl = QLabel("Main Menu")

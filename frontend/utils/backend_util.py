@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QProgressDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from views.utils_view import ReportWindow
+from views.report_window import ReportWindow
 import httpx
 
 async def executeHarden(main_window:QMainWindow, URL:str, payload):

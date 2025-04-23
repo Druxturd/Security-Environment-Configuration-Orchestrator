@@ -1,13 +1,18 @@
 from views.main_menu_view import MainMenuView
+from views.main_window_view import MainWindow
+
 from models.target_data_manager import TargetDataManager
 
+from utils.message_box_util import addWarningMsgBox
+
 class MainMenuController:
-    def __init__(self, view:MainMenuView, model_manager:TargetDataManager, main_window):
+    def __init__(self, view:MainMenuView, model_manager:TargetDataManager, main_window:MainWindow):
         # Store the view, model manager, main window that being passed into the controller
         self.view = view
         self.model_manager = model_manager
         self.main_window = main_window
 
+        self.errorTitle = "Error"
         self.errorMsg = "Empty List!"
 
         # Set the initial total target counter
@@ -28,14 +33,22 @@ class MainMenuController:
     # Function to go to the harden target menu from main menu
     def goToHardenTargetMenu(self):
         if self.isEmptyList():
-            self.main_window.showError(self.errorMsg)
+            addWarningMsgBox(
+                self.main_window,
+                self.errorTitle,
+                self.errorMsg
+            )
         else:
             self.main_window.switchToHardenTargetMenu()
 
     # Function to go to the patch target menu from main menu
     def goToPatchTargetMenu(self):
         if self.isEmptyList():
-            self.main_window.showError(self.errorMsg)
+            addWarningMsgBox(
+                self.main_window,
+                self.errorTitle,
+                self.errorMsg
+            )
         else:
             self.main_window.switchToPatchTargetMenu()
 

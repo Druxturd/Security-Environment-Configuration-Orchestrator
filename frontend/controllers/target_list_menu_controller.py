@@ -1,9 +1,11 @@
 from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog
 from qasync import asyncSlot
 from models.target_model import TargetModel
 from models.target_data_manager import TargetDataManager
 from views.target_list_menu_view import TargetListMenuView
+from views.main_window_view import MainWindow
+from utils.message_box_util import addCriticalMsgBox, addInformationMsgBox, addWarningMsgBox
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
@@ -21,13 +23,14 @@ UNINSTALL_NGINX_URL = f"{os.getenv("BACKEND_URL")}/uninstall-nginx"
 ############
 
 class TargetListMenuController(QObject):
-    def __init__(self, view:TargetListMenuView, model_manager:TargetDataManager, main_window):
+    def __init__(self, view:TargetListMenuView, model_manager:TargetDataManager, main_window:MainWindow):
         super().__init__()
         # Store the view, model, main window that being passed into the controller
         self.view = view
         self.model_manager = model_manager
         self.main_window = main_window
 
+        self.inputError = "Input Error"
         self.errorMsg = [
             "IP Address must be fill!",
             "Host name must be fill!",
@@ -44,20 +47,8 @@ class TargetListMenuController(QObject):
         self.view.addTargetBtn.clicked.connect(self.addTarget)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
-        ### temporary connection
-        self.view.checkBtn.clicked.connect(self.checkData)  # type: ignore
-        #######
-
         # Receive signal to update total target counter when changes occur to the target list data
         self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
-
-    ### temporary function
-    @asyncSlot()
-    async def checkData(self):
-        print(self.model_manager.getPayload())
-        await asyncio.sleep(2)
-        print("finish")
-    ############
 
     # Function to go back to main menu from target list menu
     def goToMainMenu(self):
@@ -86,7 +77,7 @@ class TargetListMenuController(QObject):
             with open(file_path, "wb") as f:
                 f.write(resp.content)
 
-            QMessageBox.information(
+            addInformationMsgBox(
                 self.main_window,
                 "Download Successful",
                 f"The template has been downloaded to:\n{file_path}"
@@ -141,14 +132,14 @@ class TargetListMenuController(QObject):
                             newTargetAdded += 1
 
                     except Exception as e:
-                        QMessageBox.warning(
+                        addWarningMsgBox(
                             self.main_window,
                             "Row Error",
                             f"Skipping invalid row {i}: {str(e)}"
                         )
                         continue
-
-            QMessageBox.information(
+            
+            addInformationMsgBox(
                 self.main_window,
                 "Upload Successful",
                 f"Added {newTargetAdded} new target(s).\nTotal target list: {self.model_manager.getCountTargetList()}"
@@ -157,12 +148,11 @@ class TargetListMenuController(QObject):
             self.updateTotalTargetCounter()
 
         except Exception as e:
-            QMessageBox.critical(
+            addCriticalMsgBox(
                 self.main_window,
                 "Error",
                 f"Failed to read CSV:\n{str(e)}"
             )
-
 
     # Function to add new target
     def addTarget(self):
@@ -171,24 +161,32 @@ class TargetListMenuController(QObject):
         SSHKey = self.view.SSHKeyInput.toPlainText().strip()
 
         if not IPAddress:
-            QMessageBox.warning(self.main_window, "Input Error", self.errorMsg[0])
+            addWarningMsgBox(self.main_window, self.inputError, self.errorMsg[0])
             return
         
         elif not hostName:
-            QMessageBox.warning(self.main_window, "Input Error", self.errorMsg[1])
+            addWarningMsgBox(self.main_window, self.inputError, self.errorMsg[1])
             return
         
         elif not SSHKey:
-            QMessageBox.warning(self.main_window, "Input Error", self.errorMsg[2])
+            addWarningMsgBox(self.main_window, self.inputError, self.errorMsg[2])
             return
         
         newTarget = TargetModel(IPAddress, hostName, SSHKey)
 
         if self.model_manager.addNewTarget(newTarget):
             self.updateTotalTargetCounter()
-            QMessageBox.information(self.main_window, "Add New Target Successful", f"Added new target.\nTotal target list: {self.model_manager.getCountTargetList()}")
+            addInformationMsgBox(
+                self.main_window,
+                "Add New Target Successful",
+                f"Added new target.\nTotal target list: {self.model_manager.getCountTargetList()}"
+            )
         else:
-            QMessageBox.information(self.main_window, "Add New Target Failed", f"Duplicated target list!")
+            addInformationMsgBox(
+                self.main_window,
+                "Add New Target Failed",
+                f"Duplicated target list!"
+            )
         
         self.clearInput()
 

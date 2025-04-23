@@ -3,8 +3,9 @@ from PyQt5.QtWidgets import QCheckBox
 from qasync import asyncSlot
 from models.target_data_manager import TargetDataManager
 from views.harden_target_menu_view import HardenTargetMenuView
-from utils.layout_utils import *
-from utils.backend_utils import *
+from views.main_window_view import MainWindow
+from utils.layout_util import *
+from utils.backend_util import *
 from dotenv import load_dotenv
 import os
 import requests
@@ -14,7 +15,7 @@ HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
 EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
 
 class HardenTargetMenuController(QObject):
-    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window):
+    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window:MainWindow):
         # Store the view, model manager, main window that being passed into the controller
         super().__init__()
         self.view = view
@@ -27,9 +28,6 @@ class HardenTargetMenuController(QObject):
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
-        ### temporary button to check selectd item(s)
-        self.view.checkBtn.clicked.connect(self.checkItem)
-        
         # execute selected playbook
         self.view.executeHardenBtn.clicked.connect(self.executeSelectedHarden) # type: ignore
 

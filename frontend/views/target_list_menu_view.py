@@ -7,16 +7,16 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QWidget
 )
-from utils.layout_utils import *
+from utils.layout_util import *
 
 class TargetListMenuView(QWidget):
     def __init__(self):
         super().__init__()
         
-        self.initUI()
+        self._initUI()
 
     # Function to ini target list menu UI
-    def initUI(self):
+    def _initUI(self):
 
         self.mainLayout = QVBoxLayout()
 
@@ -28,13 +28,6 @@ class TargetListMenuView(QWidget):
         addWidgetToLayout(self.downloadTemplateBtn, self.hLayout1)
         addWidgetToLayout(self.uploadCSVBtn, self.hLayout1)
         
-        ### temporary button
-        self.tempLayout = QVBoxLayout()
-        self.checkBtn = QPushButton("Check")
-        addWidgetToLayout(self.checkBtn, self.hLayout1)
-        addChildLayoutToParentLayout(self.tempLayout, self.hLayout1)
-        ########
-
         self.vLayout1 = QVBoxLayout()
         self.IPAddressLbl = QLabel("IP Address")
         self.IPAddressInput = QLineEdit()

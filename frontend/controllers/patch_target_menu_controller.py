@@ -1,8 +1,9 @@
 from models.target_data_manager import TargetDataManager
 from views.patch_target_menu_view import PatchTargetMenuView
+from views.main_window_view import MainWindow
 
 class PatchTargetMenuController:
-    def __init__(self, view:PatchTargetMenuView, model_manager: TargetDataManager, main_window):
+    def __init__(self, view:PatchTargetMenuView, model_manager: TargetDataManager, main_window:MainWindow):
         # Store the view, model manager, main window that being passed into the controller
         self.view = view
         self.model_manager = model_manager

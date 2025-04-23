@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication
 from qasync import QEventLoop
-from views.main_window_view import MainWindow
+from app_manager import AppManager
 import sys
 import asyncio
 
@@ -12,8 +12,8 @@ if __name__ == "__main__":
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    window = MainWindow()
-    window.show()
+    manager = AppManager()
+    manager.main_window.show()
 
     async def cleanup():
         print("Cleaning up...")
