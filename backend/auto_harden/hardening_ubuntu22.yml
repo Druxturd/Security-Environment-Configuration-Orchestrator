@@ -1,0 +1,6 @@
+- name: Run CIS Ubuntu 22 Hardening
+  hosts: all
+  become: yes
+
+  roles:
+    - ubuntu22-cis
