@@ -5,7 +5,6 @@ from models.target_data_manager import TargetDataManager
 from views.target_list_menu_view import TargetListMenuView
 from views.main_window_view import MainWindow
 from utils.message_box_util import addCriticalMsgBox, addInformationMsgBox, addWarningMsgBox
-# from utils.model_util import addTargetBasedOnOSVersioName
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
