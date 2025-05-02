@@ -23,10 +23,14 @@ class TargetListMenuView(QWidget):
         self.hLayout1 = QHBoxLayout()
         self.targetListMenuLbl = QLabel("Target List Menu")
         self.downloadTemplateBtn = QPushButton("Download CSV Template")
-        self.uploadCSVBtn = QPushButton("Upload CSV")
+        self.uploadBtn = QPushButton("Upload Excel")
         addWidgetToLayout(self.targetListMenuLbl, self.hLayout1)
         addWidgetToLayout(self.downloadTemplateBtn, self.hLayout1)
-        addWidgetToLayout(self.uploadCSVBtn, self.hLayout1)
+        addWidgetToLayout(self.uploadBtn, self.hLayout1)
+        ### temporary button
+        self.checkBtn = QPushButton("Check")
+        addWidgetToLayout(self.checkBtn, self.hLayout1)
+        ########
         
         self.vLayout1 = QVBoxLayout()
         self.IPAddressLbl = QLabel("IP Address")

@@ -1,6 +1,5 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog
-from qasync import asyncSlot
 from models.target_model import TargetModel
 from models.target_data_manager import TargetDataManager
 from views.target_list_menu_view import TargetListMenuView
@@ -9,7 +8,7 @@ from utils.message_box_util import addCriticalMsgBox, addInformationMsgBox, addW
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
-import asyncio
+import pandas as pd
 import os
 import requests
 import csv
@@ -43,9 +42,13 @@ class TargetListMenuController(QObject):
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
         self.view.clearTargetBtn.clicked.connect(self.model_manager.clearTargetList)
         self.view.downloadTemplateBtn.clicked.connect(self.downloadTemplate)
-        self.view.uploadCSVBtn.clicked.connect(self.uploadCSVFile)
+        self.view.uploadBtn.clicked.connect(self.uploadExcelFile)
         self.view.addTargetBtn.clicked.connect(self.addTarget)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
+
+        ### temporary btn
+        self.view.checkBtn.clicked.connect(self.checkData)
+        ###
 
         # Receive signal to update total target counter when changes occur to the target list data
         self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
@@ -92,8 +95,89 @@ class TargetListMenuController(QObject):
         except Exception as e:
             print(e)
 
+    ### temporary function
+    def checkData(self):
+        for x in self.model_manager.getTargetList():
+            print(f"ip: {x.IPAddress}")
+            print(f"host: {x.hostName}")
+            print(f"key: {x.SSHKey}")
+            print(f"os: {x.osVersionName}")
+            print("")
+    #########
+    
+    # Function to upload target list xlsx
+    def uploadExcelFile(self):
+        options = QFileDialog.Options()
+        filePath, _ = QFileDialog.getOpenFileName(
+            self.main_window,
+            "Open Excel File",
+            "",
+            "Excel Files (*.xlsx *.xls)",
+            options=options
+        )
+
+        if not filePath: # if user cancel upload
+            return
+
+        try:
+            newTargetAdded = 0
+
+            df = pd.read_excel(filePath, engine='openpyxl')
+
+            requiredColumns = {"IP Address", "Host Name", "Private SSH Key", "OS Version Name"}
+
+            # Validate header
+            if not requiredColumns.issubset(df.columns):
+                raise ValueError(f"Missing required column(s): {requiredColumns - set(df.columns)}")
+
+            for i, row in df.iterrows():
+                try:
+                    _ip = str(row['IP Address']).strip()
+                    _host = str(row['Host Name']).strip()
+                    _key = str(row['Private SSH Key']).strip()
+                    _os = str(row['OS Version Name']).strip()
+
+                    if not _ip or not _host or not _key or not _os:
+                        raise ValueError("Empty value in required column(s)")
+                    
+                    _filteredOS = _os.lower().split()
+
+                    _osName = _filteredOS[0]
+                    _osVersion = _filteredOS[1]
+
+                    if _osName in TargetDataManager.supportedOSVersion and any(_osVersion.startswith(x) for x in TargetDataManager.supportedOSVersion[_osName]):
+                        target = TargetModel(IPAddress=_ip, hostName=_host, SSHKey=_key, osVersionName=_os)
+                    else:
+                        continue
+
+                    if self.model_manager.addNewTarget(target):
+                        newTargetAdded += 1
+                
+                except Exception as e:
+                    addWarningMsgBox(
+                        self.main_window,
+                        "Row Error",
+                        f"Skipping row {i+2}: {str(e)}" # type: ignore
+                    )
+        
+            addInformationMsgBox(
+                self.main_window,
+                "Upload Successful",
+                f"Added {newTargetAdded} new target(s).\nTotal target list: {self.model_manager.getCountTargetList()}"
+            )
+
+            self.updateTotalTargetCounter()
+            self.checkData()
+        
+        except Exception as e:
+            addCriticalMsgBox(
+                self.main_window,
+                "Error",
+                f"Failed to read Excel file:\n{str(e)}"
+            )
+
     # Function to upload target list csv
-    def uploadCSVFile(self):
+    def uploadCSVFile(self): # DEPRECATED / CHANGED TO uploadExcelFile
         options = QFileDialog.Options()
         filePath, _ = QFileDialog.getOpenFileName(
             self.main_window,
@@ -110,7 +194,7 @@ class TargetListMenuController(QObject):
             newTargetAdded = 0
             with open(filePath, mode='r', newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
-                requiredFields = {"IPAddress", "hostName", "SSHKey"}
+                requiredFields = {"IPAddress", "hostName", "SSHKey", "OS Version"}
                 
                 # Validate header
                 if not requiredFields.issubset(reader.fieldnames):  # type: ignore

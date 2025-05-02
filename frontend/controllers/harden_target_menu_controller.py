@@ -9,10 +9,12 @@ from utils.backend_util import *
 from dotenv import load_dotenv
 import os
 import requests
+import asyncio
 
 load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
 EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
+EXECUTE_AUTO_HARDEN_URL = f"{HARDEN_LIST_URL}/auto-execute"
 
 class HardenTargetMenuController(QObject):
     def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window:MainWindow):
@@ -28,8 +30,11 @@ class HardenTargetMenuController(QObject):
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
-        # execute selected playbook
+        # Execute selected playbook
         self.view.executeHardenBtn.clicked.connect(self.executeSelectedHarden) # type: ignore
+
+        # Execute auto hardening (piloting)
+        self.view.autoHardenBtn.clicked.connect(self.executeAutoHarden)  # type: ignore
 
         # Receive signal to update total target counter when changes occur to the target list data
         self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
@@ -81,6 +86,18 @@ class HardenTargetMenuController(QObject):
 
         self.uncheckAllSelectedItems()
         self.view.executeHardenBtn.setEnabled(True)
+    
+    # Fumctiom to auto execute harden
+    @asyncSlot()
+    async def executeAutoHarden(self):
+        payload = {
+            "targets": self.model_manager.getPayload()
+        }
+        self.view.autoHardenBtn.setEnabled(False)
+
+        await executeHarden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)        
+
+        self.view.autoHardenBtn.setEnabled(True)        
 
     ### temporary function to check selected item(s)
     def checkItem(self):

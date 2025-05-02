@@ -28,7 +28,7 @@ async def executeHarden(main_window:QMainWindow, URL:str, payload):
 def _outputReport(result):
     
     report = "\n\n".join(
-        f"IPAddress: {x['host']}\nPlaybook: {y['playbook']}\nStatus: {y['Status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['results'] for y in x['results']
+        f"IPAddress: {x['host']}\nPlaybook: {y['playbook']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['results'] for y in x['results']
     )
     reportWindow = ReportWindow(report)
     reportWindow.exec()
