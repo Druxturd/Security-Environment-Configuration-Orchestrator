@@ -1,3 +1,4 @@
+import math
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog
 from models.target_model import TargetModel
@@ -11,7 +12,6 @@ from datetime import datetime
 import pandas as pd
 import os
 import requests
-import csv
 
 load_dotenv()
 TEMPLATE_URL = f"{os.getenv("BACKEND_URL")}/download-template"
@@ -53,15 +53,12 @@ class TargetListMenuController(QObject):
         # Receive signal to update total target counter when changes occur to the target list data
         self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
 
-    # Function to go back to main menu from target list menu
     def goToMainMenu(self):
         self.main_window.switchToMainMenu()
 
-    # Function to update total target counter
     def updateTotalTargetCounter(self):
         self.view.totalTargetLbl.setText("Total Target: " + str(self.model_manager.getCountTargetList()))
 
-    # Function to download template.csv
     def downloadTemplate(self):
         try:
             resp = requests.get(TEMPLATE_URL, timeout=10)
@@ -74,7 +71,7 @@ class TargetListMenuController(QObject):
 
             downloads_folder = Path.home() / "Downloads"
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename = f"template_{timestamp}.csv"
+            filename = f"template_{timestamp}.xlsx"
             file_path = downloads_folder / filename
 
             with open(file_path, "wb") as f:
@@ -100,12 +97,13 @@ class TargetListMenuController(QObject):
         for x in self.model_manager.getTargetList():
             print(f"ip: {x.IPAddress}")
             print(f"host: {x.hostName}")
+            print(f"ssh username: {x.SSHUsername}")
             print(f"key: {x.SSHKey}")
+            print(f"port: {x.SSHPort}")
             print(f"os: {x.osVersionName}")
             print("")
     #########
     
-    # Function to upload target list xlsx
     def uploadExcelFile(self):
         options = QFileDialog.Options()
         filePath, _ = QFileDialog.getOpenFileName(
@@ -124,7 +122,7 @@ class TargetListMenuController(QObject):
 
             df = pd.read_excel(filePath, engine='openpyxl')
 
-            requiredColumns = {"IP Address", "Host Name", "Private SSH Key", "OS Version Name"}
+            requiredColumns = {"IP Address", "Host Name", "SSH Private Key", "OS Version Name"}
 
             # Validate header
             if not requiredColumns.issubset(df.columns):
@@ -134,10 +132,13 @@ class TargetListMenuController(QObject):
                 try:
                     _ip = str(row['IP Address']).strip()
                     _host = str(row['Host Name']).strip()
-                    _key = str(row['Private SSH Key']).strip()
+                    _user = str(row['SSH Username']).strip()
+                    _p = str(row['SSH Port']).strip()
+                    _port = "22" if math.isnan(float(_p)) else str(int(float(_p)))
+                    _key = str(row['SSH Private Key']).strip()
                     _os = str(row['OS Version Name']).strip()
 
-                    if not _ip or not _host or not _key or not _os:
+                    if not _ip or not _host or not _user or not _port or not _key or not _os:
                         raise ValueError("Empty value in required column(s)")
                     
                     _filteredOS = _os.lower().split()
@@ -146,7 +147,7 @@ class TargetListMenuController(QObject):
                     _osVersion = _filteredOS[1]
 
                     if _osName in TargetDataManager.supportedOSVersion and any(_osVersion.startswith(x) for x in TargetDataManager.supportedOSVersion[_osName]):
-                        target = TargetModel(IPAddress=_ip, hostName=_host, SSHKey=_key, osVersionName=_os)
+                        target = TargetModel(IPAddress=_ip, hostName=_host, SSHUsername=_user, SSHPort=_port, SSHKey=_key, osVersionName=_os)
                     else:
                         continue
 
@@ -167,7 +168,6 @@ class TargetListMenuController(QObject):
             )
 
             self.updateTotalTargetCounter()
-            self.checkData()
         
         except Exception as e:
             addCriticalMsgBox(
@@ -176,69 +176,6 @@ class TargetListMenuController(QObject):
                 f"Failed to read Excel file:\n{str(e)}"
             )
 
-    # Function to upload target list csv
-    def uploadCSVFile(self): # DEPRECATED / CHANGED TO uploadExcelFile
-        options = QFileDialog.Options()
-        filePath, _ = QFileDialog.getOpenFileName(
-            self.main_window,
-            "Open CSV File",
-            "",
-            "CSV Files (*.csv)",
-            options=options
-        )
-
-        if not filePath:
-            return
-        
-        try:
-            newTargetAdded = 0
-            with open(filePath, mode='r', newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-                requiredFields = {"IPAddress", "hostName", "SSHKey", "OS Version"}
-                
-                # Validate header
-                if not requiredFields.issubset(reader.fieldnames):  # type: ignore
-                    missing = requiredFields - set(reader.fieldnames or [])
-                    raise ValueError(f"Missing required column(s): {', '.join(missing)}")
-
-                for i, row in enumerate(reader, start=2):
-                    try:
-                        ip = row['IPAddress'].strip()
-                        host = row['hostName'].strip()
-                        key = row['SSHKey'].strip()
-
-                        if not ip or not host or not key:
-                            raise ValueError("One or more required fields are empty")
-
-                        target = TargetModel(IPAddress=ip, hostName=host, SSHKey=key)
-
-                        if self.model_manager.addNewTarget(target):
-                            newTargetAdded += 1
-
-                    except Exception as e:
-                        addWarningMsgBox(
-                            self.main_window,
-                            "Row Error",
-                            f"Skipping invalid row {i}: {str(e)}"
-                        )
-                        continue
-            
-            addInformationMsgBox(
-                self.main_window,
-                "Upload Successful",
-                f"Added {newTargetAdded} new target(s).\nTotal target list: {self.model_manager.getCountTargetList()}"
-            )
-
-            self.updateTotalTargetCounter()
-
-        except Exception as e:
-            addCriticalMsgBox(
-                self.main_window,
-                "Error",
-                f"Failed to read CSV:\n{str(e)}"
-            )
-
-    # Function to add new target
     def addTarget(self):
         IPAddress = self.view.IPAddressInput.text().strip()
         hostName = self.view.hostNameInput.text().strip()
@@ -274,7 +211,6 @@ class TargetListMenuController(QObject):
         
         self.clearInput()
 
-    # Function to clear input
     def clearInput(self):
         self.view.IPAddressInput.clear()
         self.view.hostNameInput.clear()

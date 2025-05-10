@@ -50,6 +50,7 @@ def grouping_os(payload: TargetList):
         ubuntu_20_list: list[Target] = []
         ubuntu_22_list: list[Target] = []
         ubuntu_24_list: list[Target] = []
+
         for target in payload.target_list:
             if is_Debian_11(target.osVersionName):
                 debian_11_list.append(target)

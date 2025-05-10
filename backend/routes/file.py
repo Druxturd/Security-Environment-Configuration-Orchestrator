@@ -6,7 +6,7 @@ router = APIRouter()
 @router.get("/download-template")
 def download_template():
     return FileResponse(
-        "files/template.csv",
-        filename="template.csv",
-        media_type="text/csv"
+        "files/template.xlsx",
+        filename="template.xlsx",
+        # media_type="text/csv"
     )

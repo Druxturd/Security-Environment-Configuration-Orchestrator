@@ -22,7 +22,7 @@ class TargetListMenuView(QWidget):
 
         self.hLayout1 = QHBoxLayout()
         self.targetListMenuLbl = QLabel("Target List Menu")
-        self.downloadTemplateBtn = QPushButton("Download CSV Template")
+        self.downloadTemplateBtn = QPushButton("Download Excel Template")
         self.uploadBtn = QPushButton("Upload Excel")
         addWidgetToLayout(self.targetListMenuLbl, self.hLayout1)
         addWidgetToLayout(self.downloadTemplateBtn, self.hLayout1)

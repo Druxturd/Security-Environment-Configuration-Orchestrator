@@ -3,6 +3,7 @@ from views.main_menu_view import MainMenuView
 from views.target_list_menu_view import TargetListMenuView
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.patch_target_menu_view import PatchTargetMenuView
+from views.report_window_view import ReportWindow
 
 from controllers.main_menu_controller import MainMenuController
 from controllers.target_list_menu_controller import TargetListMenuController

@@ -9,7 +9,6 @@ from utils.backend_util import *
 from dotenv import load_dotenv
 import os
 import requests
-import asyncio
 
 load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
@@ -34,7 +33,7 @@ class HardenTargetMenuController(QObject):
         self.view.executeHardenBtn.clicked.connect(self.executeSelectedHarden) # type: ignore
 
         # Execute auto hardening (piloting)
-        self.view.autoHardenBtn.clicked.connect(self.executeAutoHarden)  # type: ignore
+        # self.view.autoHardenBtn.clicked.connect(self.executeAutoHarden)  # type: ignore
 
         # Receive signal to update total target counter when changes occur to the target list data
         self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
@@ -81,7 +80,7 @@ class HardenTargetMenuController(QObject):
             "targets": self.model_manager.getPayload()
         }
         self.view.executeHardenBtn.setEnabled(False)
-
+        
         await executeHarden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
 
         self.uncheckAllSelectedItems()

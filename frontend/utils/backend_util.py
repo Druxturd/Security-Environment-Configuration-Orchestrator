@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QProgressDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from views.report_window import ReportWindow
+from views.report_window_view import ReportWindow
+from models.detail_report_model import DetailReportModel, PlaybookModel
 import httpx
 
 async def executeHarden(main_window:QMainWindow, URL:str, payload):
@@ -28,7 +29,46 @@ async def executeHarden(main_window:QMainWindow, URL:str, payload):
 def _outputReport(result):
     
     report = "\n\n".join(
-        f"IPAddress: {x['host']}\nPlaybook: {y['playbook']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['results'] for y in x['results']
+        f"Host - IP Address: {x['host']} - {x['ip']}\nPlaybook: {y['playbook']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['task_results'] for y in x['playbook_results']
     )
-    reportWindow = ReportWindow(report)
+    targetList = [
+        {
+            "host": x['host'],
+            "ip": x['ip'],
+            "playbooks": [
+                {
+                    "name": y['playbook'],
+                    "status": y['status'],
+                    "rc": y['rc'],
+                    "stdout": y['stdout'],
+                    "ok": y['events']['ok'],
+                    "failed": y['events']['failed'],
+                    "unreachable": y['events']['unreachable'],
+                    "skipped": y['events']['skipped']
+                }
+            ]
+        } for x in result['task_results'] for y in x['playbook_results']
+    ]
+        
+    #     targetList.append(target)
+    #     print("")
+    # for x in targetList:
+    #     print(x.host)
+    #     for y in x.playbooks:
+    #         print(y['name'])
+    # for x in result['task_results']:
+    #     print(f"host - ip: {x['host']}")
+    #     print("---------")
+    #     for playbook_result in x['playbook_results']:
+    #         events = playbook_result['events']
+    #         playbook_start = playbook_result['playbook_start'][0]
+    #         recap = playbook_result['recap'][0]
+    #         print(playbook_start['stdout']+"\n\n")
+    #         for y in events["all"]:
+    #             print(y['event_data']['task'])
+    #             print(y['stdout'])
+    #             print("")
+    #         print(recap['stdout']+"\n")
+
+    reportWindow = ReportWindow(report, targetList)
     reportWindow.exec()
