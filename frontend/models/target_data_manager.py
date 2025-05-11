@@ -1,9 +1,13 @@
-import json
 from PyQt5.QtCore import QObject, pyqtSignal
 from typing import List, Set
 from models.target_model import TargetModel
 
 class TargetDataManager(QObject):
+
+    supportedOSVersion = {
+        "debian": ["11", "12"],
+        "ubuntu": ["20", "22", "24"]
+    }
 
     # Signal to trigger function updateTotalTargetCounter in every menu when changes occur to the target list
     targetListUpdated = pyqtSignal()

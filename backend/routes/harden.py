@@ -5,6 +5,8 @@ import ansible_runner
 from fastapi import APIRouter
 from dotenv import load_dotenv
 from models.target import TargetList, Target
+from utils.model_util import grouping_os
+from utils.ansible_runner_util import execute_auto_harden_on_single_target
 import os
 
 router = APIRouter()
@@ -86,7 +88,7 @@ async def execute_selected_playbook_on_target_list(playbooks: list[str], targets
                 
                 playbook_results.append({
                     "playbook": playbook,
-                    "Status": runner_result.status,
+                    "status": runner_result.status,
                     "rc": rc,
                     "stdout": runner_result.stdout.read() if runner_result.stdout else "No output"  # type: ignore
                 })
@@ -110,3 +112,26 @@ async def execute_selected_playbook_on_target_list(playbooks: list[str], targets
 
     tasks = [execute_selected_playbook_on_single_target(target) for target in targets.target_list]
     results = await asyncio.gather(*tasks)
+    return {"results": results}
+
+@router.post(f"{BASE_HARDEN_URL}/auto-execute")
+async def execute_auto_harden_on_target_list(targets: TargetList):
+    grouped_OS = grouping_os(targets)
+    results = []
+
+    async def execute_auto_harden_on_supported_version(os_version_name: str):
+        tasks = [execute_auto_harden_on_single_target(os_version_name, target) for target in grouped_OS[os_version_name]]
+        return await asyncio.gather(*tasks)
+
+    if len(grouped_OS["debian-11"]) != 0:
+        results.append(execute_auto_harden_on_supported_version("debian-11"))
+    if len(grouped_OS["debian-12"]) != 0:
+        results.append(execute_auto_harden_on_supported_version("debian-12"))
+    if len(grouped_OS["ubuntu-20"]) != 0:
+        results.append(execute_auto_harden_on_supported_version("ubuntu-20"))
+    if len(grouped_OS["ubuntu-22"]) != 0:
+        results.append(execute_auto_harden_on_supported_version("ubuntu-22"))
+    if len(grouped_OS["ubuntu-24"]) != 0:
+        results.append(execute_auto_harden_on_supported_version("ubuntu-24"))
+
+    return {"results": results}

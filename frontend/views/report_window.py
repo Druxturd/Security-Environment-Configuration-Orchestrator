@@ -1,8 +1,13 @@
-# views/reportWindow.py
+from PyQt5.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QPushButton,
+    QTextEdit
+)
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton, QLabel
+from utils.layout_util import addWidgetToLayout
 from ansi2html import Ansi2HTMLConverter
-from utils.layout_utils import *
 
 class ReportWindow(QDialog):
     def __init__(self, report_text: str):

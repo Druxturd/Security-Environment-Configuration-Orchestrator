@@ -1,21 +1,23 @@
 from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtWidgets import QCheckBox,QProgressDialog, QMessageBox
-import httpx
+from PyQt5.QtWidgets import QCheckBox
 from qasync import asyncSlot
 from models.target_data_manager import TargetDataManager
 from views.harden_target_menu_view import HardenTargetMenuView
-from views.report_window import ReportWindow
-from utils.layout_utils import *
+from views.main_window_view import MainWindow
+from utils.layout_util import *
+from utils.backend_util import *
 from dotenv import load_dotenv
 import os
 import requests
+import asyncio
 
 load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
 EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
+EXECUTE_AUTO_HARDEN_URL = f"{HARDEN_LIST_URL}/auto-execute"
 
 class HardenTargetMenuController(QObject):
-    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window):
+    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window:MainWindow):
         # Store the view, model manager, main window that being passed into the controller
         super().__init__()
         self.view = view
@@ -28,11 +30,11 @@ class HardenTargetMenuController(QObject):
         # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
         self.view.backBtn.clicked.connect(self.goToMainMenu)
 
-        ### temporary button to check selectd item(s)
-        self.view.checkBtn.clicked.connect(self.checkItem)
-        
-        # execute selected playbook
+        # Execute selected playbook
         self.view.executeHardenBtn.clicked.connect(self.executeSelectedHarden) # type: ignore
+
+        # Execute auto hardening (piloting)
+        self.view.autoHardenBtn.clicked.connect(self.executeAutoHarden)  # type: ignore
 
         # Receive signal to update total target counter when changes occur to the target list data
         self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
@@ -74,39 +76,28 @@ class HardenTargetMenuController(QObject):
     # Function to execute harden list
     @asyncSlot()
     async def executeSelectedHarden(self):
-        self.view.executeHardenBtn.setEnabled(False)
-        progress = QProgressDialog("Running playbooks...", None, 0, 0,self.main_window, Qt.WindowType.FramelessWindowHint)
-        progress.setWindowTitle("Please wait")
-        progress.setModal(True)
-        progress.setCancelButton(None)
-        progress.setEnabled(False)
-        progress.show()
         payload = {
             "playbooks": [cb.text() for cb in self.view.checkboxes if cb.isChecked()],
             "targets": self.model_manager.getPayload()
         }
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(EXECUTE_SELECTED_HARDEN_URL, json=payload, timeout=None)
-                result = response.json()
-        except httpx.TimeoutException:
-            result = {"error": "Requrest timed out."}
-        except Exception as e:
-            result = {"error:", e}
-        finally:
-            progress.close()
-        
-        if "error" in result:
-            QMessageBox.critical(self.main_window, "Erorr", result["error"]) # type: ignore
-        else:
-            report = "\n\n".join(
-                f"IPAddress: {x['host']}\nPlaybook: {y['playbook']}\nStatus: {y['Status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['results'] for y in x['results'] # type: ignore
-            )
-            dialog = ReportWindow(report)
-            dialog.exec()
+        self.view.executeHardenBtn.setEnabled(False)
+
+        await executeHarden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
+
         self.uncheckAllSelectedItems()
         self.view.executeHardenBtn.setEnabled(True)
+    
+    # Fumctiom to auto execute harden
+    @asyncSlot()
+    async def executeAutoHarden(self):
+        payload = {
+            "targets": self.model_manager.getPayload()
+        }
+        self.view.autoHardenBtn.setEnabled(False)
 
+        await executeHarden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)        
+
+        self.view.autoHardenBtn.setEnabled(True)        
 
     ### temporary function to check selected item(s)
     def checkItem(self):

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout,
-    QWidget
+    QWidget,
 )
 
 # Function to add widget to layout

@@ -9,3 +9,5 @@ asyncio
 python-dotenv
 requests
 ansi2html
+pandas
+openpyxl
