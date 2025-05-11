@@ -179,7 +179,7 @@ async def execute_selected_playbook_on_single_target(playbooks: list[str], targe
                 rc = runner_result.rc
             
             playbook_results.append({
-                "playbook": playbook,
+                "name": playbook,
                 "status": runner_result.status,
                 "rc": rc,
                 "playbook_start": playbook_start,

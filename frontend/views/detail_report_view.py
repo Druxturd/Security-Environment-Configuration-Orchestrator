@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColumnView, QAbstractItemView, QLabel, QTextEdit, QButtonGroup, QPushButton, QAbstractScrollArea, QSizePolicy
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QTextCursor
 
 from utils.layout_util import *
 
@@ -25,13 +26,15 @@ class DetailReportView(QWidget):
         self.detailWidget = QWidget()
         self.detailLayout = QVBoxLayout()
         self.detailWidget.setLayout(self.detailLayout)
-        self.detailWidget.setFixedWidth(640)
+        self.detailWidget.setFixedWidth(650)
         addWidgetToLayout(self.detailWidget, self.mainLayout)
 
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
         self.text_area.setHtml(Ansi2HTMLConverter().convert("Select a playbook to see details"))
         self.text_area.setAcceptRichText(True)
+        self.text_area_cursor = self.text_area.textCursor()
+        self.text_area_cursor.movePosition(QTextCursor.MoveOperation.End)
         addWidgetToLayout(self.text_area, self.detailLayout)
 
         self.btnLayout = QHBoxLayout()
@@ -40,11 +43,13 @@ class DetailReportView(QWidget):
         self.btnGroup = QButtonGroup()
         self.btnGroup.setExclusive(True)
 
-        self.statusBtn = QPushButton("Show Status")
-        self.rcBtn = QPushButton("Show RC")
-        self.stdoutBtn = QPushButton("Show Stdout")
+        self.summaryBtn = QPushButton("Summary")
+        self.okBtn = QPushButton("Ok Event(s)")
+        self.failedBtn = QPushButton("Failed Event(s)")
+        self.unreachableBtn = QPushButton("Unreachable Event(s)")
+        self.skippedBtn = QPushButton("Skipped Event(s)")
 
-        for btn in (self.statusBtn, self.rcBtn, self.stdoutBtn):
+        for btn in (self.summaryBtn, self.okBtn, self.failedBtn, self.unreachableBtn, self.skippedBtn):
             addWidgetToLayout(btn, self.btnLayout)
             self.btnGroup.addButton(btn)
             btn.setCheckable(True)

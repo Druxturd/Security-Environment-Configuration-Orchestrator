@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QMainWindow, QProgressDialog, QMessageBox
 from PyQt5.QtCore import Qt
 from views.report_window_view import ReportWindow
 from models.detail_report_model import DetailReportModel, PlaybookModel
+from pydantic import BaseModel
 import httpx
 
 async def executeHarden(main_window:QMainWindow, URL:str, payload):
@@ -29,26 +30,26 @@ async def executeHarden(main_window:QMainWindow, URL:str, payload):
 def _outputReport(result):
     
     report = "\n\n".join(
-        f"Host - IP Address: {x['host']} - {x['ip']}\nPlaybook: {y['playbook']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['task_results'] for y in x['playbook_results']
+        f"Host - IP Address: {x['host']} - {x['ip']}\nPlaybook: {y['name']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['task_results'] for y in x['playbook_results']
     )
-    targetList = [
-        {
-            "host": x['host'],
-            "ip": x['ip'],
-            "playbooks": [
-                {
-                    "name": y['playbook'],
-                    "status": y['status'],
-                    "rc": y['rc'],
-                    "stdout": y['stdout'],
-                    "ok": y['events']['ok'],
-                    "failed": y['events']['failed'],
-                    "unreachable": y['events']['unreachable'],
-                    "skipped": y['events']['skipped']
-                }
-            ]
-        } for x in result['task_results'] for y in x['playbook_results']
-    ]
+    # targetList = [
+    #     {
+    #         "host": x['host'],
+    #         "ip": x['ip'],
+    #         "playbooks": [
+    #             {
+    #                 "name": y['playbook'],
+    #                 "status": y['status'],
+    #                 "rc": y['rc'],
+    #                 "stdout": y['stdout'],
+    #                 "ok": y['events']['ok'],
+    #                 "failed": y['events']['failed'],
+    #                 "unreachable": y['events']['unreachable'],
+    #                 "skipped": y['events']['skipped']
+    #             }
+    #         ]
+    #     } for x in result['task_results'] for y in x['playbook_results']
+    # ]
         
     #     targetList.append(target)
     #     print("")
@@ -69,6 +70,30 @@ def _outputReport(result):
     #             print(y['stdout'])
     #             print("")
     #         print(recap['stdout']+"\n")
+    targetList: list[testModel] = []
+    for x in result['task_results']:
+        targetList.append(testModel(host=x['host'], ip=x['ip'], playbook_results=x['playbook_results']))
 
     reportWindow = ReportWindow(report, targetList)
     reportWindow.exec()
+
+
+class pbModel(BaseModel):
+    name: str
+    status: str
+    rc: int
+    playbook_start: list
+    events: dict[str, list]
+    recap: list
+    stdout: str
+
+    def __getitem__(self, key):
+        return getattr(self, key)
+
+class testModel(BaseModel):
+    host: str
+    ip: str
+    playbook_results: list[pbModel]
+
+    def __getitem__(self, key):
+        return getattr(self, key)

@@ -1,4 +1,3 @@
-from tabnanny import check
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout, 

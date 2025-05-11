@@ -34,12 +34,12 @@ class DetailReportModel(QAbstractItemModel):
 
     def setupModelData(self, data):
         for target in data:
-            targetLbl = f"{target['host']} - {target['ip']}"
+            targetLbl = f"{target.host} - {target.ip}"
             targetItem = TreeItem({"type": "target", "label": targetLbl, "details": target}, self.rootItem)
             self.rootItem.appendChild(targetItem)
 
-            for playbook in target['playbooks']:
-                pbItem = TreeItem({"type": "playbook", "label": playbook['name'], "details": playbook}, targetItem)
+            for playbook in target.playbook_results:
+                pbItem = TreeItem({"type": "playbook", "label": playbook.name, "details": playbook}, targetItem)
                 targetItem.appendChild(pbItem)
 
     def columnCount(self, parent=QModelIndex()):
