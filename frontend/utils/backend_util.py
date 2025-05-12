@@ -28,6 +28,7 @@ async def execute_harden(main_window: QMainWindow, URL: str, payload):
     if "error" in result:
         add_critical_msg_box(main_window, "Error", result['error'])
     else:
+        # print(result)
         _output_report(result)
 
 def _output_report(result):

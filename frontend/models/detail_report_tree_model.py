@@ -1,86 +1,91 @@
 from PySide6.QtCore import (
     QAbstractItemModel,
     QModelIndex,
-    Qt,
-    QMetaType
+    Qt
 )
 
 class TreeItem:
     def __init__(self, data, parent=None):
-        self.parent_item = parent
-        self.item_data = data
-        self.child_items = []
+        self._data = data
+        self._parent = parent
+        self._children = []
     
-    def append_child(self, child):
-        self.child_items.append(child)
+    def appendChild(self, item):
+        self._children.append(item)
     
     def child(self, row):
-        return self.child_items[row]
+        return self._children[row] if 0 <= row < len(self._children) else None
 
-    def child_count(self):
-        return len(self.child_items)
+    def childCount(self):
+        return len(self._children)
     
-    def row(self):
-        if self.parent_item:
-            return self.parent_item.child_items.index(self)
-        return 0
-
     def data(self):
-        return self.item_data
+        return self._data
     
     def parent(self):
-        return self.parent_item
+        return self._parent
     
+    def row(self):
+        if self._parent:
+            return self._parent._children.index(self)
+        return 0
+
 class DetailReportModel(QAbstractItemModel):
     def __init__(self, data, parent=None):
         super().__init__(parent)
-        self.root_item = TreeItem("Root")
+        self._root_item = TreeItem({"type": "root"})
         self.setup_model_data(data)
 
     def setup_model_data(self, data):
         for target in data:
-            targetLbl = f"{target.host} - {target.ip}"
-            target_item = TreeItem({"type": "target", "label": targetLbl, "details": target}, self.root_item)
-            self.root_item.append_child(target_item)
+            host_name = f"{target.host} - {target.ip}"
+            host_item = TreeItem({"type": "host", "name": host_name}, self._root_item)
+            self._root_item.appendChild(host_item)
 
             for playbook in target.playbook_results:
-                playbook_item = TreeItem({"type": "playbook", "label": playbook.name, "details": playbook}, target_item)
-                target_item.append_child(playbook_item)
+                playbook_item = TreeItem({"type": "playbook", "name": playbook.name, "details": playbook}, host_item)
+                host_item.appendChild(playbook_item)
 
-    def columnCount(self, parent=QModelIndex()):
-        return 1
-    
-    def rowCount(self, parent=QModelIndex()):
-        if not parent.isValid():
-            return self.root_item.child_count()
-        parentItem = parent.internalPointer()
-        return parentItem.child_count()
-    
     def index(self, row, column, parent=QModelIndex()):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
-        if not parent.isValid():
-            parentItem = self.root_item
-        else:
-            parentItem = parent.internalPointer()
-        childItem = parentItem.child(row)
-        if childItem:
-            return self.createIndex(row, column, childItem)
+        
+        parent_item = self._root_item if not parent.isValid() else parent.internalPointer()
+        child_item = parent_item.child(row)
+
+        if child_item:
+            return self.createIndex(row, column, child_item)
         return QModelIndex()
     
     def parent(self, index):
         if not index.isValid():
             return QModelIndex()
-        childItem = index.internalPointer()
-        parentItem = childItem.parent()
-        if parentItem == self.root_item:
-            return QModelIndex()
-        return self.createIndex(parentItem.row(), 0, parentItem)
+        
+        child_item = index.internalPointer()
+        parent_item = child_item.parent()
 
+        if parent_item == self._root_item or parent_item is None:
+            return QModelIndex()
+        
+        return self.createIndex(parent_item.row(), 0, parent_item)
+
+    def rowCount(self, parent=QModelIndex()):
+        parent_item = self._root_item if not parent.isValid() else parent.internalPointer()
+        return parent_item.childCount()
+    
+    def columnCount(self, parent=QModelIndex()):
+        return 1
+    
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
-            return QMetaType()
+            return None
+        
         item = index.internalPointer()
         if role == Qt.ItemDataRole.DisplayRole:
-            return item.data()['label']
-        return QMetaType()
+            return item.data().get("name", "")
+        return None
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemFlag.NoItemFlags
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable

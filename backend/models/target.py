@@ -1,12 +1,12 @@
 from pydantic import BaseModel
 
 class Target(BaseModel):
-    IPAddress: str
-    hostName: str
-    SSHUsername: str
-    SSHPort: str
-    SSHKey: str
-    osVersionName: str
+    ip_address: str
+    host_name: str
+    ssh_username: str
+    ssh_private_key: str
+    ssh_port: str
+    os_version_name: str
 
 class TargetList(BaseModel):
     target_list: list[Target]

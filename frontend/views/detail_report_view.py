@@ -28,24 +28,22 @@ class DetailReportView(QWidget):
         self.column_view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerItem)
         self.column_view.setTextElideMode(Qt.TextElideMode.ElideMiddle)
         self.column_view.setTabKeyNavigation(False)
-        self.column_view.setColumnWidths([215, 215, 0])
+        self.column_view.setColumnWidths([200, 200, 0])
         self.main_layout.addWidget(self.column_view)
 
         self.detail_widget = QWidget()
         self.detail_layout = QVBoxLayout()
         self.detail_widget.setLayout(self.detail_layout)
-        self.detail_widget.setFixedWidth(650)
+        self.detail_widget.setFixedWidth(680)
         self.main_layout.addWidget(self.detail_widget)
 
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
         self.text_area.setHtml(Ansi2HTMLConverter().convert("Select a playbook to see details"))
         self.text_area.setAcceptRichText(True)
-        self.text_area_cursor = self.text_area.textCursor()
-        self.text_area_cursor.movePosition(QTextCursor.MoveOperation.End)
         self.detail_layout.addWidget(self.text_area)
 
-        self.btn_layout = QHBoxLayout()
+        self.btn_layout = QVBoxLayout()
         self.detail_layout.addLayout(self.btn_layout)
 
         self.btn_group = QButtonGroup()

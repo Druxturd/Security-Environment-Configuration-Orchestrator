@@ -40,14 +40,14 @@ class DetailReportController:
     def updateDetail(self, key: str):
         if self.current_playbook:
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(f"{self.current_playbook[key]}"))
-            self.view.text_area_cursor.movePosition(QTextCursor.MoveOperation.End)
+            self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
     
     def updateEventDetail(self, key: str):
-        if self.current_playbook['events'] and len(self.current_playbook['events'][key]) != 0:
+        if self.current_playbook['events'] and len(self.current_playbook['events'][key]) != 0: # type: ignore
             _text = "\n".join(
-                f"TASK [{x['event_data']['task']}]\n{x['stdout']}" for x in self.current_playbook['events'][key]
+                f"TASK [{x['event_data']['task']}]\n{x['stdout']}" for x in self.current_playbook['events'][key] # type: ignore
             )
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
         else:
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(f"There is no information about {key} event(s)"))
-        self.view.text_area_cursor.movePosition(QTextCursor.MoveOperation.End)
+        self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
