@@ -1,14 +1,16 @@
-from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtWidgets import QCheckBox
+import os
+from dotenv import load_dotenv
+from PySide6.QtCore import QObject, Qt
+from PySide6.QtWidgets import QCheckBox
 from qasync import asyncSlot
-from models.target_data_manager import TargetDataManager
+import httpx
+
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.main_window_view import MainWindow
-from utils.layout_util import *
-from utils.backend_util import *
-from dotenv import load_dotenv
-import os
-import requests
+
+from models.target_data_manager import TargetDataManager
+
+from utils.backend_util import execute_harden
 
 load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
@@ -16,95 +18,79 @@ EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
 EXECUTE_AUTO_HARDEN_URL = f"{HARDEN_LIST_URL}/auto-execute"
 
 class HardenTargetMenuController(QObject):
-    def __init__(self, view:HardenTargetMenuView, model_manager:TargetDataManager, main_window:MainWindow):
-        # Store the view, model manager, main window that being passed into the controller
+    def __init__(self, view: HardenTargetMenuView, model_manager: TargetDataManager, main_window: MainWindow):
         super().__init__()
+        
         self.view = view
         self.model_manager = model_manager
         self.main_window = main_window
+
+        self.view.back_btn.clicked.connect(self.go_to_main_menu)
+
+        self.view.execute_harden_btn.clicked.connect(self.execute_selected_harden)
+
+        # self.view.auto_harden_btn.clicked.connect(self.execute_auto_harden)
         
-        # Set the initial total target counter
-        self.view.totalTargetLbl.setText(f"Total Target: {self.model_manager.getCountTargetList()}")
+        self.update_total_target_counter()
 
-        # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
-        self.view.backBtn.clicked.connect(self.goToMainMenu)
+        self.model_manager.target_list_updated.connect(self.update_total_target_counter)
 
-        # Execute selected playbook
-        self.view.executeHardenBtn.clicked.connect(self.executeSelectedHarden) # type: ignore
+        self.fetch_files()
 
-        # Execute auto hardening (piloting)
-        # self.view.autoHardenBtn.clicked.connect(self.executeAutoHarden)  # type: ignore
+    def go_to_main_menu(self):
+        self.main_window.switch_to_main_menu()
+    
+    def update_total_target_counter(self):
+        self.view.total_target_list_lbl.setText(f"Total Target(s): {self.model_manager.get_count_target_list()}")
 
-        # Receive signal to update total target counter when changes occur to the target list data
-        self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
-
-        self.fetchFiles()
-
-    # Function to go to the main menu from harden target menu
-    def goToMainMenu(self):
-        self.main_window.switchToMainMenu()
-
-    # Function to update total target counter in main menu
-    def updateTotalTargetCounter(self):
-        self.view.totalTargetLbl.setText("Total Target: " + str(self.model_manager.getCountTargetList()))
-
-    # Function to fetch harden list
-    def fetchFiles(self):
+    def fetch_files(self):
         try:
-            resp = requests.get(HARDEN_LIST_URL)
+            resp = httpx.get(HARDEN_LIST_URL)
             if resp.status_code == 200:
                 data = resp.json()
-                dataList = data.get("harden_list", [])
-                dataList.sort()
-                for x in dataList:
-                    self.checkBox = QCheckBox(x)
-                    self.view.checkboxes.append(self.checkBox)
-                    addWidgetToLayout(self.checkBox, self.view.checkBoxLayout)
+                data_list = data.get("harden_list", [])
+                data_list.sort()
+                for x in data_list:
+                    self.check_box = QCheckBox(x)
+                    self.view.check_boxes.append(self.check_box)
+                    self.view.scroll_content_layout.addWidget(self.check_box)
                 
                 # Dynamically adjust the height of scrollable content
-                self.view.contentWidget.setFixedHeight(len(self.view.checkboxes) * 25)
+                self.view.scroll_content.setFixedHeight(len(self.view.check_boxes) * 25)
 
                 # Refresh the UI
-                self.view.contentWidget.adjustSize()
-                self.view.scrollArea.update()
+                self.view.scroll_content.adjustSize()
+                self.view.scroll_area.update()
                 self.view.repaint()
 
-        except requests.exceptions.RequestException as e:
+        except httpx.RequestError as e:
             print(e)
     
-    # Function to execute harden list
     @asyncSlot()
-    async def executeSelectedHarden(self):
+    async def execute_selected_harden(self):
         payload = {
-            "playbooks": [cb.text() for cb in self.view.checkboxes if cb.isChecked()],
-            "targets": self.model_manager.getPayload()
+            "playbooks": [cb.text() for cb in self.view.check_boxes if cb.isChecked()],
+            "targets": self.model_manager.get_payload()
         }
-        self.view.executeHardenBtn.setEnabled(False)
+        self.view.execute_harden_btn.setEnabled(False)
         
-        await executeHarden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
+        await execute_harden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
 
-        self.uncheckAllSelectedItems()
-        self.view.executeHardenBtn.setEnabled(True)
+        self.uncheck_all_selected_items()
+        self.view.execute_harden_btn.setEnabled(True)
     
-    # Fumctiom to auto execute harden
     @asyncSlot()
-    async def executeAutoHarden(self):
+    async def execute_auto_harden(self):
         payload = {
-            "targets": self.model_manager.getPayload()
+            "targets": self.model_manager.get_payload()
         }
-        self.view.autoHardenBtn.setEnabled(False)
+        self.view.auto_harden_btn.setEnabled(False)
 
-        await executeHarden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)        
+        await execute_harden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)
 
-        self.view.autoHardenBtn.setEnabled(True)        
+        self.view.auto_harden_btn.setEnabled(True)
 
-    ### temporary function to check selected item(s)
-    def checkItem(self):
-        checked = [cb.text() for cb in self.view.checkboxes if cb.isChecked()]
-        print("Checked: ", checked)
-    ##############
-
-    def uncheckAllSelectedItems(self):
-        for cb in self.view.checkboxes:
+    def uncheck_all_selected_items(self):
+        for cb in self.view.check_boxes:
             if cb.isChecked():
                 cb.setCheckState(Qt.CheckState.Unchecked)

@@ -1,60 +1,51 @@
-from PyQt5.QtWidgets import (
-    QHBoxLayout, 
-    QVBoxLayout, 
-    QPushButton, 
-    QLabel,
-    QLineEdit,
+from PySide6.QtWidgets import (
     QWidget,
-    QScrollArea,
-    QCheckBox
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea
 )
-from utils.layout_util import *
 
 class HardenTargetMenuView(QWidget):
     def __init__(self):
         super().__init__()
 
-        self._initUI()
+        self.main_layout = QVBoxLayout()
 
-    # Function to init harden target menu UI
-    def _initUI(self):
-        self.mainLayout = QVBoxLayout()
+        self.upper_layout = QHBoxLayout()
+        self.harden_menu_lbl = QLabel("Harden Target Menu")
+        self.auto_harden_btn = QPushButton("Execute Auto Harden")
 
-        self.hLayout1 = QHBoxLayout()
-        self.hardenMenuLbl = QLabel("Harden Target Menu")
-        self.autoHardenBtn = QPushButton("Execute Auto Harden")
-        addWidgetToLayout(self.hardenMenuLbl, self.hLayout1)
-        addWidgetToLayout(self.autoHardenBtn, self.hLayout1)
+        self.upper_layout.addWidget(self.harden_menu_lbl)
+        self.upper_layout.addWidget(self.auto_harden_btn)
 
-        self.vLayout1 = QVBoxLayout()
-        self.hardenListLbl = QLabel("Harden List")
+        self.harden_list_layout = QVBoxLayout()
+        self.harden_list_lbl = QLabel("Harden List")
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setFixedHeight(200)
 
-        # Scroll area
-        self.scrollArea = QScrollArea()
-        self.scrollArea.setFixedHeight(200)
+        self.scroll_content = QWidget()
+        self.scroll_content_layout = QVBoxLayout(self.scroll_content)
+        # self.scroll_content_layout.setParent(self.scroll_content)
 
-        # Widget to store checklist of harden list
-        self.contentWidget = QWidget()
-        self.checkBoxLayout = QVBoxLayout(self.contentWidget)
-        self.checkboxes = []
-        self.contentWidget.setLayout(self.checkBoxLayout)
-        self.scrollArea.setWidget(self.contentWidget)
-        addWidgetToLayout(self.hardenListLbl, self.vLayout1)
-        addWidgetToLayout(self.scrollArea, self.vLayout1)
+        self.check_boxes = []
+        self.scroll_content.setLayout(self.scroll_content_layout)
+        self.scroll_area.setWidget(self.scroll_content)
 
-        self.hLayout2 = QHBoxLayout()
-        self.executeHardenBtn = QPushButton("Execute Harden")
-        self.totalTargetLbl = QLabel("Total Target: ")
-        addWidgetToLayout(self.executeHardenBtn, self.hLayout2)
-        addWidgetToLayout(self.totalTargetLbl, self.hLayout2)
+        self.harden_list_layout.addWidget(self.harden_list_lbl)
+        self.harden_list_layout.addWidget(self.scroll_area)
 
-        self.hLayout3 = QHBoxLayout()
-        self.backBtn = QPushButton("Back to Main Menu")
-        addWidgetToLayout(self.backBtn, self.hLayout3)
-        addChildLayoutToParentLayout(self.hLayout2, self.hLayout3)
-        
-        addChildLayoutToParentLayout(self.hLayout1, self.mainLayout)
-        addChildLayoutToParentLayout(self.vLayout1, self.mainLayout)
-        addChildLayoutToParentLayout(self.hLayout3, self.mainLayout)
+        self.bottom_layout = QHBoxLayout()
+        self.back_btn = QPushButton("Back to Main Menu")
+        self.execute_harden_btn = QPushButton("Execute Harden")
+        self.total_target_list_lbl = QLabel("Total Target(s): ")
+        self.bottom_layout.addWidget(self.back_btn)
+        self.bottom_layout.addWidget(self.execute_harden_btn)
+        self.bottom_layout.addWidget(self.total_target_list_lbl)
 
-        self.setLayout(self.mainLayout)
+        self.main_layout.addLayout(self.upper_layout)
+        self.main_layout.addLayout(self.harden_list_layout)
+        self.main_layout.addLayout(self.bottom_layout)
+
+        self.setLayout(self.main_layout)

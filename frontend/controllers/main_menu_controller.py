@@ -3,59 +3,50 @@ from views.main_window_view import MainWindow
 
 from models.target_data_manager import TargetDataManager
 
-from utils.message_box_util import addWarningMsgBox
+from utils.message_box_util import *
 
 class MainMenuController:
-    def __init__(self, view:MainMenuView, model_manager:TargetDataManager, main_window:MainWindow):
-        # Store the view, model manager, main window that being passed into the controller
+    def __init__(self, view: MainMenuView, model_manager: TargetDataManager, main_window: MainWindow):
         self.view = view
         self.model_manager = model_manager
         self.main_window = main_window
 
-        self.errorTitle = "Error"
-        self.errorMsg = "Empty List!"
+        self.error_title = "Error"
+        self.error_msg = "Empty List!"
 
-        # Set the initial total target counter
-        self.view.totalTargetLbl.setText("Total Target: " + str(self.model_manager.getCountTargetList()))
+        self.view.target_list_menu_btn.clicked.connect(self.go_to_target_list_menu)
+        self.view.harden_target_menu_btn.clicked.connect(self.go_to_harden_target_menu)
+        self.view.patch_target_menu_btn.clicked.connect(self.go_to_patch_target_menu)
 
-        # Connect every button in main menu with respective function (e.g. hardenTargetMenuBtn when clicked will trigger function goToHardenTargetMenu)
-        self.view.targetListMenuBtn.clicked.connect(self.goToTargetListMenu)
-        self.view.hardenTargetMenuBtn.clicked.connect(self.goToHardenTargetMenu)
-        self.view.patchTargetMenuBtn.clicked.connect(self.goToPatchTargetMenu)
+        self.update_total_target_counter()
 
-        # Receive signal to update total target counter when changes occur to the target list data
-        self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
+        self.model_manager.target_list_updated.connect(self.update_total_target_counter)
 
-    # Function to go to the target list menu from main menu
-    def goToTargetListMenu(self):
-        self.main_window.switchToTargetListMenu()
+    def go_to_target_list_menu(self):
+        self.main_window.switch_to_target_list_menu()
 
-    # Function to go to the harden target menu from main menu
-    def goToHardenTargetMenu(self):
-        if self.isEmptyList():
-            addWarningMsgBox(
+    def go_to_harden_target_menu(self):
+        if self.is_empty_list():
+            add_warning_msg_box(
                 self.main_window,
-                self.errorTitle,
-                self.errorMsg
+                self.error_title,
+                self.error_msg
             )
         else:
-            self.main_window.switchToHardenTargetMenu()
-
-    # Function to go to the patch target menu from main menu
-    def goToPatchTargetMenu(self):
-        if self.isEmptyList():
-            addWarningMsgBox(
+            self.main_window.switch_to_harden_target_menu()
+    
+    def go_to_patch_target_menu(self):
+        if self.is_empty_list():
+            add_warning_msg_box(
                 self.main_window,
-                self.errorTitle,
-                self.errorMsg
+                self.error_title,
+                self.error_msg
             )
         else:
-            self.main_window.switchToPatchTargetMenu()
+            self.main_window.switch_to_patch_target_menu()
 
-    # Function to update total target counter in main menu
-    def updateTotalTargetCounter(self):
-        self.view.totalTargetLbl.setText(f"Total Target: {self.model_manager.getCountTargetList()}")
+    def update_total_target_counter(self):
+        self.view.total_target_lbl.setText(f"Total Target(s): {self.model_manager.get_count_target_list()}")
 
-    # Function to validate empty list
-    def isEmptyList(self):
-        return True if self.model_manager.getCountTargetList() == 0 else False
+    def is_empty_list(self):
+        return True if self.model_manager.get_count_target_list() == 0 else False

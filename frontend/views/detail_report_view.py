@@ -1,33 +1,41 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColumnView, QAbstractItemView, QLabel, QTextEdit, QButtonGroup, QPushButton, QAbstractScrollArea, QSizePolicy
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QTextCursor
-
-from utils.layout_util import *
-
+from PySide6.QtWidgets import(
+    QWidget,
+    QHBoxLayout,
+    QColumnView,
+    QAbstractItemView,
+    QAbstractScrollArea,
+    QSizePolicy,
+    QVBoxLayout,
+    QTextEdit,
+    QButtonGroup,
+    QPushButton
+)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QTextCursor
 from ansi2html import Ansi2HTMLConverter
 
 class DetailReportView(QWidget):
     def __init__(self):
         super().__init__()
-        self.mainLayout = QHBoxLayout()
-        self.setLayout(self.mainLayout)
+        self.main_layout = QHBoxLayout()
+        self.setLayout(self.main_layout)
 
-        self.columnView = QColumnView()
-        self.columnView.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self.columnView.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
-        self.columnView.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-        self.columnView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.columnView.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerItem)
-        self.columnView.setTextElideMode(Qt.TextElideMode.ElideMiddle)
-        self.columnView.setTabKeyNavigation(False)
-        self.columnView.setColumnWidths([215, 215, 0])
-        addWidgetToLayout(self.columnView, self.mainLayout)
+        self.column_view = QColumnView()
+        self.column_view.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.column_view.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+        self.column_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.column_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.column_view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerItem)
+        self.column_view.setTextElideMode(Qt.TextElideMode.ElideMiddle)
+        self.column_view.setTabKeyNavigation(False)
+        self.column_view.setColumnWidths([215, 215, 0])
+        self.main_layout.addWidget(self.column_view)
 
-        self.detailWidget = QWidget()
-        self.detailLayout = QVBoxLayout()
-        self.detailWidget.setLayout(self.detailLayout)
-        self.detailWidget.setFixedWidth(650)
-        addWidgetToLayout(self.detailWidget, self.mainLayout)
+        self.detail_widget = QWidget()
+        self.detail_layout = QVBoxLayout()
+        self.detail_widget.setLayout(self.detail_layout)
+        self.detail_widget.setFixedWidth(650)
+        self.main_layout.addWidget(self.detail_widget)
 
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
@@ -35,23 +43,23 @@ class DetailReportView(QWidget):
         self.text_area.setAcceptRichText(True)
         self.text_area_cursor = self.text_area.textCursor()
         self.text_area_cursor.movePosition(QTextCursor.MoveOperation.End)
-        addWidgetToLayout(self.text_area, self.detailLayout)
+        self.detail_layout.addWidget(self.text_area)
 
-        self.btnLayout = QHBoxLayout()
-        addChildLayoutToParentLayout(self.btnLayout, self.detailLayout)
+        self.btn_layout = QHBoxLayout()
+        self.detail_layout.addLayout(self.btn_layout)
 
-        self.btnGroup = QButtonGroup()
-        self.btnGroup.setExclusive(True)
+        self.btn_group = QButtonGroup()
+        self.btn_group.setExclusive(True)
 
-        self.summaryBtn = QPushButton("Summary")
-        self.okBtn = QPushButton("Ok Event(s)")
-        self.failedBtn = QPushButton("Failed Event(s)")
-        self.unreachableBtn = QPushButton("Unreachable Event(s)")
-        self.skippedBtn = QPushButton("Skipped Event(s)")
+        self.summary_btn = QPushButton("Summary")
+        self.ok_btn = QPushButton("Ok Event(s)")
+        self.failed_btn = QPushButton("Failed Event(s)")
+        self.unreachable_btn = QPushButton("Unreachable Event(s)")
+        self.skipped_btn = QPushButton("Skipped Event(s)")
 
-        for btn in (self.summaryBtn, self.okBtn, self.failedBtn, self.unreachableBtn, self.skippedBtn):
-            addWidgetToLayout(btn, self.btnLayout)
-            self.btnGroup.addButton(btn)
+        for btn in (self.summary_btn, self.ok_btn, self.failed_btn, self.unreachable_btn, self.skipped_btn):
+            self.btn_layout.addWidget(btn)
+            self.btn_group.addButton(btn)
             btn.setCheckable(True)
             btn.setEnabled(False)
             btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)

@@ -1,37 +1,32 @@
-from PyQt5.QtWidgets import (
-    QHBoxLayout, 
-    QVBoxLayout, 
-    QPushButton, 
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
     QLabel,
-    QWidget
+    QHBoxLayout,
+    QPushButton
 )
-from utils.layout_util import *
 
 class MainMenuView(QWidget):
     def __init__(self):
         super().__init__()
-        self._initUI()
 
-    # Function to init main menu UI
-    def _initUI(self):
-        self.mainLayout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
+        self.main_menu_lbl = QLabel("Main Menu")
 
-        self.mainMenuLbl = QLabel("Main Menu")
+        self.target_list_layout = QHBoxLayout()
+        self.target_list_menu_btn = QPushButton("Target List Menu")
+        self.total_target_lbl = QLabel("Total Target: ")
+        self.target_list_layout.addWidget(self.target_list_menu_btn)
+        self.target_list_layout.addWidget(self.total_target_lbl)
 
-        self.hLayout1 = QHBoxLayout()
-        self.targetListMenuBtn = QPushButton("Target List Menu")
-        self.totalTargetLbl = QLabel("Total target: ")
-        addWidgetToLayout(self.targetListMenuBtn, self.hLayout1)
-        addWidgetToLayout(self.totalTargetLbl, self.hLayout1)
+        self.menu_layout = QHBoxLayout()
+        self.harden_target_menu_btn = QPushButton("Harden Target Menu")
+        self.patch_target_menu_btn = QPushButton("Patch Target Menu")
+        self.menu_layout.addWidget(self.harden_target_menu_btn)
+        self.menu_layout.addWidget(self.patch_target_menu_btn)
 
-        self.hLayout2 = QHBoxLayout()
-        self.hardenTargetMenuBtn = QPushButton("Harden Target Menu")
-        self.patchTargetMenuBtn = QPushButton("Patch Target Menu")
-        addWidgetToLayout(self.hardenTargetMenuBtn, self.hLayout2)
-        addWidgetToLayout(self.patchTargetMenuBtn, self.hLayout2)
+        self.main_layout.addWidget(self.main_menu_lbl)
+        self.main_layout.addLayout(self.target_list_layout)
+        self.main_layout.addLayout(self.menu_layout)
 
-        addWidgetToLayout(self.mainMenuLbl, self.mainLayout)
-        addChildLayoutToParentLayout(self.hLayout1, self.mainLayout)
-        addChildLayoutToParentLayout(self.hLayout2, self.mainLayout)
-
-        self.setLayout(self.mainLayout)
+        self.setLayout(self.main_layout)

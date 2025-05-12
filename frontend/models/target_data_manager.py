@@ -1,51 +1,43 @@
-from PyQt5.QtCore import QObject, pyqtSignal
-from typing import List, Set
+from PySide6.QtCore import QObject, Signal
 from models.target_model import TargetModel
+from typing import List, Set
 
 class TargetDataManager(QObject):
 
-    supportedOSVersion = {
+    supported_os_version = {
         "debian": ["11", "12"],
         "ubuntu": ["20", "22", "24"]
     }
 
-    # Signal to trigger function updateTotalTargetCounter in every menu when changes occur to the target list
-    targetListUpdated = pyqtSignal()
+    target_list_updated = Signal()
 
     def __init__(self):
         super().__init__()
-        self._targetList: List[TargetModel] = []
-        self._uniqueKeys: Set[TargetModel] = set()
-    
-    # Function to get target list data
-    def getTargetList(self) -> List[TargetModel]:
-        return self._targetList
-    
-    def getPayload(self) -> dict:
+        self._target_list: List[TargetModel] = []
+        self._unique_keys: Set[TargetModel] = set()
+
+    def get_target_list(self) -> List[TargetModel]:
+        return self._target_list
+
+    def get_payload(self) -> dict:
         return {
-            "target_list": [target.toPayload() for target in self._targetList]
+            "target_list": [target.to_payload() for target in self._target_list]
         }
     
-    # Function to get total target list
-    def getCountTargetList(self) -> int:
-        return len(self._targetList)
+    def get_count_target_list(self) -> int:
+        return len(self._target_list)
     
-    # Function to add a new target into target list data
-    def addNewTarget(self, newData:TargetModel) -> bool:
-        if newData not in self._uniqueKeys:
-            self._targetList.append(newData)
-            self._uniqueKeys.add(newData)
+    def add_new_target(self, new_data: TargetModel) -> bool:
+        if new_data not in self._unique_keys:
+            self._target_list.append(new_data)
+            self._unique_keys.add(new_data)
 
-            # Send signal to trigger function updateTotalTargetCounter
-            self.targetListUpdated.emit()
-            return True # Success add new data
-        return False # Duplicated data
+            self.target_list_updated.emit()
+            return True
+        return False
+    
+    def clear_target_list(self):
+        self._target_list.clear()
+        self._unique_keys.clear()
 
-
-    # Function to clear target list data
-    def clearTargetList(self):
-        self._targetList.clear()
-        self._uniqueKeys.clear()
-
-        # Send signal to trigger function updateTotalTargetCounter
-        self.targetListUpdated.emit()
+        self.target_list_updated.emit()

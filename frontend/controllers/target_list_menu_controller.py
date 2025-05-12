@@ -1,67 +1,59 @@
+from datetime import datetime
 import math
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog
-from models.target_model import TargetModel
-from models.target_data_manager import TargetDataManager
+from pathlib import Path
+from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QFileDialog
+import httpx
+import pandas as pd
+
 from views.target_list_menu_view import TargetListMenuView
 from views.main_window_view import MainWindow
-from utils.message_box_util import addCriticalMsgBox, addInformationMsgBox, addWarningMsgBox
+
+from models.target_data_manager import TargetDataManager
+from models.target_model import TargetModel
+
+from utils.message_box_util import *
+
 from dotenv import load_dotenv
-from pathlib import Path
-from datetime import datetime
-import pandas as pd
 import os
-import requests
 
 load_dotenv()
 TEMPLATE_URL = f"{os.getenv("BACKEND_URL")}/download-template"
 
-### temporary endpoint test ansible runner URL
-INSTALL_NGINX_URL = f"{os.getenv("BACKEND_URL")}/install-nginx"
-UNINSTALL_NGINX_URL = f"{os.getenv("BACKEND_URL")}/uninstall-nginx"
-############
-
 class TargetListMenuController(QObject):
-    def __init__(self, view:TargetListMenuView, model_manager:TargetDataManager, main_window:MainWindow):
+    def __init__(self, view: TargetListMenuView, model_manager: TargetDataManager, main_window: MainWindow):
         super().__init__()
-        # Store the view, model, main window that being passed into the controller
+
         self.view = view
         self.model_manager = model_manager
         self.main_window = main_window
 
-        self.inputError = "Input Error"
-        self.errorMsg = [
+        self.input_error = "Input Error"
+        self.error_msg = [
             "IP Address must be fill!",
             "Host name must be fill!",
             "SSH Key must be fill"
         ]
 
-        # Set the initial total target counter
-        self.view.totalTargetLbl.setText(f"Total Target: {self.model_manager.getCountTargetList()}")
+        self.view.back_btn.clicked.connect(self.go_to_main_menu)
+        self.view.download_template_btn.clicked.connect(self.download_template)
+        self.view.upload_excel_btn.clicked.connect(self.upload_excel_file)
+        self.view.add_target_btn.clicked.connect(self.add_target)
+        self.view.clear_target_btn.clicked.connect(self.model_manager.clear_target_list)
 
-        # Connect every button in harden target menu with respective function (e.g. backBtn when clicked will trigger function goToMainMenu)
-        self.view.clearTargetBtn.clicked.connect(self.model_manager.clearTargetList)
-        self.view.downloadTemplateBtn.clicked.connect(self.downloadTemplate)
-        self.view.uploadBtn.clicked.connect(self.uploadExcelFile)
-        self.view.addTargetBtn.clicked.connect(self.addTarget)
-        self.view.backBtn.clicked.connect(self.goToMainMenu)
+        self.update_total_target_counter()
 
-        ### temporary btn
-        self.view.checkBtn.clicked.connect(self.checkData)
-        ###
+        self.model_manager.target_list_updated.connect(self.update_total_target_counter)
 
-        # Receive signal to update total target counter when changes occur to the target list data
-        self.model_manager.targetListUpdated.connect(self.updateTotalTargetCounter)
+    def go_to_main_menu(self):
+        self.main_window.switch_to_main_menu()
 
-    def goToMainMenu(self):
-        self.main_window.switchToMainMenu()
+    def update_total_target_counter(self):
+        self.view.total_target_lbl.setText(f"Total Target(s): {self.model_manager.get_count_target_list()}")
 
-    def updateTotalTargetCounter(self):
-        self.view.totalTargetLbl.setText("Total Target: " + str(self.model_manager.getCountTargetList()))
-
-    def downloadTemplate(self):
+    def download_template(self):
         try:
-            resp = requests.get(TEMPLATE_URL, timeout=10)
+            resp = httpx.get(TEMPLATE_URL)
 
             if resp.status_code == 404:
                 print("error download template")
@@ -70,43 +62,31 @@ class TargetListMenuController(QObject):
             resp.raise_for_status() # Raises HTTPError for 4xx/5xx
 
             downloads_folder = Path.home() / "Downloads"
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename = f"template_{timestamp}.xlsx"
-            file_path = downloads_folder / filename
+            time_stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            file_name = f"template_{time_stamp}.xlsx"
+            file_path = downloads_folder / file_name
 
             with open(file_path, "wb") as f:
                 f.write(resp.content)
 
-            addInformationMsgBox(
+            add_information_msg_box(
                 self.main_window,
                 "Download Successful",
                 f"The template has been downloaded to:\n{file_path}"
             )
         
-        except requests.exceptions.Timeout:
+        except httpx.TimeoutException:
             print("timeout")
-        except requests.exceptions.ConnectionError:
+        except httpx.ConnectError:
             print("connection error")
-        except requests.exceptions.HTTPError as http_err:
+        except httpx.HTTPError as http_err:
             print(http_err)
         except Exception as e:
             print(e)
 
-    ### temporary function
-    def checkData(self):
-        for x in self.model_manager.getTargetList():
-            print(f"ip: {x.IPAddress}")
-            print(f"host: {x.hostName}")
-            print(f"ssh username: {x.SSHUsername}")
-            print(f"key: {x.SSHKey}")
-            print(f"port: {x.SSHPort}")
-            print(f"os: {x.osVersionName}")
-            print("")
-    #########
-    
-    def uploadExcelFile(self):
-        options = QFileDialog.Options()
-        filePath, _ = QFileDialog.getOpenFileName(
+    def upload_excel_file(self):
+        options = QFileDialog().options()
+        file_path, _ = QFileDialog.getOpenFileName(
             self.main_window,
             "Open Excel File",
             "",
@@ -114,19 +94,19 @@ class TargetListMenuController(QObject):
             options=options
         )
 
-        if not filePath: # if user cancel upload
+        if not file_path: # if user cancel upload
             return
-
+        
         try:
-            newTargetAdded = 0
+            new_target_added = 0
 
-            df = pd.read_excel(filePath, engine='openpyxl')
+            df = pd.read_excel(file_path, engine='openpyxl')
 
-            requiredColumns = {"IP Address", "Host Name", "SSH Private Key", "OS Version Name"}
+            required_columns = {"IP Address", "Host Name", "SSH Private Key", "OS Version Name"}
 
             # Validate header
-            if not requiredColumns.issubset(df.columns):
-                raise ValueError(f"Missing required column(s): {requiredColumns - set(df.columns)}")
+            if not required_columns.issubset(df.columns):
+                raise ValueError(f"Missing required column(s): {required_columns - set(df.columns)}")
 
             for i, row in df.iterrows():
                 try:
@@ -141,69 +121,69 @@ class TargetListMenuController(QObject):
                     if not _ip or not _host or not _user or not _port or not _key or not _os:
                         raise ValueError("Empty value in required column(s)")
                     
-                    _filteredOS = _os.lower().split()
+                    _filtered_os = _os.lower().split()
 
-                    _osName = _filteredOS[0]
-                    _osVersion = _filteredOS[1]
+                    _osName = _filtered_os[0]
+                    _osVersion = _filtered_os[1]
 
-                    if _osName in TargetDataManager.supportedOSVersion and any(_osVersion.startswith(x) for x in TargetDataManager.supportedOSVersion[_osName]):
-                        target = TargetModel(IPAddress=_ip, hostName=_host, SSHUsername=_user, SSHPort=_port, SSHKey=_key, osVersionName=_os)
+                    if _osName in TargetDataManager.supported_os_version and any(_osVersion.startswith(x) for x in TargetDataManager.supported_os_version[_osName]):
+                        target = TargetModel(ip_address=_ip, host_name=_host, ssh_username=_user, ssh_port=_port, ssh_private_key=_key, os_version_name=_os)
                     else:
                         continue
 
-                    if self.model_manager.addNewTarget(target):
-                        newTargetAdded += 1
-                
+                    if self.model_manager.add_new_target(target):
+                        new_target_added += 1
+            
                 except Exception as e:
-                    addWarningMsgBox(
+                    add_warning_msg_box(
                         self.main_window,
                         "Row Error",
                         f"Skipping row {i+2}: {str(e)}" # type: ignore
                     )
         
-            addInformationMsgBox(
+            add_information_msg_box(
                 self.main_window,
                 "Upload Successful",
-                f"Added {newTargetAdded} new target(s).\nTotal target list: {self.model_manager.getCountTargetList()}"
+                f"Added {new_target_added} new target(s).\nTotal target(s): {self.model_manager.get_count_target_list()}"
             )
 
-            self.updateTotalTargetCounter()
+            self.update_total_target_counter()
         
         except Exception as e:
-            addCriticalMsgBox(
+            add_critical_msg_box(
                 self.main_window,
                 "Error",
                 f"Failed to read Excel file:\n{str(e)}"
             )
+    
+    def add_target(self):
+        ip_address = self.view.ip_input.text().strip()
+        host_name = self.view.host_input.text().strip()
+        key = self.view.key_input.toPlainText().strip()
 
-    def addTarget(self):
-        IPAddress = self.view.IPAddressInput.text().strip()
-        hostName = self.view.hostNameInput.text().strip()
-        SSHKey = self.view.SSHKeyInput.toPlainText().strip()
-
-        if not IPAddress:
-            addWarningMsgBox(self.main_window, self.inputError, self.errorMsg[0])
+        if not ip_address:
+            add_warning_msg_box(self.main_window, self.input_error, self.error_msg[0])
             return
         
-        elif not hostName:
-            addWarningMsgBox(self.main_window, self.inputError, self.errorMsg[1])
+        elif not host_name:
+            add_warning_msg_box(self.main_window, self.input_error, self.error_msg[1])
             return
         
-        elif not SSHKey:
-            addWarningMsgBox(self.main_window, self.inputError, self.errorMsg[2])
+        elif not key:
+            add_warning_msg_box(self.main_window, self.input_error, self.error_msg[2])
             return
         
-        newTarget = TargetModel(IPAddress, hostName, SSHKey)
+        newTarget = TargetModel(ip_address, host_name, key)
 
-        if self.model_manager.addNewTarget(newTarget):
-            self.updateTotalTargetCounter()
-            addInformationMsgBox(
+        if self.model_manager.add_new_target(newTarget):
+            self.update_total_target_counter()
+            add_information_msg_box(
                 self.main_window,
                 "Add New Target Successful",
-                f"Added new target.\nTotal target list: {self.model_manager.getCountTargetList()}"
+                f"Added new target.\nTotal target list: {self.model_manager.get_count_target_list()}"
             )
         else:
-            addInformationMsgBox(
+            add_information_msg_box(
                 self.main_window,
                 "Add New Target Failed",
                 f"Duplicated target list!"
@@ -212,6 +192,6 @@ class TargetListMenuController(QObject):
         self.clearInput()
 
     def clearInput(self):
-        self.view.IPAddressInput.clear()
-        self.view.hostNameInput.clear()
-        self.view.SSHKeyInput.clear()
+        self.view.ip_input.clear()
+        self.view.host_input.clear()
+        self.view.key_input.clear()

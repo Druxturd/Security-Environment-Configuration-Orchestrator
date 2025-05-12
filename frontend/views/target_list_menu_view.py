@@ -1,75 +1,66 @@
-from PyQt5.QtWidgets import (
-    QHBoxLayout, 
-    QVBoxLayout, 
-    QPushButton, 
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
     QLabel,
+    QPushButton,
     QLineEdit,
-    QTextEdit,
-    QWidget
+    QTextEdit
 )
-from utils.layout_util import *
 
 class TargetListMenuView(QWidget):
     def __init__(self):
         super().__init__()
-        
-        self._initUI()
 
-    # Function to ini target list menu UI
-    def _initUI(self):
+        self.main_layout = QVBoxLayout()
 
-        self.mainLayout = QVBoxLayout()
+        self.upper_layout = QHBoxLayout()
+        self.target_list_menu_lbl = QLabel("Target List Menu")
+        self.download_template_btn = QPushButton("Download Excel Template")
+        self.upload_excel_btn = QPushButton("Upload Excel")
+        self.upper_layout.addWidget(self.target_list_menu_lbl)
+        self.upper_layout.addWidget(self.download_template_btn)
+        self.upper_layout.addWidget(self.upload_excel_btn)
 
-        self.hLayout1 = QHBoxLayout()
-        self.targetListMenuLbl = QLabel("Target List Menu")
-        self.downloadTemplateBtn = QPushButton("Download Excel Template")
-        self.uploadBtn = QPushButton("Upload Excel")
-        addWidgetToLayout(self.targetListMenuLbl, self.hLayout1)
-        addWidgetToLayout(self.downloadTemplateBtn, self.hLayout1)
-        addWidgetToLayout(self.uploadBtn, self.hLayout1)
-        ### temporary button
-        self.checkBtn = QPushButton("Check")
-        addWidgetToLayout(self.checkBtn, self.hLayout1)
-        ########
-        
-        self.vLayout1 = QVBoxLayout()
-        self.IPAddressLbl = QLabel("IP Address")
-        self.IPAddressInput = QLineEdit()
-        addWidgetToLayout(self.IPAddressLbl, self.vLayout1)
-        addWidgetToLayout(self.IPAddressInput, self.vLayout1)
+        self.middle_layout = QVBoxLayout()
 
-        self.vLayout2 = QVBoxLayout()
-        self.hostNameLbl = QLabel("Host Name")
-        self.hostNameInput = QLineEdit()
-        addWidgetToLayout(self.hostNameLbl, self.vLayout2)
-        addWidgetToLayout(self.hostNameInput, self.vLayout2)
+        self.ip_layout = QVBoxLayout()
+        self.ip_lbl = QLabel("IP Address")
+        self.ip_input = QLineEdit()
+        self.ip_layout.addWidget(self.ip_lbl)
+        self.ip_layout.addWidget(self.ip_input)
 
-        self.hLayout2 = QHBoxLayout()
-        addChildLayoutToParentLayout(self.vLayout1, self.hLayout2)
-        addChildLayoutToParentLayout(self.vLayout2, self.hLayout2)
+        self.host_layout = QVBoxLayout()
+        self.host_lbl = QLabel("Host Name")
+        self.host_input = QLineEdit()
+        self.host_layout.addWidget(self.host_lbl)
+        self.host_layout.addWidget(self.host_input)
 
-        self.hLayout3 = QHBoxLayout()
-        self.SSHKeyLbl = QLabel("SSH Key")
-        self.SSHKeyInput = QTextEdit()
-        addWidgetToLayout(self.SSHKeyLbl, self.hLayout3)
-        addWidgetToLayout(self.SSHKeyInput, self.hLayout3)
+        self.upper_mid_layout = QHBoxLayout()
+        self.upper_mid_layout.addLayout(self.ip_layout)
+        self.upper_mid_layout.addLayout(self.host_layout)
 
-        self.hLayout4 = QHBoxLayout()
-        self.clearTargetBtn = QPushButton("Clear Target")
-        self.addTargetBtn = QPushButton("Add Target")
-        self.totalTargetLbl = QLabel("Total Target: ")
-        addWidgetToLayout(self.clearTargetBtn, self.hLayout4)
-        addWidgetToLayout(self.addTargetBtn, self.hLayout4)
-        addWidgetToLayout(self.totalTargetLbl, self.hLayout4)
+        self.key_layout = QHBoxLayout()
+        self.key_lbl = QLabel("SSH Private Key")
+        self.key_input = QTextEdit()
+        self.key_layout.addWidget(self.key_lbl)
+        self.key_layout.addWidget(self.key_input)
 
-        self.hLayout5 = QHBoxLayout()
-        self.backBtn = QPushButton("Back to Main Menu")
-        addWidgetToLayout(self.backBtn, self.hLayout5)
-        addChildLayoutToParentLayout(self.hLayout4, self.hLayout5)
+        self.middle_layout.addLayout(self.upper_mid_layout)
+        self.middle_layout.addLayout(self.key_layout)
 
-        addChildLayoutToParentLayout(self.hLayout1, self.mainLayout)
-        addChildLayoutToParentLayout(self.hLayout2, self.mainLayout)
-        addChildLayoutToParentLayout(self.hLayout3, self.mainLayout)
-        addChildLayoutToParentLayout(self.hLayout5, self.mainLayout)
+        self.bottom_layout = QHBoxLayout()
+        self.back_btn = QPushButton("Back to Main Menu")
+        self.clear_target_btn = QPushButton("Clear Target")
+        self.add_target_btn = QPushButton("Add Target")
+        self.total_target_lbl = QLabel("Total Target: ")
+        self.bottom_layout.addWidget(self.back_btn)
+        self.bottom_layout.addWidget(self.clear_target_btn)
+        self.bottom_layout.addWidget(self.add_target_btn)
+        self.bottom_layout.addWidget(self.total_target_lbl)
 
-        self.setLayout(self.mainLayout)
+        self.main_layout.addLayout(self.upper_layout)
+        self.main_layout.addLayout(self.middle_layout)
+        self.main_layout.addLayout(self.bottom_layout)
+
+        self.setLayout(self.main_layout)

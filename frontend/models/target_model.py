@@ -1,35 +1,39 @@
-from PyQt5.QtCore import QObject
+from PySide6.QtCore import QObject
 
 from typing import Any
 
-# Base Model
 class TargetModel(QObject):
-    
-    # Initialize
-    def __init__(self, IPAddress: str = "", hostName: str = "", SSHUsername: str = "", SSHKey: str = "", SSHPort: str = "22", osVersionName: str = ""):
+    def __init__(
+            self,
+            ip_address: str = "",
+            host_name: str = "",
+            ssh_username: str = "",
+            ssh_private_key: str = "",
+            ssh_port: str = "22",
+            os_version_name: str = ""
+    ):
         super().__init__()
-        self.IPAddress = IPAddress
-        self.hostName = hostName
-        self.SSHUsername = SSHUsername
-        self.SSHKey = SSHKey
-        self.SSHPort = SSHPort
-        self.osVersionName = osVersionName
+        self.ip_address = ip_address
+        self.host_name = host_name
+        self.ssh_username = ssh_username
+        self.ssh_private_key = ssh_private_key
+        self.ssh_port = ssh_port
+        self.os_version_name = os_version_name
 
-    # To prevent duplicate data (__eq__ and __hash__)
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):
             return NotImplemented
-        return self.IPAddress == other.IPAddress and self.hostName == other.hostName and self.SSHUsername == other.SSHUsername and self.SSHKey == other.SSHKey and self.SSHPort == other.SSHPort and self.osVersionName == other.osVersionName
+        return self.ip_address == other.ip_address and self.host_name == other.host_name and self.ssh_username == other.ssh_username and self.ssh_private_key == other.ssh_private_key and self.ssh_port == other.ssh_port and self.os_version_name == other.os_version_name
     
     def __hash__(self) -> int:
-        return hash((type(self), self.IPAddress, self.hostName, self.SSHUsername, self.SSHKey, self.SSHPort, self.osVersionName))
+        return hash((type(self), self.ip_address, self.host_name, self.ssh_username, self.ssh_private_key, self.ssh_port, self.os_version_name))
     
-    def toPayload(self) -> dict:
+    def to_payload(self) -> dict:
         return {
-            "IPAddress": self.IPAddress,
-            "hostName": self.hostName,
-            "SSHUsername": self.SSHUsername,
-            "SSHKey": self.SSHKey,
-            "SSHPort": self.SSHPort,
-            "osVersionName": self.osVersionName
+            "ip_address": self.ip_address,
+            "host_name": self.host_name,
+            "ssh_username": self.ssh_username,
+            "ssh_private_key": self.ssh_private_key,
+            "ssh_port": self.ssh_port,
+            "os_version_name": self.os_version_name
         }

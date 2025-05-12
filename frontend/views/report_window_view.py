@@ -1,19 +1,17 @@
-from PyQt5.QtWidgets import (
+from PySide6.QtWidgets import (
     QDialog,
     QVBoxLayout,
-    QLabel,
-    QDialogButtonBox,
-    QTextEdit,
     QTabWidget,
+    QDialogButtonBox,
     QWidget,
+    QLabel,
+    QTextEdit
 )
-from PyQt5.QtCore import QSize
-from utils.layout_util import *
+from PySide6.QtCore import QSize
 from ansi2html import Ansi2HTMLConverter
 from views.detail_report_view import DetailReportView
 from models.detail_report_tree_model import DetailReportModel
 from controllers.detail_report_controller import DetailReportController
-
 
 class ReportWindow(QDialog):
     def __init__(self, report_text: str, target_list: list):
@@ -27,7 +25,7 @@ class ReportWindow(QDialog):
         self.tabs = QTabWidget()
         self.tabs.setTabPosition(QTabWidget.TabPosition.North)
 
-        addWidgetToLayout(self.tabs, layout)
+        layout.addWidget(self.tabs)
         
         self.initSummaryTab(report_text)
         self.initDetailTab(target_list)
@@ -35,7 +33,7 @@ class ReportWindow(QDialog):
         QBtn = QDialogButtonBox.StandardButton.Close
         self.close_button = QDialogButtonBox(QBtn)
         self.close_button.rejected.connect(self.reject)
-        addWidgetToLayout(self.close_button, layout)
+        layout.addWidget(self.close_button)
 
         self.setLayout(layout)
 
@@ -43,13 +41,13 @@ class ReportWindow(QDialog):
         self.tab1 = QWidget()
         self.l1 = QVBoxLayout()
         self.title = QLabel("Playbook Result Report")
-        addWidgetToLayout(self.title, self.l1)
+        self.l1.addWidget(self.title)
 
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
         self.text_area.setHtml(Ansi2HTMLConverter().convert(report_text))
         self.text_area.setAcceptRichText(True)
-        addWidgetToLayout(self.text_area, self.l1)
+        self.l1.addWidget(self.text_area)
         self.tab1.setLayout(self.l1)
         self.tabs.addTab(self.tab1, "Summary")
     

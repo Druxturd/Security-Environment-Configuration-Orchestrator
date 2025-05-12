@@ -1,44 +1,36 @@
-from PyQt5.QtWidgets import (
-    QHBoxLayout, 
-    QVBoxLayout, 
-    QPushButton, 
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
     QLabel,
     QLineEdit,
-    QWidget
+    QHBoxLayout,
+    QPushButton
 )
-from utils.layout_util import *
 
 class PatchTargetMenuView(QWidget):
     def __init__(self):
         super().__init__()
 
-        self._initUI()
+        self.main_layout = QVBoxLayout()
 
-    # Function to init patch target menu UI
-    def _initUI(self):
-        self.mainLayout = QVBoxLayout()
-
-        self.patchMenuLbl = QLabel("Patch Target Menu")
+        self.patch_menu_lbl = QLabel("Patch Target Menu")
+        self.main_layout.addWidget(self.patch_menu_lbl)
 
         self.vLayout1 = QVBoxLayout()
-        self.patchListLbl = QLabel("Patch List")
-        self.patchListInp = QLineEdit() # temporary placeholder
-        addWidgetToLayout(self.patchListLbl, self.vLayout1)
-        addWidgetToLayout(self.patchListInp, self.vLayout1)
+        self.patch_list_lbl = QLabel("Patch List")
+        self.patch_list_input = QLineEdit() # temporary placeholder
+        self.vLayout1.addWidget(self.patch_list_lbl)
+        self.vLayout1.addWidget(self.patch_list_input)
 
         self.hLayout1 = QHBoxLayout()
-        self.executePatchBtn = QPushButton("Execute Patch")
-        self.totalTargetLbl = QLabel("Total Target: ")
-        addWidgetToLayout(self.executePatchBtn, self.hLayout1)
-        addWidgetToLayout(self.totalTargetLbl, self.hLayout1)
+        self.back_btn = QPushButton("Back to Main Menu")
+        self.execute_patch_btn = QPushButton("Execute Patch")
+        self.total_target_lbl = QLabel("Total Target(s): ")
+        self.hLayout1.addWidget(self.back_btn)
+        self.hLayout1.addWidget(self.execute_patch_btn)
+        self.hLayout1.addWidget(self.total_target_lbl)
 
-        self.hLayout2 = QHBoxLayout()
-        self.backBtn = QPushButton("Back to Main Menu")
-        addWidgetToLayout(self.backBtn, self.hLayout2)
-        addChildLayoutToParentLayout(self.hLayout1, self.hLayout2)
+        self.main_layout.addLayout(self.vLayout1)
+        self.main_layout.addLayout(self.hLayout1)
 
-        addWidgetToLayout(self.patchMenuLbl, self.mainLayout)
-        addChildLayoutToParentLayout(self.vLayout1, self.mainLayout)
-        addChildLayoutToParentLayout(self.hLayout2, self.mainLayout)
-
-        self.setLayout(self.mainLayout)
+        self.setLayout(self.main_layout)
