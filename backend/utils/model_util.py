@@ -52,15 +52,15 @@ def grouping_os(payload: TargetList):
         ubuntu_24_list: list[Target] = []
 
         for target in payload.target_list:
-            if is_Debian_11(target.osVersionName):
+            if is_Debian_11(target.os_version_name):
                 debian_11_list.append(target)
-            elif is_Debian_12(target.osVersionName):
+            elif is_Debian_12(target.os_version_name):
                 debian_12_list.append(target)
-            elif is_Ubuntu_20(target.osVersionName):
+            elif is_Ubuntu_20(target.os_version_name):
                 ubuntu_20_list.append(target)
-            elif is_Ubuntu_22(target.osVersionName):
+            elif is_Ubuntu_22(target.os_version_name):
                 ubuntu_22_list.append(target)
-            elif is_Ubuntu_24(target.osVersionName):
+            elif is_Ubuntu_24(target.os_version_name):
                 ubuntu_24_list.append(target)
             else:
                 continue
