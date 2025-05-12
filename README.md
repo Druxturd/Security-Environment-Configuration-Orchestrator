@@ -3,7 +3,7 @@ Skripsi Aplikasi SECOR
 
 Requirements:
 Python 3.13.2
-PyQt5
+PySide6
 FastAPI
 Uvicorn
 
