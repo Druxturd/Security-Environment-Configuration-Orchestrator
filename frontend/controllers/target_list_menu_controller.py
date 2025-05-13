@@ -189,9 +189,9 @@ class TargetListMenuController(QObject):
                 f"Duplicated target list!"
             )
         
-        self.clearInput()
+        self.clear_input()
 
-    def clearInput(self):
+    def clear_input(self):
         self.view.ip_input.clear()
         self.view.host_input.clear()
         self.view.key_input.clear()
