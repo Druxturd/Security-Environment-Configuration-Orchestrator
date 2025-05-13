@@ -10,11 +10,12 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QSize
 from ansi2html import Ansi2HTMLConverter
 from views.detail_report_view import DetailReportView
+from models.report_model import ReportModel
 from models.detail_report_tree_model import DetailReportModel
 from controllers.detail_report_controller import DetailReportController
 
-class ReportWindow(QDialog):
-    def __init__(self, report_text: str, target_list: list):
+class ReportWindowView(QDialog):
+    def __init__(self, report_text: str, target_list: list[ReportModel]):
         super().__init__()
         self.setWindowTitle("Ansible Playbook Report")
         self.setFixedSize(QSize(1280, 720))
@@ -27,8 +28,8 @@ class ReportWindow(QDialog):
 
         layout.addWidget(self.tabs)
         
-        self.initSummaryTab(report_text)
-        self.initDetailTab(target_list)
+        self.init_summary_tab(report_text)
+        self.init_detail_tab(target_list)
 
         QBtn = QDialogButtonBox.StandardButton.Close
         self.close_button = QDialogButtonBox(QBtn)
@@ -37,7 +38,7 @@ class ReportWindow(QDialog):
 
         self.setLayout(layout)
 
-    def initSummaryTab(self, report_text: str):
+    def init_summary_tab(self, report_text: str):
         self.tab1 = QWidget()
         self.l1 = QVBoxLayout()
         self.title = QLabel("Playbook Result Report")
@@ -51,10 +52,10 @@ class ReportWindow(QDialog):
         self.tab1.setLayout(self.l1)
         self.tabs.addTab(self.tab1, "Summary")
     
-    def initDetailTab(self, target_list: list):
-        self.detailTab = DetailReportView()
-        self.detailModel = DetailReportModel(target_list)
-        self.detailController = DetailReportController(self.detailTab, self.detailModel)
-        self.detailTab.show()
+    def init_detail_tab(self, target_list: list):
+        self.detail_tab = DetailReportView()
+        self.detail_model = DetailReportModel(target_list)
+        self.detail_controller = DetailReportController(self.detail_tab, self.detail_model)
+        self.detail_tab.show()
 
-        self.tabs.addTab(self.detailTab, "Detail")
+        self.tabs.addTab(self.detail_tab, "Detail")

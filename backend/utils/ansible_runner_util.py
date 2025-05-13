@@ -53,7 +53,6 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
     
     loop = asyncio.get_running_loop()
     playbook_results = []
-    all_success = True
 
     try:
         playbook_path = os.path.join(os.getcwd(), "auto_harden", AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name])
@@ -137,7 +136,6 @@ async def execute_selected_playbook_on_single_target(playbooks: list[str], targe
     
     loop = asyncio.get_running_loop()
     playbook_results = []
-    all_success = True
 
     try:
         for playbook in playbooks:

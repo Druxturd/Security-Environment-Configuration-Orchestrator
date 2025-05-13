@@ -29,7 +29,7 @@ class HardenTargetMenuController(QObject):
 
         self.view.execute_harden_btn.clicked.connect(self.execute_selected_harden)
 
-        # self.view.auto_harden_btn.clicked.connect(self.execute_auto_harden)
+        self.view.auto_harden_btn.clicked.connect(self.execute_auto_harden)
         
         self.update_total_target_counter()
 
@@ -81,9 +81,7 @@ class HardenTargetMenuController(QObject):
     
     @asyncSlot()
     async def execute_auto_harden(self):
-        payload = {
-            "targets": self.model_manager.get_payload()
-        }
+        payload = self.model_manager.get_payload()
         self.view.auto_harden_btn.setEnabled(False)
 
         await execute_harden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)

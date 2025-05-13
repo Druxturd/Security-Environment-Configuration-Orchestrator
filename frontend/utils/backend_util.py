@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from utils.message_box_util import *
 from models.report_model import ReportModel
-from views.report_window_view import ReportWindow
+from views.report_window_view import ReportWindowView
 import httpx
 
 async def execute_harden(main_window: QMainWindow, URL: str, payload):
@@ -28,17 +28,29 @@ async def execute_harden(main_window: QMainWindow, URL: str, payload):
     if "error" in result:
         add_critical_msg_box(main_window, "Error", result['error'])
     else:
-        # print(result)
         _output_report(result)
 
 def _output_report(result):
-    report = "\n\n".join(
-        f"Host - IP Address: {x['host']} - {x['ip']}\nPlaybook: {y['name']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['task_results'] for y in x['playbook_results']
-    )
+    if "task_results" in result:
+        report = "\n\n".join(
+            f"Host - IP Address: {x['host']} - {x['ip']}\nPlaybook: {y['name']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}" for x in result['task_results'] for y in x['playbook_results']
+        )
 
-    targetList: list[ReportModel] = []
-    for x in result['task_results']:
-        targetList.append(ReportModel(host=x['host'], ip=x['ip'], playbook_results=x['playbook_results']))
+        target_list: list[ReportModel] = []
+        for x in result['task_results']:
+            target_list.append(ReportModel(host=x['host'], ip=x['ip'], playbook_results=x['playbook_results']))
 
-    reportWindow = ReportWindow(report, targetList)
-    reportWindow.exec()
+        report_window = ReportWindowView(report, target_list)
+        report_window.exec()
+    elif "all_results" in result:
+        target_list : list[ReportModel] = []
+        for res in result['all_results']:
+            for x in res:
+                target_list.append(ReportModel(host=x['host'], ip=x['ip'], playbook_results=x['playbook_results']))
+
+        report = "\n\n".join(
+            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}" for x in target_list for y in x.playbook_results
+        )
+
+        report_window = ReportWindowView(report, target_list)
+        report_window.exec()
