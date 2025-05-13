@@ -27,7 +27,6 @@ class HardenTargetMenuView(QWidget):
 
         self.scroll_content = QWidget()
         self.scroll_content_layout = QVBoxLayout(self.scroll_content)
-        # self.scroll_content_layout.setParent(self.scroll_content)
 
         self.check_boxes = []
         self.scroll_content.setLayout(self.scroll_content_layout)

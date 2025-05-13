@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from utils.message_box_util import *
 from models.report_model import ReportModel
-from views.report_window_view import ReportWindow
+from views.report_window_view import ReportWindowView
 import httpx
 
 async def execute_harden(main_window: QMainWindow, URL: str, payload):
@@ -40,7 +40,7 @@ def _output_report(result):
         for x in result['task_results']:
             target_list.append(ReportModel(host=x['host'], ip=x['ip'], playbook_results=x['playbook_results']))
 
-        report_window = ReportWindow(report, target_list)
+        report_window = ReportWindowView(report, target_list)
         report_window.exec()
     elif "all_results" in result:
         target_list : list[ReportModel] = []
@@ -49,8 +49,8 @@ def _output_report(result):
                 target_list.append(ReportModel(host=x['host'], ip=x['ip'], playbook_results=x['playbook_results']))
 
         report = "\n\n".join(
-            f"Host - IP Address: {x.host}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}" for x in target_list for y in x.playbook_results
+            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}" for x in target_list for y in x.playbook_results
         )
 
-        report_window = ReportWindow(report, target_list)
+        report_window = ReportWindowView(report, target_list)
         report_window.exec()

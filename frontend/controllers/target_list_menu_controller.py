@@ -39,7 +39,7 @@ class TargetListMenuController(QObject):
         self.view.download_template_btn.clicked.connect(self.download_template)
         self.view.upload_excel_btn.clicked.connect(self.upload_excel_file)
         self.view.add_target_btn.clicked.connect(self.add_target)
-        self.view.clear_target_btn.clicked.connect(self.model_manager.clear_target_list)
+        self.view.clear_target_btn.clicked.connect(self.clear_target_list)
 
         self.update_total_target_counter()
 
@@ -195,3 +195,11 @@ class TargetListMenuController(QObject):
         self.view.ip_input.clear()
         self.view.host_input.clear()
         self.view.key_input.clear()
+    
+    def clear_target_list(self):
+        self.model_manager.clear_target_list()
+        add_information_msg_box(
+            self.main_window,
+            "Clear Target Successful",
+            "Target list has been cleared"
+        )
