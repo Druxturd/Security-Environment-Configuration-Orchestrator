@@ -1,10 +1,7 @@
 import asyncio
-import shutil
-from tempfile import NamedTemporaryFile, mkdtemp
-import ansible_runner
 from fastapi import APIRouter
 from dotenv import load_dotenv
-from models.target import TargetList, Target
+from models.target import TargetList
 from utils.model_util import grouping_os
 from utils.ansible_runner_util import execute_auto_harden_on_single_target, execute_selected_playbook_on_single_target
 import os
@@ -14,7 +11,6 @@ router = APIRouter()
 load_dotenv()
 FILE_DIR = os.getenv("HARDEN_FILE_DIR")
 BASE_HARDEN_URL = "/harden"
-HARDEN_FILES = "harden_files"
 
 @router.get(BASE_HARDEN_URL)
 def list_harden_files():
@@ -30,7 +26,6 @@ async def execute_selected_playbook_on_target_list(playbooks: list[str], targets
     tasks = []
     for target in targets.target_list:
         tasks.append(execute_selected_playbook_on_single_target(playbooks, target))
-    # tasks = [execute_selected_playbook_on_single_target(playbooks, target) for target in targets.target_list]
 
     results = await asyncio.gather(*tasks)
 

@@ -19,6 +19,7 @@ class TargetModel(QObject):
         self.ssh_private_key = ssh_private_key
         self.ssh_port = ssh_port
         self.os_version_name = os_version_name
+        self.is_checked = False
 
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):
@@ -37,3 +38,6 @@ class TargetModel(QObject):
             "ssh_port": self.ssh_port,
             "os_version_name": self.os_version_name
         }
+    
+    def to_selected_target_format(self) -> str:
+        return f"{self.host_name} - {self.os_version_name} - {self.ip_address}"

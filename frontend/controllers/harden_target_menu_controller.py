@@ -51,8 +51,8 @@ class HardenTargetMenuController(QObject):
                 data = resp.json()
                 data_list = data.get("harden_list", [])
                 data_list.sort()
-                for x in data_list:
-                    self.check_box = QCheckBox(x)
+                for playbook in data_list:
+                    self.check_box = QCheckBox(playbook)
                     self.view.check_boxes.append(self.check_box)
                     self.view.scroll_content_layout.addWidget(self.check_box)
                 

@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QTextEdit
 )
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 from ansi2html import Ansi2HTMLConverter
 from views.detail_report_view import DetailReportView
 from models.report_model import ReportModel
@@ -37,20 +37,28 @@ class ReportWindowView(QDialog):
         layout.addWidget(self.close_button)
 
         self.setLayout(layout)
+    
+    def keyPressEvent(self, event):
+        key = event.key()
+
+        if key in (Qt.Key.Key_Escape, Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            event.ignore()
+        else:
+            super().keyPressEvent(event)
 
     def init_summary_tab(self, report_text: str):
-        self.tab1 = QWidget()
-        self.l1 = QVBoxLayout()
+        self.summary_tab = QWidget()
+        self.summary_tab_layout = QVBoxLayout()
         self.title = QLabel("Playbook Result Report")
-        self.l1.addWidget(self.title)
+        self.summary_tab_layout.addWidget(self.title)
 
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
         self.text_area.setHtml(Ansi2HTMLConverter().convert(report_text))
         self.text_area.setAcceptRichText(True)
-        self.l1.addWidget(self.text_area)
-        self.tab1.setLayout(self.l1)
-        self.tabs.addTab(self.tab1, "Summary")
+        self.summary_tab_layout.addWidget(self.text_area)
+        self.summary_tab.setLayout(self.summary_tab_layout)
+        self.tabs.addTab(self.summary_tab, "Summary")
     
     def init_detail_tab(self, target_list: list):
         self.detail_tab = DetailReportView()
