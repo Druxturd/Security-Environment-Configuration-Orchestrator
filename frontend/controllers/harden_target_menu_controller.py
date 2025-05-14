@@ -11,6 +11,7 @@ from views.main_window_view import MainWindow
 from models.target_data_manager import TargetDataManager
 
 from utils.backend_util import execute_harden
+from utils.message_box_util import *
 
 load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
@@ -72,12 +73,16 @@ class HardenTargetMenuController(QObject):
             "playbooks": [cb.text() for cb in self.view.check_boxes if cb.isChecked()],
             "targets": self.model_manager.get_payload()
         }
-        self.view.execute_harden_btn.setEnabled(False)
-        
-        await execute_harden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
 
-        self.uncheck_all_selected_items()
-        self.view.execute_harden_btn.setEnabled(True)
+        if len(payload["playbooks"]) == 0:
+            add_information_msg_box(self.main_window, "Playbook", "Please select minimal 1 playbook")
+        else:
+            self.view.execute_harden_btn.setEnabled(False)
+            
+            await execute_harden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
+
+            self.uncheck_all_selected_items()
+            self.view.execute_harden_btn.setEnabled(True)
     
     @asyncSlot()
     async def execute_auto_harden(self):
