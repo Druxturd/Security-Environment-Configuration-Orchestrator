@@ -14,7 +14,3 @@
         name: "{{ item.name }}={{ item.version }}"
         state: present
       loop: "{{ packages_to_update }}"
-
-#ansible-playbook your_playbook.yml -e 'packages_to_update=[{"name":"php","version":"8.1"},{"name":"apache2","version":"2.4.54-1ubuntu2.4"}]'
-
-#Same here had tolong dibantu ya

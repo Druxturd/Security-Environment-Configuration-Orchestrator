@@ -14,6 +14,3 @@
         name: "{{ item }}"
         state: latest
       loop: "{{ packages_to_update }}"
-
-#ansible-playbook flexible_update.yml -e 'packages_to_update=["nginx","curl"]'
-#had nanti tolong di code langsung ya sebagai promt user + nanti ngelempar pake command gini jdinya pas exec command.

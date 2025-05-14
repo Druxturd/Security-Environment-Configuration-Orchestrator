@@ -1,5 +1,4 @@
 import asyncio
-from collections import defaultdict
 import shutil
 from tempfile import NamedTemporaryFile, mkdtemp
 
