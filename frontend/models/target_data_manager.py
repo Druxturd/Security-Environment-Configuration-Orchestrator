@@ -45,13 +45,14 @@ class TargetDataManager(QObject):
                 x.is_checked = False
     
     def add_new_target(self, new_data: TargetModel) -> bool:
-        if new_data not in self._unique_keys:
-            self._target_list.append(new_data)
-            self._unique_keys.add(new_data)
+        if new_data in self._unique_keys:
+            return False
+        
+        self._target_list.append(new_data)
+        self._unique_keys.add(new_data)
 
-            self.target_list_updated.emit()
-            return True
-        return False
+        self.target_list_updated.emit()
+        return True
     
     def clear_target_list(self):
         self._target_list.clear()

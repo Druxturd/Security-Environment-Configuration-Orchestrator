@@ -2,7 +2,7 @@ from datetime import datetime
 import math
 from pathlib import Path
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QFileDialog, QMessageBox
 import httpx
 import pandas as pd
 

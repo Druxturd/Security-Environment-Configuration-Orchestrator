@@ -1,4 +1,5 @@
 from models.target_data_manager import TargetDataManager
+from models.package_data_manager import PackageDataManager
 
 from views.main_window_view import MainWindow
 from views.main_menu_view import MainMenuView
@@ -11,14 +12,14 @@ from controllers.target_list_menu_controller import TargetListMenuController
 from controllers.harden_target_menu_controller import HardenTargetMenuController
 from controllers.patch_target_menu_controller import PatchTargetMenuController
 
-from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QMessageBox
 
 from pages import Page
 
 class AppManager():
     def __init__(self):
         self.init_main_window()
-        self.init_model_manager()
+        self.init_model_managers()
         self.init_views()
         self.init_controllers()
 
@@ -27,9 +28,8 @@ class AppManager():
     def init_main_window(self):
         self.main_window = MainWindow()
         self.main_window.setWindowTitle("SECOR")
-        self.main_window.setFixedSize(QSize(600, 400))
    
-    def init_model_manager(self):
+    def init_model_managers(self):
         self.model_manager = TargetDataManager()
 
     def init_views(self):
@@ -53,3 +53,5 @@ class AppManager():
         self.main_window.setCentralWidget(self.main_window.stacked_widget)
 
         self.main_window.stacked_widget.setCurrentIndex(Page.MAIN_MENU)
+
+        self.main_window.adjust_all_window_size()

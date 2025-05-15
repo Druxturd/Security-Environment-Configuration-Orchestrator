@@ -6,7 +6,8 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QHBoxLayout,
     QComboBox,
-    QLayout
+    QLayout,
+    QPushButton
 )
 from dotenv import load_dotenv
 import httpx
@@ -130,7 +131,6 @@ class PatchTargetMenuController(QObject):
             layout.addLayout(action_layout)
 
         elif data == PATCH_ALL_HOST.UPDATE_PORT:
-
             ports_layout = QVBoxLayout()
             ports_lbl = QLabel("Ports (user comma (,) for multiple ports)")
             ports_inp = QLineEdit()
@@ -153,6 +153,28 @@ class PatchTargetMenuController(QObject):
             packages_to_update_layout.addWidget(packages_to_update_inp)
 
             layout.addLayout(packages_to_update_layout)
+        elif data == PATCH_SPECIFIC_HOST.UPDATER_VERSION:
+            package_list_layout = QHBoxLayout()
+            package_list_btn = QPushButton("Package List")
+            total_package_counter_lbl = QLabel("Total Package(s): 0")
+
+            package_name_layout = QHBoxLayout()
+            package_name_lbl = QLabel("Package name:")
+            package_name_inp = QLineEdit()
+            package_name_layout.addWidget(package_name_lbl)
+            package_name_layout.addWidget(package_name_inp)
+
+            package_version_layout = QHBoxLayout() 
+            package_version_lbl = QLabel("Package Version:")
+            package_version_inp = QLineEdit()
+            package_version_layout.addWidget(package_version_lbl)
+            package_version_layout.addWidget(package_version_inp)
+
+            package_bottom_layout = QHBoxLayout()
+
+
+            layout.addLayout(package_name_layout)
+            layout.addLayout(package_version_layout)
     
     def display_select_target_view(self):
         select_target_view = SelectTargetView()
