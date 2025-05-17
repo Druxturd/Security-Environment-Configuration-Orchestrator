@@ -35,6 +35,6 @@
     - name: Display all versions
       ansible.builtin.debug:
         msg: |
-          Apache version: {{ apache_version.stdout | default('Apache not installed') }}
-          PHP version: {{ php_version.stdout | default('PHP not installed') }}
-          Python version: {{ python_version.stdout | default('Python not installed') }}
+          Apache version: {{ apache_version.stdout or 'Apache not installed' }}
+          PHP version: {{ php_version.stdout or 'PHP not installed' }}
+          Python version: {{ python_version.stdout or 'Python not installed' }}

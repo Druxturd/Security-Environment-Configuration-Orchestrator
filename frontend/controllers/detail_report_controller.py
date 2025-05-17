@@ -46,7 +46,7 @@ class DetailReportController:
     def update_event_detail(self, key: str):
         if self.current_playbook['events'] and len(self.current_playbook['events'][key]) != 0: # type: ignore
             _text = "\n".join(
-                f"TASK [{x['event_data']['task']}]\n{x['stdout']}\n\nDEBUG:{x}\n\n" for x in self.current_playbook['events'][key] # type: ignore
+                f"TASK [{x['event_data']['task']}]\n{x['stdout']}" for x in self.current_playbook['events'][key] # type: ignore
             )
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
         else:
