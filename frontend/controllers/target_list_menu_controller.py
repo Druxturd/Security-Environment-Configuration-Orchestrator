@@ -12,8 +12,6 @@ from views.main_window_view import MainWindow
 from models.target_data_manager import TargetDataManager
 from models.target_model import TargetModel
 
-from utils.message_box_util import *
-
 from dotenv import load_dotenv
 import os
 
@@ -69,11 +67,7 @@ class TargetListMenuController(QObject):
             with open(file_path, "wb") as f:
                 f.write(resp.content)
 
-            add_information_msg_box(
-                self.main_window,
-                "Download Successful",
-                f"The template has been downloaded to:\n{file_path}"
-            )
+            QMessageBox.information(self.main_window, "Download Successful", f"The template has been downloaded to:\n{file_path}")
         
         except httpx.TimeoutException:
             print("timeout")
@@ -135,26 +129,14 @@ class TargetListMenuController(QObject):
                         new_target_added += 1
             
                 except Exception as e:
-                    add_warning_msg_box(
-                        self.main_window,
-                        "Row Error",
-                        f"Skipping row {i+2}: {str(e)}" # type: ignore
-                    )
+                    QMessageBox.warning(self.view, "Row Error", f"Skipping row {i+2}: {str(e)}") # type: ignore
         
-            add_information_msg_box(
-                self.main_window,
-                "Upload Successful",
-                f"Added {new_target_added} new target(s).\nTotal target(s): {self.model_manager.get_count_target_list()}"
-            )
+            QMessageBox.information(self.main_window, "Upload Successful", f"Added {new_target_added} new target(s).\nTotal target(s): {self.model_manager.get_count_target_list()}")
 
             self.update_total_target_counter()
         
         except Exception as e:
-            add_critical_msg_box(
-                self.main_window,
-                "Error",
-                f"Failed to read Excel file:\n{str(e)}"
-            )
+            QMessageBox.critical(self.main_window, "Error", f"Failed to read Excel file:\n{str(e)}")
     
     def add_target(self):
         ip_address = self.view.ip_input.text().strip()
@@ -162,28 +144,28 @@ class TargetListMenuController(QObject):
         key = self.view.key_input.toPlainText().strip()
 
         if not ip_address:
-            add_warning_msg_box(self.main_window, self.input_error, self.error_msg[0])
+            QMessageBox.warning(self.main_window, self.input_error, self.error_msg[0])
             return
         
         elif not host_name:
-            add_warning_msg_box(self.main_window, self.input_error, self.error_msg[1])
+            QMessageBox.warning(self.main_window, self.input_error, self.error_msg[1])
             return
         
         elif not key:
-            add_warning_msg_box(self.main_window, self.input_error, self.error_msg[2])
+            QMessageBox.warning(self.main_window, self.input_error, self.error_msg[2])
             return
         
         newTarget = TargetModel(ip_address, host_name, key)
 
         if self.model_manager.add_new_target(newTarget):
             self.update_total_target_counter()
-            add_information_msg_box(
+            QMessageBox.information(
                 self.main_window,
                 "Add New Target Successful",
                 f"Added new target.\nTotal target list: {self.model_manager.get_count_target_list()}"
             )
         else:
-            add_information_msg_box(
+            QMessageBox.information(
                 self.main_window,
                 "Add New Target Failed",
                 f"Duplicated target list!"
@@ -198,7 +180,7 @@ class TargetListMenuController(QObject):
     
     def clear_target_list(self):
         self.model_manager.clear_target_list()
-        add_information_msg_box(
+        QMessageBox.information(
             self.main_window,
             "Clear Target Successful",
             "Target list has been cleared"

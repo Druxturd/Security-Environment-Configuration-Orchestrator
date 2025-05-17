@@ -9,10 +9,9 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.stacked_widget = QStackedWidget()
+        self.setCentralWidget(self.stacked_widget)
     
     def adjust_all_window_size(self):
-        print("adjusted")
-        self.stacked_widget.adjustSize()
         self.adjustSize()
         self.setFixedSize(self.size())
 

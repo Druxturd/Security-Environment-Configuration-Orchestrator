@@ -52,6 +52,5 @@ class AppManager():
 
         self.main_window.setCentralWidget(self.main_window.stacked_widget)
 
-        self.main_window.stacked_widget.setCurrentIndex(Page.MAIN_MENU)
-
-        self.main_window.adjust_all_window_size()
+        self.main_window.switch_to_main_menu()
+        # self.main_window.switch_to_patch_target_menu()

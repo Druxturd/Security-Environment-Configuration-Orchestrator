@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import (
     QMainWindow,
-    QProgressDialog
+    QProgressDialog,
+    QMessageBox
 )
 from PySide6.QtCore import Qt
-from utils.message_box_util import *
 from models.report_model import ReportModel
 from views.report_window_view import ReportWindowView
 import httpx
@@ -26,7 +26,7 @@ async def execute_harden(main_window: QMainWindow, URL: str, payload):
         progressDialog.close()
 
     if "error" in result:
-        add_critical_msg_box(main_window, "Error", result['error'])
+        QMessageBox.critical(main_window, "Error", result['error'])
     else:
         _output_report(result)
 

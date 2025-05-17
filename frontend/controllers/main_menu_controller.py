@@ -3,7 +3,7 @@ from views.main_window_view import MainWindow
 
 from models.target_data_manager import TargetDataManager
 
-from utils.message_box_util import *
+from PySide6.QtWidgets import QMessageBox
 
 class MainMenuController:
     def __init__(self, view: MainMenuView, model_manager: TargetDataManager, main_window: MainWindow):
@@ -27,21 +27,13 @@ class MainMenuController:
 
     def go_to_harden_target_menu(self):
         if self.is_empty_list():
-            add_warning_msg_box(
-                self.main_window,
-                self.error_title,
-                self.error_msg
-            )
+            QMessageBox.warning(self.main_window, self.error_title, self.error_msg)
         else:
             self.main_window.switch_to_harden_target_menu()
     
     def go_to_patch_target_menu(self):
         if self.is_empty_list():
-            add_warning_msg_box(
-                self.main_window,
-                self.error_title,
-                self.error_msg
-            )
+            QMessageBox.warning(self.main_window, self.error_title, self.error_msg)
         else:
             self.main_window.switch_to_patch_target_menu()
 
@@ -49,5 +41,5 @@ class MainMenuController:
         self.view.total_target_lbl.setText(f"Total Target(s): {self.model_manager.get_count_target_list()}")
 
     def is_empty_list(self):
-        return False
-        # return True if self.model_manager.get_count_target_list() == 0 else False
+        # return False
+        return True if self.model_manager.get_count_target_list() == 0 else False

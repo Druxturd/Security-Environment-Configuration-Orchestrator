@@ -1,0 +1,40 @@
+- name: Gather software versions
+  hosts: all
+  gather_facts: no
+
+  pre_tasks:
+    - name: Ensure Python 3 is installed
+      raw: apt-get update -y && apt-get install -y python3 python3-apt
+      register: python_bootstrap
+      changed_when: "'Setting up python3' in python_bootstrap.stdout"
+      failed_when: false
+
+    - name: Set Python interpreter manually
+      set_fact:
+        ansible_python_interpreter: /usr/bin/python3
+
+    - name: Gather facts
+      setup:
+      
+  tasks:
+    - name: Get Apache version
+      ansible.builtin.command: apache2 -v
+      register: apache_version
+      failed_when: false
+
+    - name: Get PHP version
+      ansible.builtin.command: php -v
+      register: php_version
+      failed_when: false
+
+    - name: Get Python version
+      ansible.builtin.command: python3 --version
+      register: python_version
+      failed_when: false
+
+    - name: Display all versions
+      ansible.builtin.debug:
+        msg: |
+          Apache version: {{ apache_version.stdout | default('Apache not installed') }}
+          PHP version: {{ php_version.stdout | default('PHP not installed') }}
+          Python version: {{ python_version.stdout | default('Python not installed') }}

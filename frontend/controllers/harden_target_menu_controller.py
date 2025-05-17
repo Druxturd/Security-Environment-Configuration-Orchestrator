@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from PySide6.QtCore import QObject, Qt
-from PySide6.QtWidgets import QCheckBox
+from PySide6.QtWidgets import QCheckBox, QMessageBox
 from qasync import asyncSlot
 import httpx
 
@@ -11,7 +11,6 @@ from views.main_window_view import MainWindow
 from models.target_data_manager import TargetDataManager
 
 from utils.backend_util import execute_harden
-from utils.message_box_util import *
 
 load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
@@ -75,7 +74,7 @@ class HardenTargetMenuController(QObject):
         }
 
         if len(payload["playbooks"]) == 0:
-            add_information_msg_box(self.main_window, "Playbook", "Please select minimal 1 playbook")
+            QMessageBox.information(self.main_window, "Playbook", "Please select minimal 1 playbook")
         else:
             self.view.execute_harden_btn.setEnabled(False)
             
