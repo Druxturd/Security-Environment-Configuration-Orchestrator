@@ -4,7 +4,7 @@
   become: yes
   
   vars:
-    packages_to_update: [mysql-server] 
+    packages_to_update: [] 
 
   tasks:
     - name: Update package lists
@@ -17,3 +17,4 @@
         name: "{{ item }}"
         state: latest
       loop: "{{ packages_to_update }}"
+#ansible-playbook update_install.yml -e "packages_to_update=['mysql-server','xxxpackagenamexxx']"
