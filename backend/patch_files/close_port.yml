@@ -1,0 +1,53 @@
+---
+- name: Shutdown specific ports on Debian/Ubuntu
+  hosts: all
+  become: yes
+  vars:
+    ports: []  # Default port list
+  tasks:
+
+    - name: Check if ufw is installed
+      ansible.builtin.command: which ufw
+      register: ufw_check
+      ignore_errors: yes
+
+    - name: Check if iptables is installed
+      ansible.builtin.command: which iptables
+      register: iptables_check
+      ignore_errors: yes
+
+    - name: Fail if neither UFW nor iptables are installed
+      ansible.builtin.fail:
+        msg: "Neither UFW nor iptables is installed on this system. Exiting."
+      when: ufw_check.rc != 0 and iptables_check.rc != 0
+
+    - name: Close ports using ufw (if available)
+      ansible.builtin.ufw:
+        rule: deny
+        port: "{{ item }}"
+        proto: tcp
+      loop: "{{ ports }}"
+      when: ufw_check.rc == 0
+
+    - name: Close ports using iptables (if available)
+      ansible.builtin.command: iptables -A INPUT -p tcp --dport {{ item }} -j DROP
+      loop: "{{ ports }}"
+      when: iptables_check.rc == 0
+
+    - name: Ensure iptables directory exists
+      ansible.builtin.file:
+        path: /etc/iptables
+        state: directory
+        mode: '0755'
+      when: iptables_check.rc == 0
+
+    - name: Save iptables rules (Debian/Ubuntu)
+      ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
+      when: iptables_check.rc == 0
+      become: yes
+
+    - name: Reload ufw if active
+      ansible.builtin.command: ufw reload
+      when: ufw_check.rc == 0
+
+#ansible-playbook close_port.yml -e "ports=['80','8080']"
