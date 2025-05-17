@@ -1,0 +1,40 @@
+---
+- name: Manage multiple services on Debian/Ubuntu
+  hosts: all
+  become: yes
+  vars:
+    services: []      # Default empty list of services
+    action: "stopped" # Default action (can be 'started' or 'stopped')
+  tasks:
+
+    - name: Validate that services list is not empty
+      ansible.builtin.fail:
+        msg: "No services specified. Please provide a list of services to manage."
+      when: services | length == 0
+
+    - name: Validate that action is either 'started' or 'stopped'
+      ansible.builtin.fail:
+        msg: "Invalid action. Use 'started' or 'stopped'."
+      when: action not in ['started', 'stopped']
+
+    - name: Manage the specified services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: "{{ action }}"
+        enabled: "{{ 'yes' if action == 'started' else 'no' }}"
+      loop: "{{ services }}"
+      register: service_result
+      ignore_errors: yes
+
+    - name: Display service management results
+      ansible.builtin.debug:
+        msg: "Service {{ item.item }} {{ action }} {{ 'successful' if item.rc == 0 else 'failed' }}"
+      loop: "{{ service_result.results }}"
+
+
+
+#ini buat stop servicenya
+#ansible-playbook manage_services.yml -e "services=['apache2','mysql'] action=stopped"
+
+#ini buat start servicenya
+#ansible-playbook manage_services.yml -e "services=['apache2','mysql'] action=started"

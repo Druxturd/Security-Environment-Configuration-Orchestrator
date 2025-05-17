@@ -1,0 +1,19 @@
+---
+- name: Update selected packages on specific hosts
+  hosts: all
+  become: yes
+  
+  vars:
+    packages_to_update: [mysql-server] 
+
+  tasks:
+    - name: Update package lists
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade or install selected packages to the latest version
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: latest
+      loop: "{{ packages_to_update }}"
