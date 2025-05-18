@@ -1,27 +1,32 @@
-from fastapi import APIRouter
+import asyncio
+from fastapi import APIRouter, Body
 from dotenv import load_dotenv
 import os
+from models.target import TargetList
+from models.patch_model import PatchModel
+from utils.ansible_runner_util import execute_selected_patch_on_single_target
 
 router = APIRouter()
 
 load_dotenv()
 FILE_DIR = os.getenv("PATCH_FILE_DIR")
-ALL_DIR = f"{FILE_DIR}/{os.getenv("ALL_PATCH_DIR")}"
-SPECIFIC_DIR = f"{FILE_DIR}/{os.getenv("SPECIFIC_PATCH_DIR")}"
 BASE_PATCH_URL = "/patch"
 
-@router.get(f"{BASE_PATCH_URL}/all-host")
-def all_host_patch_files():
+@router.get(BASE_PATCH_URL)
+def all_patch_files():
     try:
-        files = os.listdir(ALL_DIR)
+        files = os.listdir(FILE_DIR)
         return {"patch_list": files}
     except FileNotFoundError:
         return {"error": "File not found"}
+    
+@router.post(f"{BASE_PATCH_URL}/execute")
+async def execute_port_patch_on_target_list(data: PatchModel):
+    tasks = []
 
-@router.get(f"{BASE_PATCH_URL}/specific-host")
-def specific_host_patch_files():
-    try:
-        files = os.listdir(SPECIFIC_DIR)
-        return {"patch_list": files}
-    except FileNotFoundError:
-        return {"error": "File not found"}
+    for target in data.targets.target_list:
+        tasks.append(execute_selected_patch_on_single_target(data.playbook, data.extra_vars, target))
+    
+    results = await asyncio.gather(*tasks)
+    
+    return {"task_results": results}

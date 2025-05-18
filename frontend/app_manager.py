@@ -52,5 +52,6 @@ class AppManager():
 
         self.main_window.setCentralWidget(self.main_window.stacked_widget)
 
-        self.main_window.switch_to_main_menu()
+        # self.main_window.switch_to_main_menu()
         # self.main_window.switch_to_patch_target_menu()
+        self.main_window.switch_to_target_list_menu()

@@ -30,6 +30,32 @@ async def execute_harden(main_window: QMainWindow, URL: str, payload):
     else:
         _output_report(result)
 
+async def execute_patch(main_window: QMainWindow, URL: str, payload):
+    progressDialog = QProgressDialog("Running playbooks...", "Cancel", 0, 0, main_window, Qt.WindowType.FramelessWindowHint)
+    progressDialog.setWindowTitle("Please wait...")
+    progressDialog.setModal(True)
+    progressDialog.setCancelButton(None)
+    progressDialog.setEnabled(False)
+    progressDialog.show()
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url=URL, json=payload, timeout=None)
+            # response = await client.post(url=URL, 
+            # params={"playbook": [payload['playbook']], "extra_vars":payload['extra_vars'], "targets":payload['targets']},
+            # timeout=None)
+            result = response.json()
+    except Exception as e:
+        result = {"error": str(e)}
+    finally:
+        progressDialog.close()
+
+    if "error" in result:
+        QMessageBox.critical(main_window, "Error", result['error'])
+    else:
+        print(result)
+        _output_report(result)
+
 def _output_report(result):
     if "task_results" in result:
         report = "\n\n".join(

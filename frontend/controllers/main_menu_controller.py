@@ -41,5 +41,5 @@ class MainMenuController:
         self.view.total_target_lbl.setText(f"Total Target(s): {self.model_manager.get_count_target_list()}")
 
     def is_empty_list(self):
-        # return False
-        return True if self.model_manager.get_count_target_list() == 0 else False
+        return False
+        # return True if self.model_manager.get_count_target_list() == 0 else False

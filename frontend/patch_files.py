@@ -1,10 +1,8 @@
 from enum import StrEnum
 
 
-class PATCH_ALL_HOST(StrEnum):
+class PATCH_TYPE(StrEnum):
+    CLOSE_PORT = "close_port.yml"
     MANAGE_SERVICES = "manage_services.yml"
-    UPDATE_PORT = "update_port.yml"
-
-class PATCH_SPECIFIC_HOST(StrEnum):
-    UPDATER_LATEST = "updater_latest.yml"
-    UPDATER_VERSION = "updater_version.yml"
+    OPEN_PORT = "open_port.yml"
+    UPDATE_INSTALL = "update_install.yml"

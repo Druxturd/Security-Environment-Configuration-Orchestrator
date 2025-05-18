@@ -26,13 +26,6 @@
       register: service_result
       ignore_errors: yes
 
-    - name: Display service management results
-      ansible.builtin.debug:
-        msg: "Service {{ item.item }} {{ action }} {{ 'successful' if item.rc == 0 else 'failed' }}"
-      loop: "{{ service_result.results }}"
-
-
-
 #ini buat stop servicenya
 #ansible-playbook manage_services.yml -e "services=['apache2','mysql'] action=stopped"
 
