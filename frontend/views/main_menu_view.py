@@ -1,10 +1,6 @@
-from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QLabel,
-    QPushButton
-)
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+
 
 class MainMenuView(QWidget):
     def __init__(self):
@@ -22,7 +18,11 @@ class MainMenuView(QWidget):
         self.target_list_menu_btn = QPushButton("Target List Menu")
         self.harden_target_menu_btn = QPushButton("Harden Target Menu")
         self.patch_target_menu_btn = QPushButton("Patch Target Menu")
-        for button in (self.target_list_menu_btn, self.harden_target_menu_btn, self.patch_target_menu_btn):
+        for button in (
+            self.target_list_menu_btn,
+            self.harden_target_menu_btn,
+            self.patch_target_menu_btn,
+        ):
             button.setFixedHeight(button.sizeHint().height())
             self.main_layout.addWidget(button)
 

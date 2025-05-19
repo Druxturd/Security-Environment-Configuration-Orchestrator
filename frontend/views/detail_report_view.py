@@ -1,18 +1,19 @@
-from PySide6.QtWidgets import(
-    QWidget,
-    QHBoxLayout,
-    QColumnView,
+from ansi2html import Ansi2HTMLConverter
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
-    QSizePolicy,
-    QVBoxLayout,
-    QTextEdit,
     QButtonGroup,
-    QPushButton
+    QColumnView,
+    QHBoxLayout,
+    QPushButton,
+    QSizePolicy,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QTextCursor
-from ansi2html import Ansi2HTMLConverter
+
 
 class DetailReportView(QWidget):
     def __init__(self):
@@ -21,11 +22,21 @@ class DetailReportView(QWidget):
         self.setLayout(self.main_layout)
 
         self.column_view = QColumnView()
-        self.column_view.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self.column_view.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
-        self.column_view.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-        self.column_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.column_view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerItem)
+        self.column_view.setSelectionMode(
+            QAbstractItemView.SelectionMode.SingleSelection
+        )
+        self.column_view.setSizeAdjustPolicy(
+            QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents
+        )
+        self.column_view.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
+        )
+        self.column_view.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.column_view.setHorizontalScrollMode(
+            QAbstractItemView.ScrollMode.ScrollPerItem
+        )
         self.column_view.setTextElideMode(Qt.TextElideMode.ElideMiddle)
         self.column_view.setTabKeyNavigation(False)
         self.column_view.setColumnWidths([200, 200, 0])
@@ -39,7 +50,9 @@ class DetailReportView(QWidget):
 
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
-        self.text_area.setHtml(Ansi2HTMLConverter().convert("Select a playbook to see details"))
+        self.text_area.setHtml(
+            Ansi2HTMLConverter().convert("Select a playbook to see details")
+        )
         self.text_area.setAcceptRichText(True)
         self.detail_layout.addWidget(self.text_area)
 
@@ -55,7 +68,13 @@ class DetailReportView(QWidget):
         self.unreachable_btn = QPushButton("Unreachable Event(s)")
         self.skipped_btn = QPushButton("Skipped Event(s)")
 
-        for btn in (self.summary_btn, self.ok_btn, self.failed_btn, self.unreachable_btn, self.skipped_btn):
+        for btn in (
+            self.summary_btn,
+            self.ok_btn,
+            self.failed_btn,
+            self.unreachable_btn,
+            self.skipped_btn,
+        ):
             self.btn_layout.addWidget(btn)
             self.btn_group.addButton(btn)
             btn.setCheckable(True)

@@ -1,13 +1,15 @@
-from PySide6.QtCore import QObject, QEvent, Qt
-from PySide6.QtWidgets import QPushButton, QLabel, QApplication
-from PySide6.QtGui import QFontMetrics
-from qasync import QEventLoop
-from app_manager import AppManager
-
-import sys
 import asyncio
+import sys
+
+from app_manager import AppManager
+from qasync import QEventLoop
+
+from PySide6.QtCore import QEvent, QObject, Qt
+from PySide6.QtGui import QFontMetrics
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton
 
 if __name__ == "__main__":
+
     class GlobalEventFilter(QObject):
         def eventFilter(self, obj, event):
             if isinstance(obj, QPushButton) and event.type() == QEvent.Type.Show:
@@ -38,7 +40,7 @@ if __name__ == "__main__":
 
     async def clean_up():
         print("Cleaning up...")
-    
+
     with loop:
         try:
             loop.run_forever()

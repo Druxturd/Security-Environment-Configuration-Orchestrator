@@ -1,12 +1,13 @@
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QLineEdit,
-    QTextEdit
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
+
 
 class TargetListMenuView(QWidget):
     def __init__(self):

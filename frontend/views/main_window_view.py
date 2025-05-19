@@ -1,8 +1,10 @@
+from pages import Page
+
 from PySide6.QtWidgets import (
     QMainWindow,
     QStackedWidget,
 )
-from pages import Page
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -10,7 +12,7 @@ class MainWindow(QMainWindow):
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
-    
+
     def adjust_all_window_size(self):
         self.adjustSize()
         self.setFixedSize(self.size())

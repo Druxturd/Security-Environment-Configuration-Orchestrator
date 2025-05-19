@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QScrollArea
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
 )
+
 
 class HardenTargetMenuView(QWidget):
     def __init__(self):

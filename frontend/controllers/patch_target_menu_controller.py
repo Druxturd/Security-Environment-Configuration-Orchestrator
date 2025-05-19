@@ -1,35 +1,39 @@
 import os
+
+import httpx
+from dotenv import load_dotenv
+from models.target_data_manager import TargetDataManager
+from qasync import asyncSlot
+from utils.backend_util import execute_patch
+from utils.patch_files import PATCH_TYPE
+from views.main_window_view import MainWindow
+from views.patch_target_menu_view import PatchTargetMenuView
+
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import (
-    QVBoxLayout,
-    QLabel,
-    QLineEdit,
-    QHBoxLayout,
     QComboBox,
+    QHBoxLayout,
+    QLabel,
     QLayout,
-    QMessageBox
+    QLineEdit,
+    QMessageBox,
+    QVBoxLayout,
 )
-from dotenv import load_dotenv
-import httpx
-from qasync import asyncSlot
-
-from views.patch_target_menu_view import PatchTargetMenuView
-from views.main_window_view import MainWindow
-
-from models.target_data_manager import TargetDataManager
-
-from utils.backend_util import execute_patch
-
-from utils.patch_files import *
 
 load_dotenv()
 PATCH_LIST_URL = f"{os.getenv('BACKEND_URL')}/patch"
 EXECUTE_PATCH_URL = f"{PATCH_LIST_URL}/execute"
 
+
 class PatchTargetMenuController(QObject):
-    def __init__(self, view: PatchTargetMenuView, model_manager: TargetDataManager, main_window: MainWindow):
+    def __init__(
+        self,
+        view: PatchTargetMenuView,
+        model_manager: TargetDataManager,
+        main_window: MainWindow,
+    ):
         super().__init__()
-        
+
         self.view = view
         self.model_manager = model_manager
         self.main_window = main_window
@@ -37,18 +41,22 @@ class PatchTargetMenuController(QObject):
         self.view.back_btn.clicked.connect(self.go_to_main_menu)
         self.view.execute_patch_btn.clicked.connect(self.execute_selected_patch)
 
-        self.view.playbook_combo_box.currentIndexChanged.connect(self.combo_box_on_index_changed)
+        self.view.playbook_combo_box.currentIndexChanged.connect(
+            self.combo_box_on_index_changed
+        )
         self.update_total_target_counter()
 
         self.model_manager.target_list_updated.connect(self.update_total_target_counter)
 
         self.fetch_all_patch_files()
-        
+
     def go_to_main_menu(self):
         self.main_window.switch_to_main_menu()
 
     def update_total_target_counter(self):
-        self.view.total_target_lbl.setText(f"Total Target(s): {self.model_manager.get_count_target_list()}")
+        self.view.total_target_lbl.setText(
+            f"Total Target(s): {self.model_manager.get_count_target_list()}"
+        )
 
     def fetch_all_patch_files(self):
         try:
@@ -62,12 +70,11 @@ class PatchTargetMenuController(QObject):
 
         except httpx.RequestError as e:
             print(e)
-        
+
     def combo_box_on_index_changed(self):
         combo_box = self.view.playbook_combo_box
         self.update_detail_all_patch(combo_box.currentData())
-        # self.main_window.adjust_all_window_size()
-        
+
     def clear_layout(self, layout: QLayout):
         while layout.count():
             item = layout.takeAt(0)
@@ -88,7 +95,9 @@ class PatchTargetMenuController(QObject):
 
         if data == PATCH_TYPE.CLOSE_PORT:
             self.close_ports_layout = QVBoxLayout()
-            self.close_ports_header = QLabel("Please input the desired port(s) you want to close!")
+            self.close_ports_header = QLabel(
+                "Please input the desired port(s) you want to close!"
+            )
             self.close_ports_lbl = QLabel("Ports (user comma (,) for multiple ports):")
             self.close_ports_inp = QLineEdit()
             self.close_ports_layout.addWidget(self.close_ports_header)
@@ -99,8 +108,12 @@ class PatchTargetMenuController(QObject):
 
         elif data == PATCH_TYPE.MANAGE_SERVICES:
             self.services_layout = QVBoxLayout()
-            self.services_header = QLabel("Please input the desired service(s) you want to start/stop!")
-            self.services_lbl = QLabel("Services (use comma (,) for multiple services):")
+            self.services_header = QLabel(
+                "Please input the desired service(s) you want to start/stop!"
+            )
+            self.services_lbl = QLabel(
+                "Services (use comma (,) for multiple services):"
+            )
             self.services_inp = QLineEdit()
             self.services_layout.addWidget(self.services_header)
             self.services_layout.addWidget(self.services_lbl)
@@ -120,7 +133,9 @@ class PatchTargetMenuController(QObject):
 
         elif data == PATCH_TYPE.OPEN_PORT:
             self.open_ports_layout = QVBoxLayout()
-            self.open_ports_header = QLabel("Please input the desired port(s) you want to open!")
+            self.open_ports_header = QLabel(
+                "Please input the desired port(s) you want to open!"
+            )
             self.open_ports_lbl = QLabel("Ports (user comma (,) for multiple ports):")
             self.open_ports_inp = QLineEdit()
             self.open_ports_layout.addWidget(self.open_ports_header)
@@ -131,17 +146,21 @@ class PatchTargetMenuController(QObject):
 
         elif data == PATCH_TYPE.UPDATE_INSTALL:
             self.update_layout = QVBoxLayout()
-            self.update_header = QLabel("Please input the desired package(s) to install or update!\nFor example: mysql-server")
-            self.update_lbl = QLabel("Package(s) to install or update to the latest version (use comma (,) for multiple services):")
+            self.update_header = QLabel(
+                "Please input the desired package(s) to install or update!\nFor example: mysql-server"
+            )
+            self.update_lbl = QLabel(
+                "Package(s) to install or update to the latest version (use comma (,) for multiple services):"
+            )
             self.update_inp = QLineEdit()
             self.update_layout.addWidget(self.update_header)
             self.update_layout.addWidget(self.update_lbl)
             self.update_layout.addWidget(self.update_inp)
 
             layout.addLayout(self.update_layout)
-        
+
         self.view.adjustSize()
-        
+
     @asyncSlot()
     async def execute_selected_patch(self):
         data = self.view.playbook_combo_box.currentData()
@@ -157,15 +176,15 @@ class PatchTargetMenuController(QObject):
                     invalid_ports.append(x.strip())
 
             if invalid_ports:
-                QMessageBox.warning(self.main_window, "Warning",f"Invalid Input:\n{invalid_ports}")
+                QMessageBox.warning(
+                    self.main_window, "Warning", f"Invalid Input:\n{invalid_ports}"
+                )
                 return
 
             payload = {
                 "playbook": str(data.strip()),
-                "extra_vars": {
-                    "ports": ports
-                },
-                "targets": self.model_manager.get_payload()
+                "extra_vars": {"ports": ports},
+                "targets": self.model_manager.get_payload(),
             }
 
             self.view.execute_patch_btn.setEnabled(False)
@@ -173,7 +192,7 @@ class PatchTargetMenuController(QObject):
             await execute_patch(self.main_window, EXECUTE_PATCH_URL, payload)
 
             self.view.execute_patch_btn.setEnabled(True)
-        
+
         elif data == PATCH_TYPE.MANAGE_SERVICES:
             service_inp = self.services_inp.text().strip()
             services = []
@@ -185,16 +204,18 @@ class PatchTargetMenuController(QObject):
                     invalid_services.append(x.strip())
 
             if invalid_services:
-                QMessageBox.warning(self.main_window, "Warning",f"Invalid Input:\n{invalid_services}")
+                QMessageBox.warning(
+                    self.main_window, "Warning", f"Invalid Input:\n{invalid_services}"
+                )
                 return
 
             payload = {
                 "playbook": str(data.strip()),
                 "extra_vars": {
                     "services": services,
-                    "action": str(self.action_combo_box.currentData())
+                    "action": str(self.action_combo_box.currentData()),
                 },
-                "targets": self.model_manager.get_payload()
+                "targets": self.model_manager.get_payload(),
             }
 
             self.view.execute_patch_btn.setEnabled(False)
@@ -214,15 +235,15 @@ class PatchTargetMenuController(QObject):
                     invalid_ports.append(x.strip())
 
             if invalid_ports:
-                QMessageBox.warning(self.main_window, "Warning",f"Invalid Input:\n{invalid_ports}")
+                QMessageBox.warning(
+                    self.main_window, "Warning", f"Invalid Input:\n{invalid_ports}"
+                )
                 return
 
             payload = {
                 "playbook": str(data.strip()),
-                "extra_vars": {
-                    "ports": ports
-                },
-                "targets": self.model_manager.get_payload()
+                "extra_vars": {"ports": ports},
+                "targets": self.model_manager.get_payload(),
             }
 
             self.view.execute_patch_btn.setEnabled(False)
@@ -242,15 +263,15 @@ class PatchTargetMenuController(QObject):
                     invalid_packages.append(x.strip())
 
             if invalid_packages:
-                QMessageBox.warning(self.main_window, "Warning",f"Invalid Input:\n{invalid_packages}")
+                QMessageBox.warning(
+                    self.main_window, "Warning", f"Invalid Input:\n{invalid_packages}"
+                )
                 return
 
             payload = {
                 "playbook": str(data.strip()),
-                "extra_vars": {
-                    "packages_to_update": packages
-                },
-                "targets": self.model_manager.get_payload()
+                "extra_vars": {"packages_to_update": packages},
+                "targets": self.model_manager.get_payload(),
             }
 
             self.view.execute_patch_btn.setEnabled(False)

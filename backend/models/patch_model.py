@@ -1,6 +1,7 @@
 from typing import Any
-from pydantic import BaseModel
+
 from models.target import TargetList
+from pydantic import BaseModel
 
 
 class PatchModel(BaseModel):

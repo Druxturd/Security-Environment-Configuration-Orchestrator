@@ -1,24 +1,24 @@
 import asyncio
+import os
 import shutil
 from tempfile import NamedTemporaryFile, mkdtemp
 
 import ansible_runner
 from models.target import Target
-import os
 
 AUTO_HARDEN_PLAYBOOK_OS_VERSION = {
     "debian_11": "hardening_debian11.yml",
     "debian_12": "hardening_debian12.yml",
     "ubuntu_20": "hardening_ubuntu20.yml",
     "ubuntu_22": "hardening_ubuntu22.yml",
-    "ubuntu_24": "hardening_ubuntu24.yml"
+    "ubuntu_24": "hardening_ubuntu24.yml",
 }
 
 PLAYBOOK_START = "playbook_on_play_start"
 RECAP_EVENT = "playbook_on_stats"
 RUNNER_OK = "runner_on_ok"
 RUNNER_FAILED = "runner_on_failed"
-RUNNER_UNREACHABLE  = "runner_on_unreachable"
+RUNNER_UNREACHABLE = "runner_on_unreachable"
 RUNNER_SKIPPED = "runner_on_skipped"
 RUNNER_EVENTS = [
     RUNNER_OK,
@@ -31,12 +31,13 @@ RUNNER_EVENTS = [
 HARDEN_FILES = "harden_files"
 PATCH_FILES = "patch_files"
 
+
 async def execute_auto_harden_on_single_target(os_version_name: str, target: Target):
     runner_dir = mkdtemp(prefix="runner_")
     project_dir = os.path.join(runner_dir, "project")
     os.makedirs(project_dir, exist_ok=True)
 
-    key_file = NamedTemporaryFile(delete=False, mode='w', dir=runner_dir)
+    key_file = NamedTemporaryFile(delete=False, mode="w", dir=runner_dir)
     key_file.write(target.ssh_private_key.strip() + "\n")
     key_file.close()
     os.chmod(key_file.name, 0o600)
@@ -46,16 +47,18 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
     inventory_lines.append(
         f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path}"
     )
-    
+
     inventory_path = os.path.join(runner_dir, "inventory")
     with open(inventory_path, "w") as f:
         f.write("\n".join(inventory_lines).strip() + "\n")
-    
+
     loop = asyncio.get_running_loop()
     playbook_results = []
 
     try:
-        playbook_path = os.path.join(os.getcwd(), "auto_harden", AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name])
+        playbook_path = os.path.join(
+            os.getcwd(), "auto_harden", AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]
+        )
 
         playbook_start = []
         event_list = {
@@ -63,12 +66,12 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
             "ok": [],
             "failed": [],
             "unreachable": [],
-            "skipped": []
+            "skipped": [],
         }
         recap = []
 
         def event_handler(event):
-            _event = event.get('event')
+            _event = event.get("event")
             _event_validation(_event, event, event_list, recap, playbook_start)
 
         runner_result = await loop.run_in_executor(
@@ -79,11 +82,15 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
                 inventory=inventory_path,
                 ident=f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
                 event_handler=event_handler,
-                quiet=True
-            )
+                quiet=True,
+            ),
         )
 
-        artifact_dir = os.path.join(runner_dir, "artifacts", f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}")
+        artifact_dir = os.path.join(
+            runner_dir,
+            "artifacts",
+            f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
+        )
         rc_path = os.path.join(artifact_dir, "rc")
 
         if os.path.exists(rc_path):
@@ -92,34 +99,41 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
         else:
             rc = runner_result.rc
 
-        playbook_results.append({
-            "name": AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name],
-            "status": runner_result.status,
-            "rc": rc,
-            "playbook_start": playbook_start,
-            "events": event_list,
-            "recap": recap,
-            "stdout": runner_result.stdout.read() if runner_result.stdout else "No output" # type: ignore
-        })
-        
+        playbook_results.append(
+            {
+                "name": AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name],
+                "status": runner_result.status,
+                "rc": rc,
+                "playbook_start": playbook_start,
+                "events": event_list,
+                "recap": recap,
+                "stdout": runner_result.stdout.read()  # type: ignore
+                if runner_result.stdout  # type: ignore
+                else "No output",
+            }
+        )
+
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
-            "playbook_results": playbook_results
+            "playbook_results": playbook_results,
         }
-    
+
     finally:
         if os.path.exists(key_path):
             os.remove(key_path)
         if os.path.exists(runner_dir):
             shutil.rmtree(runner_dir)
 
-async def execute_selected_playbook_on_single_target(playbooks: list[str], target: Target):
+
+async def execute_selected_playbook_on_single_target(
+    playbooks: list[str], target: Target
+):
     runner_dir = mkdtemp(prefix="runner_")
     project_dir = os.path.join(runner_dir, "project")
     os.makedirs(project_dir, exist_ok=True)
 
-    key_file = NamedTemporaryFile(delete=False, mode='w', dir=runner_dir)
+    key_file = NamedTemporaryFile(delete=False, mode="w", dir=runner_dir)
     key_file.write(target.ssh_private_key.strip() + "\n")
     key_file.close()
     os.chmod(key_file.name, 0o600)
@@ -129,11 +143,11 @@ async def execute_selected_playbook_on_single_target(playbooks: list[str], targe
     inventory_lines.append(
         f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path}"
     )
-    
+
     inventory_path = os.path.join(runner_dir, "inventory")
     with open(inventory_path, "w") as f:
         f.write("\n".join(inventory_lines).strip() + "\n")
-    
+
     loop = asyncio.get_running_loop()
     playbook_results = []
 
@@ -147,12 +161,12 @@ async def execute_selected_playbook_on_single_target(playbooks: list[str], targe
                 "ok": [],
                 "failed": [],
                 "unreachable": [],
-                "skipped": []
+                "skipped": [],
             }
             recap = []
-            
+
             def event_handler(event):
-                _event = event.get('event')
+                _event = event.get("event")
                 _event_validation(_event, event, event_list, recap, playbook_start)
 
             runner_result = await loop.run_in_executor(
@@ -164,10 +178,14 @@ async def execute_selected_playbook_on_single_target(playbooks: list[str], targe
                     ident=f"{target.host_name}_{target.ip_address}_{playbook}",
                     event_handler=event_handler,
                     quiet=True,
-                )
+                ),
             )
 
-            artifact_dir = os.path.join(runner_dir, "artifacts", f"{target.host_name}_{target.ip_address}_{playbook}")
+            artifact_dir = os.path.join(
+                runner_dir,
+                "artifacts",
+                f"{target.host_name}_{target.ip_address}_{playbook}",
+            )
             rc_path = os.path.join(artifact_dir, "rc")
 
             if os.path.exists(rc_path):
@@ -175,21 +193,25 @@ async def execute_selected_playbook_on_single_target(playbooks: list[str], targe
                     rc = int(f.read().strip())
             else:
                 rc = runner_result.rc
-            
-            playbook_results.append({
-                "name": playbook,
-                "status": runner_result.status,
-                "rc": rc,
-                "playbook_start": playbook_start,
-                "events": event_list, # type: ignore
-                "recap": recap,
-                "stdout": runner_result.stdout.read() if runner_result.stdout else "No output", # type: ignore
-            })
+
+            playbook_results.append(
+                {
+                    "name": playbook,
+                    "status": runner_result.status,
+                    "rc": rc,
+                    "playbook_start": playbook_start,
+                    "events": event_list,
+                    "recap": recap,
+                    "stdout": runner_result.stdout.read()  # type: ignore
+                    if runner_result.stdout  # type: ignore
+                    else "No output",
+                }
+            )
 
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
-            "playbook_results": playbook_results
+            "playbook_results": playbook_results,
         }
 
     finally:
@@ -198,12 +220,15 @@ async def execute_selected_playbook_on_single_target(playbooks: list[str], targe
         if os.path.exists(runner_dir):
             shutil.rmtree(runner_dir)
 
-async def execute_selected_patch_on_single_target(playbook: str, extravars, target: Target):
+
+async def execute_selected_patch_on_single_target(
+    playbook: str, extravars, target: Target
+):
     runner_dir = mkdtemp(prefix="runner_")
     project_dir = os.path.join(runner_dir, "project")
     os.makedirs(project_dir, exist_ok=True)
 
-    key_file = NamedTemporaryFile(delete=False, mode='w', dir=runner_dir)
+    key_file = NamedTemporaryFile(delete=False, mode="w", dir=runner_dir)
     key_file.write(target.ssh_private_key.strip() + "\n")
     key_file.close()
     os.chmod(key_file.name, 0o600)
@@ -213,11 +238,11 @@ async def execute_selected_patch_on_single_target(playbook: str, extravars, targ
     inventory_lines.append(
         f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path}"
     )
-    
+
     inventory_path = os.path.join(runner_dir, "inventory")
     with open(inventory_path, "w") as f:
         f.write("\n".join(inventory_lines).strip() + "\n")
-    
+
     loop = asyncio.get_running_loop()
     playbook_results = []
 
@@ -230,12 +255,12 @@ async def execute_selected_patch_on_single_target(playbook: str, extravars, targ
             "ok": [],
             "failed": [],
             "unreachable": [],
-            "skipped": []
+            "skipped": [],
         }
         recap = []
 
         def event_handler(event):
-            _event = event.get('event')
+            _event = event.get("event")
             _event_validation(_event, event, event_list, recap, playbook_start)
 
         runner_result = await loop.run_in_executor(
@@ -247,11 +272,15 @@ async def execute_selected_patch_on_single_target(playbook: str, extravars, targ
                 ident=f"{target.host_name}_{target.ip_address}_{playbook}",
                 event_handler=event_handler,
                 extravars=extravars,
-                quiet=True
-            )
+                quiet=True,
+            ),
         )
 
-        artifact_dir = os.path.join(runner_dir, "artifacts", f"{target.host_name}_{target.ip_address}_{playbook}")
+        artifact_dir = os.path.join(
+            runner_dir,
+            "artifacts",
+            f"{target.host_name}_{target.ip_address}_{playbook}",
+        )
         rc_path = os.path.join(artifact_dir, "rc")
 
         if os.path.exists(rc_path):
@@ -260,20 +289,24 @@ async def execute_selected_patch_on_single_target(playbook: str, extravars, targ
         else:
             rc = runner_result.rc
 
-        playbook_results.append({
-            "name": playbook,
-            "status": runner_result.status,
-            "rc": rc,
-            "playbook_start": playbook_start,
-            "events": event_list,
-            "recap": recap,
-            "stdout": runner_result.stdout.read() if runner_result.stdout else "No output" # type: ignore
-        })
-        
+        playbook_results.append(
+            {
+                "name": playbook,
+                "status": runner_result.status,
+                "rc": rc,
+                "playbook_start": playbook_start,
+                "events": event_list,
+                "recap": recap,
+                "stdout": runner_result.stdout.read()  # type: ignore
+                if runner_result.stdout  # type: ignore
+                else "No output",
+            }
+        )
+
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
-            "playbook_results": playbook_results
+            "playbook_results": playbook_results,
         }
 
     finally:
@@ -281,6 +314,7 @@ async def execute_selected_patch_on_single_target(playbook: str, extravars, targ
             os.remove(key_path)
         if os.path.exists(runner_dir):
             shutil.rmtree(runner_dir)
+
 
 def _event_validation(_event, event, event_list, recap, playbook_start):
     if _event in RUNNER_EVENTS:

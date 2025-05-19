@@ -1,14 +1,12 @@
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QLabel,
-    QTabWidget,
     QComboBox,
     QHBoxLayout,
+    QLabel,
     QPushButton,
-    QLineEdit,
-    QSizePolicy
+    QVBoxLayout,
+    QWidget,
 )
+
 
 class PatchTargetMenuView(QWidget):
     def __init__(self):
@@ -37,8 +35,7 @@ class PatchTargetMenuView(QWidget):
         self.patch_content_layout.addWidget(self.detail_widget)
 
         self.main_layout.addLayout(self.patch_content_layout)
-        
-        ### TO BE DELETE
+
         self.hLayout1 = QHBoxLayout()
         self.back_btn = QPushButton("Back to Main Menu")
         self.execute_patch_btn = QPushButton("Execute Patch")
@@ -46,6 +43,5 @@ class PatchTargetMenuView(QWidget):
         self.hLayout1.addWidget(self.execute_patch_btn)
 
         self.main_layout.addLayout(self.hLayout1)
-        ##############
 
         self.setLayout(self.main_layout)

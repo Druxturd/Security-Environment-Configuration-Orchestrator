@@ -1,18 +1,20 @@
+from ansi2html import Ansi2HTMLConverter
+from controllers.detail_report_controller import DetailReportController
+from models.detail_report_tree_model import DetailReportModel
+from models.report_model import ReportModel
+
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QDialog,
-    QVBoxLayout,
-    QTabWidget,
     QDialogButtonBox,
-    QWidget,
     QLabel,
-    QTextEdit
+    QTabWidget,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import QSize, Qt
-from ansi2html import Ansi2HTMLConverter
 from views.detail_report_view import DetailReportView
-from models.report_model import ReportModel
-from models.detail_report_tree_model import DetailReportModel
-from controllers.detail_report_controller import DetailReportController
+
 
 class ReportWindowView(QDialog):
     def __init__(self, report_text: str, target_list: list[ReportModel]):
@@ -27,7 +29,7 @@ class ReportWindowView(QDialog):
         self.tabs.setTabPosition(QTabWidget.TabPosition.North)
 
         layout.addWidget(self.tabs)
-        
+
         self.init_summary_tab(report_text)
         self.init_detail_tab(target_list)
 
@@ -37,7 +39,7 @@ class ReportWindowView(QDialog):
         layout.addWidget(self.close_button)
 
         self.setLayout(layout)
-    
+
     def keyPressEvent(self, event):
         key = event.key()
 
@@ -59,11 +61,13 @@ class ReportWindowView(QDialog):
         self.summary_tab_layout.addWidget(self.text_area)
         self.summary_tab.setLayout(self.summary_tab_layout)
         self.tabs.addTab(self.summary_tab, "Summary")
-    
+
     def init_detail_tab(self, target_list: list):
         self.detail_tab = DetailReportView()
         self.detail_model = DetailReportModel(target_list)
-        self.detail_controller = DetailReportController(self.detail_tab, self.detail_model)
+        self.detail_controller = DetailReportController(
+            self.detail_tab, self.detail_model
+        )
         self.detail_tab.show()
 
         self.tabs.addTab(self.detail_tab, "Detail")

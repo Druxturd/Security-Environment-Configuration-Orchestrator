@@ -1,8 +1,10 @@
-from views.detail_report_view import DetailReportView
+from ansi2html import Ansi2HTMLConverter
 from models.detail_report_tree_model import DetailReportModel
+from views.detail_report_view import DetailReportView
+
 from PySide6.QtCore import QModelIndex
 from PySide6.QtGui import QTextCursor
-from ansi2html import Ansi2HTMLConverter
+
 
 class DetailReportController:
     def __init__(self, view: DetailReportView, model: DetailReportModel):
@@ -10,16 +12,22 @@ class DetailReportController:
         self.model = model
         self.view.column_view.setModel(self.model)
         self.view.column_view.updateGeometry()
-        
+
         self.current_playbook = None
 
-        self.view.column_view.selectionModel().currentChanged.connect(self.on_current_changed)
+        self.view.column_view.selectionModel().currentChanged.connect(
+            self.on_current_changed
+        )
         self.view.ok_btn.clicked.connect(lambda: self.update_event_detail("ok"))
         self.view.failed_btn.clicked.connect(lambda: self.update_event_detail("failed"))
-        self.view.unreachable_btn.clicked.connect(lambda: self.update_event_detail("unreachable"))
-        self.view.skipped_btn.clicked.connect(lambda: self.update_event_detail("skipped"))
+        self.view.unreachable_btn.clicked.connect(
+            lambda: self.update_event_detail("unreachable")
+        )
+        self.view.skipped_btn.clicked.connect(
+            lambda: self.update_event_detail("skipped")
+        )
         self.view.summary_btn.clicked.connect(lambda: self.update_detail("stdout"))
-    
+
     def on_current_changed(self, index: QModelIndex):
         item = index.internalPointer()
         data = item.data()
@@ -31,22 +39,34 @@ class DetailReportController:
                 btn.setEnabled(True)
         else:
             self.current_playbook = None
-            self.view.text_area.setHtml(Ansi2HTMLConverter().convert("Select a playbook to see details"))
+            self.view.text_area.setHtml(
+                Ansi2HTMLConverter().convert("Select a playbook to see details")
+            )
             for btn in self.view.btn_group.buttons():
                 btn.setEnabled(False)
                 btn.setChecked(False)
-    
+
     def update_detail(self, key: str):
         if self.current_playbook:
-            self.view.text_area.setHtml(Ansi2HTMLConverter().convert(f"{self.current_playbook[key]}"))
+            self.view.text_area.setHtml(
+                Ansi2HTMLConverter().convert(f"{self.current_playbook[key]}")
+            )
             self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
-    
+
     def update_event_detail(self, key: str):
-        if self.current_playbook['events'] and len(self.current_playbook['events'][key]) != 0: # type: ignore
+        if (
+            self.current_playbook["events"]  # type: ignore
+            and len(self.current_playbook["events"][key]) != 0  # type: ignore
+        ):
             _text = "\n".join(
-                f"TASK [{x['event_data']['task']}]\n{x['stdout']}" for x in self.current_playbook['events'][key] # type: ignore
+                f"TASK [{x['event_data']['task']}]\n{x['stdout']}"
+                for x in self.current_playbook["events"][key]  # type: ignore
             )
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
         else:
-            self.view.text_area.setHtml(Ansi2HTMLConverter().convert(f"There is no information about {key} event(s)"))
+            self.view.text_area.setHtml(
+                Ansi2HTMLConverter().convert(
+                    f"There is no information about {key} event(s)"
+                )
+            )
         self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)

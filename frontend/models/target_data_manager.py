@@ -1,13 +1,11 @@
-from PySide6.QtCore import QObject, Signal
-from models.target_model import TargetModel
 from typing import List, Set
 
-class TargetDataManager(QObject):
+from models.target_model import TargetModel
+from PySide6.QtCore import QObject, Signal
 
-    supported_os_version = {
-        "debian": ["11", "12"],
-        "ubuntu": ["20", "22", "24"]
-    }
+
+class TargetDataManager(QObject):
+    supported_os_version = {"debian": ["11", "12"], "ubuntu": ["20", "22", "24"]}
 
     target_list_updated = Signal()
 
@@ -20,40 +18,38 @@ class TargetDataManager(QObject):
         return self._target_list
 
     def get_payload(self) -> dict:
-        return {
-            "target_list": [target.to_payload() for target in self._target_list]
-        }
-    
+        return {"target_list": [target.to_payload() for target in self._target_list]}
+
     def get_count_target_list(self) -> int:
         return len(self._target_list)
-    
+
     def get_count_checked_target(self) -> int:
         counter = 0
         for x in self._target_list:
             if x.is_checked:
                 counter += 1
         return counter
-    
+
     def set_all_check_status_true(self):
         for x in self._target_list:
             if not x.is_checked:
                 x.is_checked = True
-    
+
     def reset_check_status(self):
         for x in self._target_list:
             if x.is_checked:
                 x.is_checked = False
-    
+
     def add_new_target(self, new_data: TargetModel) -> bool:
         if new_data in self._unique_keys:
             return False
-        
+
         self._target_list.append(new_data)
         self._unique_keys.add(new_data)
 
         self.target_list_updated.emit()
         return True
-    
+
     def clear_target_list(self):
         self._target_list.clear()
         self._unique_keys.clear()
