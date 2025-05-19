@@ -9,7 +9,6 @@ from models.target import Target
 AUTO_HARDEN_PLAYBOOK_OS_VERSION = {
     "debian_11": "hardening_debian11.yml",
     "debian_12": "hardening_debian12.yml",
-    "ubuntu_20": "hardening_ubuntu20.yml",
     "ubuntu_22": "hardening_ubuntu22.yml",
     "ubuntu_24": "hardening_ubuntu24.yml",
 }

@@ -55,9 +55,6 @@ async def execute_auto_harden_on_target_list(data: AutoHardenModel):
     if len(grouped_OS["debian_12"]) != 0:
         await execute_auto_harden_on_supported_version("debian_12")
 
-    if len(grouped_OS["ubuntu_20"]) != 0:
-        await execute_auto_harden_on_supported_version("ubuntu_20")
-
     if len(grouped_OS["ubuntu_22"]) != 0:
         await execute_auto_harden_on_supported_version("ubuntu_22")
 
