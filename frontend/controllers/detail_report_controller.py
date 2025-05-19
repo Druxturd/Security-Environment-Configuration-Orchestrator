@@ -18,8 +18,6 @@ class DetailReportController:
         self.view.failed_btn.clicked.connect(lambda: self.update_event_detail("failed"))
         self.view.unreachable_btn.clicked.connect(lambda: self.update_event_detail("unreachable"))
         self.view.skipped_btn.clicked.connect(lambda: self.update_event_detail("skipped"))
-        # self.view.status_btn.clicked.connect(lambda: self.update_detail("status"))
-        # self.view.rc_btn.clicked.connect(lambda: self.update_detail("rc"))
         self.view.summary_btn.clicked.connect(lambda: self.update_detail("stdout"))
     
     def on_current_changed(self, index: QModelIndex):

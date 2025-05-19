@@ -66,9 +66,9 @@ def grouping_os(payload: TargetList):
                 continue
         
         return {
-            "debian-11": debian_11_list,
-            "debian-12": debian_12_list,
-            "ubuntu-20": ubuntu_20_list,
-            "ubuntu-22": ubuntu_22_list,
-            "ubuntu-24": ubuntu_24_list
+            "debian_11": debian_11_list,
+            "debian_12": debian_12_list,
+            "ubuntu_20": ubuntu_20_list,
+            "ubuntu_22": ubuntu_22_list,
+            "ubuntu_24": ubuntu_24_list
         }

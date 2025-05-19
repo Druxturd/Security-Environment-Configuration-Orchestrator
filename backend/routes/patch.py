@@ -1,8 +1,7 @@
 import asyncio
-from fastapi import APIRouter, Body
+from fastapi import APIRouter
 from dotenv import load_dotenv
 import os
-from models.target import TargetList
 from models.patch_model import PatchModel
 from utils.ansible_runner_util import execute_selected_patch_on_single_target
 

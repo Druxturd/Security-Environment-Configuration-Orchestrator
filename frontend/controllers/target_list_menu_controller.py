@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-TEMPLATE_URL = f"{os.getenv("BACKEND_URL")}/download-template"
+TEMPLATE_URL = f"{os.getenv('BACKEND_URL')}/download-template"
 
 class TargetListMenuController(QObject):
     def __init__(self, view: TargetListMenuView, model_manager: TargetDataManager, main_window: MainWindow):

@@ -7,11 +7,11 @@ from models.target import Target
 import os
 
 AUTO_HARDEN_PLAYBOOK_OS_VERSION = {
-    "debian-11": "hardening_debian11.yml",
-    "debian-12": "hardening_debian12.yml",
-    "ubuntu-20": "hardening_ubuntu20.yml",
-    "ubuntu-22": "hardening_ubuntu22.yml",
-    "ubuntu-24": "hardening_ubuntu24.yml"
+    "debian_11": "hardening_debian11.yml",
+    "debian_12": "hardening_debian12.yml",
+    "ubuntu_20": "hardening_ubuntu20.yml",
+    "ubuntu_22": "hardening_ubuntu22.yml",
+    "ubuntu_24": "hardening_ubuntu24.yml"
 }
 
 PLAYBOOK_START = "playbook_on_play_start"

@@ -41,9 +41,6 @@ async def execute_patch(main_window: QMainWindow, URL: str, payload):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(url=URL, json=payload, timeout=None)
-            # response = await client.post(url=URL, 
-            # params={"playbook": [payload['playbook']], "extra_vars":payload['extra_vars'], "targets":payload['targets']},
-            # timeout=None)
             result = response.json()
     except Exception as e:
         result = {"error": str(e)}
@@ -53,7 +50,6 @@ async def execute_patch(main_window: QMainWindow, URL: str, payload):
     if "error" in result:
         QMessageBox.critical(main_window, "Error", result['error'])
     else:
-        print(result)
         _output_report(result)
 
 def _output_report(result):

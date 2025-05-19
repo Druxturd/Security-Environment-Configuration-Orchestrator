@@ -1,7 +1,7 @@
 import asyncio
 from fastapi import APIRouter
 from dotenv import load_dotenv
-from models.target import TargetList
+from models.harden_model import *
 from utils.model_util import grouping_os
 from utils.ansible_runner_util import execute_auto_harden_on_single_target, execute_selected_playbook_on_single_target
 import os
@@ -21,19 +21,19 @@ def list_harden_files():
         return {"error": "File not found"}
 
 @router.post(f"{BASE_HARDEN_URL}/execute")
-async def execute_selected_playbook_on_target_list(playbooks: list[str], targets: TargetList):
+async def execute_selected_playbook_on_target_list(data: SelectedHardenModel):
 
     tasks = []
-    for target in targets.target_list:
-        tasks.append(execute_selected_playbook_on_single_target(playbooks, target))
+    for target in data.targets.target_list:
+        tasks.append(execute_selected_playbook_on_single_target(data.playbooks, target))
 
     results = await asyncio.gather(*tasks)
 
     return {"task_results": results}
 
 @router.post(f"{BASE_HARDEN_URL}/auto-execute")
-async def execute_auto_harden_on_target_list(targets: TargetList):
-    grouped_OS = grouping_os(targets)
+async def execute_auto_harden_on_target_list(data: AutoHardenModel):
+    grouped_OS = grouping_os(data.targets)
     all_results = []
 
     async def execute_auto_harden_on_supported_version(os_version_name: str):
@@ -45,19 +45,19 @@ async def execute_auto_harden_on_target_list(targets: TargetList):
         all_results.append(await asyncio.gather(*tasks))
 
 
-    if len(grouped_OS["debian-11"]) != 0:
-        await execute_auto_harden_on_supported_version("debian-11")
+    if len(grouped_OS["debian_11"]) != 0:
+        await execute_auto_harden_on_supported_version("debian_11")
 
-    if len(grouped_OS["debian-12"]) != 0:
-        await execute_auto_harden_on_supported_version("debian-12")
+    if len(grouped_OS["debian_12"]) != 0:
+        await execute_auto_harden_on_supported_version("debian_12")
     
-    if len(grouped_OS["ubuntu-20"]) != 0:
-        await execute_auto_harden_on_supported_version("ubuntu-20")
+    if len(grouped_OS["ubuntu_20"]) != 0:
+        await execute_auto_harden_on_supported_version("ubuntu_20")
     
-    if len(grouped_OS["ubuntu-22"]) != 0:
-        await execute_auto_harden_on_supported_version("ubuntu-22")
+    if len(grouped_OS["ubuntu_22"]) != 0:
+        await execute_auto_harden_on_supported_version("ubuntu_22")
     
-    if len(grouped_OS["ubuntu-24"]) != 0:
-        await execute_auto_harden_on_supported_version("ubuntu-24")
+    if len(grouped_OS["ubuntu_24"]) != 0:
+        await execute_auto_harden_on_supported_version("ubuntu_24")
     
     return {"all_results": all_results}

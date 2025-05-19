@@ -13,7 +13,7 @@ from models.target_data_manager import TargetDataManager
 from utils.backend_util import execute_harden
 
 load_dotenv()
-HARDEN_LIST_URL = f"{os.getenv("BACKEND_URL")}/harden"
+HARDEN_LIST_URL = f"{os.getenv('BACKEND_URL')}/harden"
 EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
 EXECUTE_AUTO_HARDEN_URL = f"{HARDEN_LIST_URL}/auto-execute"
 

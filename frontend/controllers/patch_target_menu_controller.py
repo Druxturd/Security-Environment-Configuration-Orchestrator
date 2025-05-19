@@ -1,4 +1,3 @@
-import json
 import os
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import (
@@ -21,7 +20,7 @@ from models.target_data_manager import TargetDataManager
 
 from utils.backend_util import execute_patch
 
-from patch_files import *
+from utils.patch_files import *
 
 load_dotenv()
 PATCH_LIST_URL = f"{os.getenv('BACKEND_URL')}/patch"
@@ -67,6 +66,7 @@ class PatchTargetMenuController(QObject):
     def combo_box_on_index_changed(self):
         combo_box = self.view.playbook_combo_box
         self.update_detail_all_patch(combo_box.currentData())
+        # self.main_window.adjust_all_window_size()
         
     def clear_layout(self, layout: QLayout):
         while layout.count():
@@ -99,7 +99,7 @@ class PatchTargetMenuController(QObject):
 
         elif data == PATCH_TYPE.MANAGE_SERVICES:
             self.services_layout = QVBoxLayout()
-            self.services_header = QLabel("Please input the desired service(s) you want to open/close!")
+            self.services_header = QLabel("Please input the desired service(s) you want to start/stop!")
             self.services_lbl = QLabel("Services (use comma (,) for multiple services):")
             self.services_inp = QLineEdit()
             self.services_layout.addWidget(self.services_header)
@@ -130,16 +130,18 @@ class PatchTargetMenuController(QObject):
             layout.addLayout(self.open_ports_layout)
 
         elif data == PATCH_TYPE.UPDATE_INSTALL:
-            update_layout = QVBoxLayout()
-            update_header = QLabel("Please input the desired package(s) to update!\nFor example: mysql-server")
-            update_lbl = QLabel("Package(s) to update (use comma (,) for multiple services):")
-            update_inp = QLineEdit()
-            update_layout.addWidget(update_header)
-            update_layout.addWidget(update_lbl)
-            update_layout.addWidget(update_inp)
+            self.update_layout = QVBoxLayout()
+            self.update_header = QLabel("Please input the desired package(s) to install or update!\nFor example: mysql-server")
+            self.update_lbl = QLabel("Package(s) to install or update to the latest version (use comma (,) for multiple services):")
+            self.update_inp = QLineEdit()
+            self.update_layout.addWidget(self.update_header)
+            self.update_layout.addWidget(self.update_lbl)
+            self.update_layout.addWidget(self.update_inp)
 
-            layout.addLayout(update_layout)
-
+            layout.addLayout(self.update_layout)
+        
+        self.view.adjustSize()
+        
     @asyncSlot()
     async def execute_selected_patch(self):
         data = self.view.playbook_combo_box.currentData()
@@ -230,5 +232,29 @@ class PatchTargetMenuController(QObject):
             self.view.execute_patch_btn.setEnabled(True)
 
         elif data == PATCH_TYPE.UPDATE_INSTALL:
-            print("exec udpate")
-        # 123, a, 1212,3 1  ,121q
+            package_inp = self.update_inp.text().strip()
+            packages = []
+            invalid_packages = []
+            for x in package_inp.split(","):
+                if x.strip():
+                    packages.append(x.strip())
+                else:
+                    invalid_packages.append(x.strip())
+
+            if invalid_packages:
+                QMessageBox.warning(self.main_window, "Warning",f"Invalid Input:\n{invalid_packages}")
+                return
+
+            payload = {
+                "playbook": str(data.strip()),
+                "extra_vars": {
+                    "packages_to_update": packages
+                },
+                "targets": self.model_manager.get_payload()
+            }
+
+            self.view.execute_patch_btn.setEnabled(False)
+
+            await execute_patch(self.main_window, EXECUTE_PATCH_URL, payload)
+
+            self.view.execute_patch_btn.setEnabled(True)

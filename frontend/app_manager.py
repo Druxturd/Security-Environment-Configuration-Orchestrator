@@ -12,8 +12,6 @@ from controllers.target_list_menu_controller import TargetListMenuController
 from controllers.harden_target_menu_controller import HardenTargetMenuController
 from controllers.patch_target_menu_controller import PatchTargetMenuController
 
-from PySide6.QtWidgets import QMessageBox
-
 from pages import Page
 
 class AppManager():
@@ -53,5 +51,4 @@ class AppManager():
         self.main_window.setCentralWidget(self.main_window.stacked_widget)
 
         # self.main_window.switch_to_main_menu()
-        # self.main_window.switch_to_patch_target_menu()
         self.main_window.switch_to_target_list_menu()
