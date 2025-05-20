@@ -1,4 +1,3 @@
-import json
 import os
 
 import httpx
@@ -247,7 +246,6 @@ class PatchTargetMenuController(QObject):
                 "targets": self.model_manager.get_payload(),
             }
 
-
             self.view.execute_patch_btn.setEnabled(False)
 
             await execute_patch(self.main_window, EXECUTE_PATCH_URL, payload)
@@ -275,7 +273,6 @@ class PatchTargetMenuController(QObject):
                 "extra_vars": {"packages_to_update": packages},
                 "targets": self.model_manager.get_payload(),
             }
-
 
             self.view.execute_patch_btn.setEnabled(False)
 

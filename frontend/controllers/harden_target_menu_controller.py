@@ -1,4 +1,3 @@
-import json
 import os
 
 from dotenv import load_dotenv
@@ -57,6 +56,7 @@ class HardenTargetMenuController(QObject):
         controls = payload["controls"]
         for control in controls:
             print(control["os_version_name"]["debian_11"])
+
     ###
 
     def go_to_main_menu(self):
@@ -131,9 +131,7 @@ class HardenTargetMenuController(QObject):
         else:
             self.view.execute_harden_btn.setEnabled(False)
 
-            await execute_harden(
-                self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload
-            )
+            await execute_harden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
 
             self.uncheck_all_selected_items()
             self.view.execute_harden_btn.setEnabled(True)
