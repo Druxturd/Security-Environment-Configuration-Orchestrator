@@ -1,10 +1,11 @@
+import json
 import os
 
-import httpx
 from dotenv import load_dotenv
 from models.target_data_manager import TargetDataManager
 from qasync import asyncSlot
 from utils.backend_util import execute_harden
+from utils.harden_files import fetch_all_harden_controls
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.main_window_view import MainWindow
 
@@ -36,11 +37,26 @@ class HardenTargetMenuController(QObject):
 
         self.view.auto_harden_btn.clicked.connect(self.execute_auto_harden)
 
+        self.view.check_btn.clicked.connect(self.check_data)  # temporary
+
         self.update_total_target_counter()
 
         self.model_manager.target_list_updated.connect(self.update_total_target_counter)
 
-        self.fetch_files()
+        # self.fetch_files()
+        self.fetch_harden_list()
+
+    ### temporary function
+    def check_data(self):
+        payload = {
+            "controls": [
+                cb.property("data") for cb in self.view.check_boxes if cb.isChecked()
+            ],
+            "targets": self.model_manager.get_payload(),
+        }
+        print(json.dumps(payload))
+
+    ###
 
     def go_to_main_menu(self):
         self.main_window.switch_to_main_menu()
@@ -50,6 +66,21 @@ class HardenTargetMenuController(QObject):
             f"Total Target(s): {self.model_manager.get_count_target_list()}"
         )
 
+    def fetch_harden_list(self):
+        harden_list = fetch_all_harden_controls()
+        for data in harden_list:
+            self.check_box = QCheckBox(data.value["name"])
+            self.check_box.setProperty("data", data.value)
+            self.view.check_boxes.append(self.check_box)
+            self.view.scroll_content_layout.addWidget(self.check_box)
+
+        self.view.scroll_content.setFixedHeight(len(self.view.check_boxes) * 25)
+
+        self.view.scroll_content.adjustSize()
+        self.view.scroll_area.update()
+        self.view.repaint()
+
+    """
     def fetch_files(self):
         try:
             resp = httpx.get(HARDEN_LIST_URL)
@@ -72,17 +103,30 @@ class HardenTargetMenuController(QObject):
 
         except httpx.RequestError as e:
             print(e)
+    """
 
     @asyncSlot()
     async def execute_selected_harden(self):
+        # payload = {
+        #     "playbooks": [cb.text() for cb in self.view.check_boxes if cb.isChecked()],
+        #     "targets": self.model_manager.get_payload(),
+        # }
+
+        # if len(payload["playbooks"]) == 0:
+        #     QMessageBox.information(
+        #         self.main_window, "Playbook", "Please select minimal 1 playbook"
+        #     )
+
         payload = {
-            "playbooks": [cb.text() for cb in self.view.check_boxes if cb.isChecked()],
+            "controls": [
+                cb.property("data") for cb in self.view.check_boxes if cb.isChecked()
+            ],
             "targets": self.model_manager.get_payload(),
         }
 
-        if len(payload["playbooks"]) == 0:
+        if len(payload["controls"]) == 0:
             QMessageBox.information(
-                self.main_window, "Playbook", "Please select minimal 1 playbook"
+                self.main_window, "Controls", "Please select minimal 1 harden control"
             )
         else:
             self.view.execute_harden_btn.setEnabled(False)
@@ -94,7 +138,7 @@ class HardenTargetMenuController(QObject):
 
     @asyncSlot()
     async def execute_auto_harden(self):
-        payload = self.model_manager.get_payload()
+        payload = json.dumps(self.model_manager.get_payload())
         self.view.auto_harden_btn.setEnabled(False)
 
         await execute_harden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)

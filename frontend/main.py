@@ -6,7 +6,7 @@ from qasync import QEventLoop
 
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QFontMetrics
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QCheckBox
 
 if __name__ == "__main__":
 

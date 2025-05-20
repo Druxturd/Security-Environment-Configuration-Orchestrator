@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class SelectedHardenModel(BaseModel):
-    playbooks: list[str]
+    controls: list[dict]
     targets: TargetList
 
 
