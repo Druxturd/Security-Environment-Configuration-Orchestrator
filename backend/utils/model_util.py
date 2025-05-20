@@ -24,14 +24,6 @@ def is_Debian_12(osVersionName: str) -> bool:
     return True
 
 
-def is_Ubuntu_20(osVersionName: str) -> bool:
-    if not split_OS(osVersionName)["name"].startswith("ubuntu"):
-        return False
-    if not split_OS(osVersionName)["version"].startswith("20"):
-        return False
-    return True
-
-
 def is_Ubuntu_22(osVersionName: str) -> bool:
     if not split_OS(osVersionName)["name"].startswith("ubuntu"):
         return False
@@ -51,7 +43,6 @@ def is_Ubuntu_24(osVersionName: str) -> bool:
 def grouping_os(payload: TargetList):
     debian_11_list: list[Target] = []
     debian_12_list: list[Target] = []
-    ubuntu_20_list: list[Target] = []
     ubuntu_22_list: list[Target] = []
     ubuntu_24_list: list[Target] = []
 
@@ -60,8 +51,6 @@ def grouping_os(payload: TargetList):
             debian_11_list.append(target)
         elif is_Debian_12(target.os_version_name):
             debian_12_list.append(target)
-        elif is_Ubuntu_20(target.os_version_name):
-            ubuntu_20_list.append(target)
         elif is_Ubuntu_22(target.os_version_name):
             ubuntu_22_list.append(target)
         elif is_Ubuntu_24(target.os_version_name):
@@ -72,7 +61,6 @@ def grouping_os(payload: TargetList):
     return {
         "debian_11": debian_11_list,
         "debian_12": debian_12_list,
-        "ubuntu_20": ubuntu_20_list,
         "ubuntu_22": ubuntu_22_list,
         "ubuntu_24": ubuntu_24_list,
     }

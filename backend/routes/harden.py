@@ -6,8 +6,7 @@ from fastapi import APIRouter
 from models.harden_model import AutoHardenModel, SelectedHardenModel
 from utils.ansible_runner_util import (
     execute_auto_harden_on_single_target,
-    execute_selected_playbook_on_single_target,
-    execute_selected_control_on_single_target
+    execute_selected_control_on_single_target,
 )
 from utils.model_util import grouping_os
 
@@ -35,8 +34,14 @@ async def execute_selected_control_on_target_list(data: SelectedHardenModel):
     async def execute_selected_control_on_supported_version(os_version_name: str):
         tasks = []
         for target in grouped_OS[os_version_name]:
-            tasks.append(execute_selected_control_on_single_target(os_version_name, target, data.controls))
-        
+            tasks.append(
+                execute_selected_control_on_single_target(
+                    os_version_name,
+                    target,
+                    data.controls,  # type: ignore
+                )
+            )  # type: ignore
+
         all_results.append(await asyncio.gather(*tasks))
 
     if len(grouped_OS["debian_11"]) != 0:

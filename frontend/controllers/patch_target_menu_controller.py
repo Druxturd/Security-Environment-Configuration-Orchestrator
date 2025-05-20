@@ -187,11 +187,10 @@ class PatchTargetMenuController(QObject):
                 "extra_vars": {"ports": ports},
                 "targets": self.model_manager.get_payload(),
             }
-            json_payload = json.dumps(payload)
 
             self.view.execute_patch_btn.setEnabled(False)
 
-            await execute_patch(self.main_window, EXECUTE_PATCH_URL, json_payload)
+            await execute_patch(self.main_window, EXECUTE_PATCH_URL, payload)
 
             self.view.execute_patch_btn.setEnabled(True)
 
@@ -220,11 +219,9 @@ class PatchTargetMenuController(QObject):
                 "targets": self.model_manager.get_payload(),
             }
 
-            json_payload = json.dumps(payload)
-
             self.view.execute_patch_btn.setEnabled(False)
 
-            await execute_patch(self.main_window, EXECUTE_PATCH_URL, json_payload)
+            await execute_patch(self.main_window, EXECUTE_PATCH_URL, payload)
 
             self.view.execute_patch_btn.setEnabled(True)
 
@@ -250,11 +247,10 @@ class PatchTargetMenuController(QObject):
                 "targets": self.model_manager.get_payload(),
             }
 
-            json_payload = json.dumps(payload)
 
             self.view.execute_patch_btn.setEnabled(False)
 
-            await execute_patch(self.main_window, EXECUTE_PATCH_URL, json_payload)
+            await execute_patch(self.main_window, EXECUTE_PATCH_URL, payload)
 
             self.view.execute_patch_btn.setEnabled(True)
 
@@ -280,10 +276,9 @@ class PatchTargetMenuController(QObject):
                 "targets": self.model_manager.get_payload(),
             }
 
-            json_payload = json.dumps(payload)
 
             self.view.execute_patch_btn.setEnabled(False)
 
-            await execute_patch(self.main_window, EXECUTE_PATCH_URL, json_payload)
+            await execute_patch(self.main_window, EXECUTE_PATCH_URL, payload)
 
             self.view.execute_patch_btn.setEnabled(True)

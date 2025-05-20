@@ -54,8 +54,9 @@ class HardenTargetMenuController(QObject):
             ],
             "targets": self.model_manager.get_payload(),
         }
-        print(json.dumps(payload))
-
+        controls = payload["controls"]
+        for control in controls:
+            print(control["os_version_name"]["debian_11"])
     ###
 
     def go_to_main_menu(self):
@@ -123,7 +124,6 @@ class HardenTargetMenuController(QObject):
             ],
             "targets": self.model_manager.get_payload(),
         }
-
         if len(payload["controls"]) == 0:
             QMessageBox.information(
                 self.main_window, "Controls", "Please select minimal 1 harden control"
@@ -131,14 +131,16 @@ class HardenTargetMenuController(QObject):
         else:
             self.view.execute_harden_btn.setEnabled(False)
 
-            await execute_harden(self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload)
+            await execute_harden(
+                self.main_window, EXECUTE_SELECTED_HARDEN_URL, payload
+            )
 
             self.uncheck_all_selected_items()
             self.view.execute_harden_btn.setEnabled(True)
 
     @asyncSlot()
     async def execute_auto_harden(self):
-        payload = json.dumps(self.model_manager.get_payload())
+        payload = self.model_manager.get_payload()
         self.view.auto_harden_btn.setEnabled(False)
 
         await execute_harden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)

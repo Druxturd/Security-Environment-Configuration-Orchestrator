@@ -7,10 +7,16 @@ import ansible_runner
 from models.target import Target
 
 AUTO_HARDEN_PLAYBOOK_OS_VERSION = {
-    "debian_11": "hardening_debian11.yml",
-    "debian_12": "hardening_debian12.yml",
-    "ubuntu_22": "hardening_ubuntu22.yml",
-    "ubuntu_24": "hardening_ubuntu24.yml",
+    "debian_11": "auto_hardening_debian11.yml",
+    "debian_12": "auto_hardening_debian12.yml",
+    "ubuntu_22": "auto_hardening_ubuntu22.yml",
+    "ubuntu_24": "auto_hardening_ubuntu24.yml",
+}
+SELECTED_HARDEN_PLAYBOOK_OS_VERSION = {
+    "debian_11": "selected_hardening_debian11.yml",
+    "debian_12": "selected_hardening_debian12.yml",
+    "ubuntu_22": "selected_hardening_ubuntu22.yml",
+    "ubuntu_24": "selected_hardening_ubuntu24.yml",
 }
 
 PLAYBOOK_START = "playbook_on_play_start"
@@ -246,67 +252,71 @@ async def execute_selected_control_on_single_target(
     playbook_results = []
 
     try:
-        playbook_path = os.path.join(
-            os.getcwd(), "auto_harden", AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]
-        )
+        for control in controls:
+            playbook_path = os.path.join(
+                os.getcwd(),
+                "selected_harden",
+                SELECTED_HARDEN_PLAYBOOK_OS_VERSION[os_version_name],
+            )
 
-        playbook_start = []
-        event_list = {
+            playbook_start = []
+            event_list = {
                 "all": [],
                 "ok": [],
                 "failed": [],
                 "unreachable": [],
                 "skipped": [],
             }
-        recap = []
+            recap = []
 
-        def event_handler(event):
-            _event = event.get("event")
-            _event_validation(_event, event, event_list, recap, playbook_start)
+            def event_handler(event):
+                _event = event.get("event")
+                _event_validation(_event, event, event_list, recap, playbook_start)
 
-        runner_result = await loop.run_in_executor(
-            None,
-            lambda pb=playbook_path: ansible_runner.run(
-                private_data_dir=runner_dir,
-                playbook=pb,
-                inventory=inventory_path,
-                ident=f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
-                event_handler=event_handler,
-                # quiet=True
+            runner_result = await loop.run_in_executor(
+                None,
+                lambda pb=playbook_path: ansible_runner.run(
+                    private_data_dir=runner_dir,
+                    playbook=pb,
+                    inventory=inventory_path,
+                    ident=f"{target.host_name}_{target.ip_address}_{SELECTED_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
+                    event_handler=event_handler,
+                    extravars=control.dict()["os_version_name"][os_version_name],  # type: ignore
+                    quiet=True,
+                ),
             )
-        )
 
-        artifact_dir = os.path.join(
-            runner_dir,
-            "artifacts",
-            f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
-        )
-        rc_path = os.path.join(artifact_dir, "rc")
+            artifact_dir = os.path.join(
+                runner_dir,
+                "artifacts",
+                f"{target.host_name}_{target.ip_address}_{SELECTED_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
+            )
+            rc_path = os.path.join(artifact_dir, "rc")
 
-        if os.path.exists(rc_path):
-            with open(rc_path) as f:
-                rc = int(f.read().strip())
-        else:
-            rc = runner_result.rc
+            if os.path.exists(rc_path):
+                with open(rc_path) as f:
+                    rc = int(f.read().strip())
+            else:
+                rc = runner_result.rc
 
-        playbook_results.append(
-            {
-                "name": AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name],
-                "status": runner_result.status,
-                "rc": rc,
-                "playbook_start": playbook_start,
-                "events": event_list,
-                "recap": recap,
-                "stdout": runner_result.stdout.read()  # type: ignore
-                if runner_result.stdout  # type: ignore
-                else "No output",
-            }
-        )
+            playbook_results.append(
+                {
+                    "name": SELECTED_HARDEN_PLAYBOOK_OS_VERSION[os_version_name],
+                    "status": runner_result.status,
+                    "rc": rc,
+                    "playbook_start": playbook_start,
+                    "events": event_list,
+                    "recap": recap,
+                    "stdout": runner_result.stdout.read()  # type: ignore
+                    if runner_result.stdout  # type: ignore
+                    else "No output",
+                }
+            )
 
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
-            "playbook_results": controls,
+            "playbook_results": playbook_results,
         }
 
     finally:
