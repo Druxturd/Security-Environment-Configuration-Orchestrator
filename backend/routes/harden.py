@@ -43,17 +43,6 @@ async def execute_selected_control_on_target_list(data: SelectedHardenModel):
         ]
 
         return await asyncio.gather(*tasks)
-        # tasks = []
-        # for target in grouped_OS[os_version_name]:
-        #     tasks.append(
-        #         execute_selected_control_on_single_target(
-        #             os_version_name,
-        #             target,
-        #             data.controls,  # type: ignore
-        #         )
-        #     )
-
-        # all_results.append(await asyncio.gather(*tasks))
 
     all_tasks = []
     for os_version in ["debian_11", "debian_12", "ubuntu_22", "ubuntu_24"]:
@@ -70,55 +59,43 @@ async def execute_selected_control_on_target_list(data: SelectedHardenModel):
 
     all_results = await asyncio.gather(*all_tasks)
 
-    # if (
-    #     len(grouped_OS["debian_11"]) != 0
-    #     and data.controls.dict()["os_version_name"]["debian_11"]  # type: ignore
-    # ):
-    #     await execute_selected_control_on_supported_version("debian_11")
-
-    # if (
-    #     len(grouped_OS["debian_12"]) != 0
-    #     and data.controls.dict()["os_version_name"]["debian_12"]  # type: ignore
-    # ):
-    #     await execute_selected_control_on_supported_version("debian_12")
-
-    # if (
-    #     len(grouped_OS["ubuntu_22"]) != 0
-    #     and data.controls.dict()["os_version_name"]["ubuntu_22"]  # type: ignore
-    # ):
-    #     await execute_selected_control_on_supported_version("ubuntu_22")
-
-    # if (
-    #     len(grouped_OS["ubuntu_24"]) != 0
-    #     and data.controls.dict()["os_version_name"]["ubuntu_24"]  # type: ignore
-    # ):
-    #     await execute_selected_control_on_supported_version("ubuntu_24")
-
-    return {"all_results": all_results}
+    return {"selected_harden_results": all_results}
 
 
 @router.post(f"{BASE_HARDEN_URL}/auto-execute")
 async def execute_auto_harden_on_target_list(data: AutoHardenModel):
     grouped_OS = grouping_os(data.targets)
-    all_results = []
 
     async def execute_auto_harden_on_supported_version(os_version_name: str):
-        tasks = []
-        for target in grouped_OS[os_version_name]:
-            tasks.append(execute_auto_harden_on_single_target(os_version_name, target))
+        tasks = [
+            execute_auto_harden_on_single_target(os_version_name, target)
+            for target in grouped_OS[os_version_name]
+        ]
 
-        all_results.append(await asyncio.gather(*tasks))
+        return await asyncio.gather(*tasks)
+        # for target in grouped_OS[os_version_name]:
+        #     tasks.append(execute_auto_harden_on_single_target(os_version_name, target))
 
-    if len(grouped_OS["debian_11"]) != 0:
-        await execute_auto_harden_on_supported_version("debian_11")
+        # all_results.append(await asyncio.gather(*tasks))
 
-    if len(grouped_OS["debian_12"]) != 0:
-        await execute_auto_harden_on_supported_version("debian_12")
+    # if len(grouped_OS["debian_11"]) != 0:
+    #     await execute_auto_harden_on_supported_version("debian_11")
 
-    if len(grouped_OS["ubuntu_22"]) != 0:
-        await execute_auto_harden_on_supported_version("ubuntu_22")
+    # if len(grouped_OS["debian_12"]) != 0:
+    #     await execute_auto_harden_on_supported_version("debian_12")
 
-    if len(grouped_OS["ubuntu_24"]) != 0:
-        await execute_auto_harden_on_supported_version("ubuntu_24")
+    # if len(grouped_OS["ubuntu_22"]) != 0:
+    #     await execute_auto_harden_on_supported_version("ubuntu_22")
 
-    return {"all_results": all_results}
+    # if len(grouped_OS["ubuntu_24"]) != 0:
+    #     await execute_auto_harden_on_supported_version("ubuntu_24")
+
+    all_tasks = []
+    for os_version in ["debian_11", "debian_12", "ubuntu_22", "ubuntu_24"]:
+        if not grouped_OS.get(os_version):
+            continue
+        all_tasks.append(execute_auto_harden_on_supported_version(os_version))
+
+    all_results = await asyncio.gather(*all_tasks)
+
+    return {"auto_harden_results": all_results}

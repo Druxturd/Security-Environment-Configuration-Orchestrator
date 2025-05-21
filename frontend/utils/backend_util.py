@@ -1,5 +1,5 @@
 import httpx
-from models.report_model import ReportModel
+from models.report_model import ReportModel, SelectedHardenReportModel
 from views.report_window_view import ReportWindowView
 
 from PySide6.QtCore import Qt
@@ -81,14 +81,14 @@ def _output_report(result):
                     host=x["host"], ip=x["ip"], playbook_results=x["playbook_results"]
                 )
             )
-
         report_window = ReportWindowView(report, target_list)
         report_window.exec()
-    elif "all_results" in result:
-        target_list: list[ReportModel] = []
-        for res in result["all_results"]:
+
+    elif "auto_harden_results" in result:
+        auto_target_list: list[ReportModel] = []
+        for res in result["auto_harden_results"]:
             for x in res:
-                target_list.append(
+                auto_target_list.append(
                     ReportModel(
                         host=x["host"],
                         ip=x["ip"],
@@ -98,9 +98,28 @@ def _output_report(result):
 
         report = "\n\n".join(
             f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
-            for x in target_list
+            for x in auto_target_list
             for y in x.playbook_results
         )
+        report_window = ReportWindowView(report, auto_target_list)
+        report_window.exec()
 
-        report_window = ReportWindowView(report, target_list)
+    elif "selected_harden_results" in result:
+        selected_target_list: list[SelectedHardenReportModel] = []
+        for res in result["selected_harden_results"]:
+            for x in res:
+                selected_target_list.append(
+                    SelectedHardenReportModel(
+                        host=x["host"],
+                        ip=x["ip"],
+                        playbook_results=x["playbook_results"],
+                    )
+                )
+
+        report = "\n\n".join(
+            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
+            for x in selected_target_list
+            for y in x.playbook_results
+        )
+        report_window = ReportWindowView(report, selected_target_list)
         report_window.exec()

@@ -35,10 +35,6 @@ class HardenTargetMenuView(QWidget):
 
         self.harden_list_layout.addWidget(self.harden_list_lbl)
         self.harden_list_layout.addWidget(self.scroll_area)
-        ### temporary btn
-        self.check_btn = QPushButton("check")
-        self.harden_list_layout.addWidget(self.check_btn)
-        ###
 
         self.bottom_layout = QHBoxLayout()
         self.back_btn = QPushButton("Back to Main Menu")

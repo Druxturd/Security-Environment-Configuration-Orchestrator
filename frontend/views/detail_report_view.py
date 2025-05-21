@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QButtonGroup,
     QColumnView,
     QHBoxLayout,
+    QLabel,
     QPushButton,
     QSizePolicy,
     QTextEdit,
@@ -56,27 +57,44 @@ class DetailReportView(QWidget):
         self.text_area.setAcceptRichText(True)
         self.detail_layout.addWidget(self.text_area)
 
-        self.btn_layout = QVBoxLayout()
-        self.detail_layout.addLayout(self.btn_layout)
-
         self.btn_group = QButtonGroup()
         self.btn_group.setExclusive(True)
 
+        self.btn_main_layout = QVBoxLayout()
+        self.btn_layout_1 = QHBoxLayout()
+        self.btn_layout_2 = QHBoxLayout()
+        self.btn_header_lbl = QLabel("Summary and Event(s) Buttons")
+
         self.summary_btn = QPushButton("Summary")
-        self.ok_btn = QPushButton("Ok Event(s)")
-        self.failed_btn = QPushButton("Failed Event(s)")
-        self.unreachable_btn = QPushButton("Unreachable Event(s)")
-        self.skipped_btn = QPushButton("Skipped Event(s)")
+        self.ok_btn = QPushButton("Ok")
+        self.changed_btn = QPushButton("Changed")
+        self.failed_btn = QPushButton("Failed")
+        self.unreachable_btn = QPushButton("Unreachable")
+        self.skipped_btn = QPushButton("Skipped")
+
+        self.btn_main_layout.addWidget(self.btn_header_lbl)
+        self.btn_main_layout.addWidget(self.summary_btn)
+        self.btn_group.addButton(self.summary_btn)
+        self.summary_btn.setCheckable(True)
+        self.summary_btn.setEnabled(False)
+        self.btn_main_layout.addLayout(self.btn_layout_1)
+        self.btn_main_layout.addLayout(self.btn_layout_2)
+        self.detail_layout.addLayout(self.btn_main_layout)
 
         for btn in (
-            self.summary_btn,
             self.ok_btn,
-            self.failed_btn,
+            self.changed_btn,
             self.unreachable_btn,
-            self.skipped_btn,
         ):
-            self.btn_layout.addWidget(btn)
+            self.btn_layout_1.addWidget(btn)
             self.btn_group.addButton(btn)
             btn.setCheckable(True)
             btn.setEnabled(False)
-            btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        for btn in (
+            self.failed_btn,
+            self.skipped_btn,
+        ):
+            self.btn_layout_2.addWidget(btn)
+            self.btn_group.addButton(btn)
+            btn.setCheckable(True)
+            btn.setEnabled(False)

@@ -36,28 +36,11 @@ class HardenTargetMenuController(QObject):
 
         self.view.auto_harden_btn.clicked.connect(self.execute_auto_harden)
 
-        self.view.check_btn.clicked.connect(self.check_data)  # temporary
-
         self.update_total_target_counter()
 
         self.model_manager.target_list_updated.connect(self.update_total_target_counter)
 
-        # self.fetch_files()
         self.fetch_harden_list()
-
-    ### temporary function
-    def check_data(self):
-        payload = {
-            "controls": [
-                cb.property("data") for cb in self.view.check_boxes if cb.isChecked()
-            ],
-            "targets": self.model_manager.get_payload(),
-        }
-        controls = payload["controls"]
-        for control in controls:
-            print(control["os_version_name"]["debian_11"])
-
-    ###
 
     def go_to_main_menu(self):
         self.main_window.switch_to_main_menu()
@@ -103,7 +86,9 @@ class HardenTargetMenuController(QObject):
 
     @asyncSlot()
     async def execute_auto_harden(self):
-        payload = self.model_manager.get_payload()
+        payload = {
+            "targets": self.model_manager.get_payload()
+        }
         self.view.auto_harden_btn.setEnabled(False)
 
         await execute_harden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)

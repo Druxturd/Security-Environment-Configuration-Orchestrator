@@ -1,7 +1,9 @@
-import json
+import re
+from collections import defaultdict
 
 from ansi2html import Ansi2HTMLConverter
 from models.detail_report_tree_model import DetailReportModel
+from models.playbook_model import SelectedHardenPlaybookModel
 from views.detail_report_view import DetailReportView
 
 from PySide6.QtCore import QModelIndex
@@ -21,12 +23,15 @@ class DetailReportController:
             self.on_current_changed
         )
         self.view.ok_btn.clicked.connect(lambda: self.update_event_detail("ok"))
+        self.view.changed_btn.clicked.connect(
+            lambda: self.update_event_detail("changed")
+        )
         self.view.failed_btn.clicked.connect(lambda: self.update_event_detail("failed"))
         self.view.unreachable_btn.clicked.connect(
             lambda: self.update_event_detail("unreachable")
         )
         self.view.skipped_btn.clicked.connect(
-            lambda: self.update_event_detail("skipped")
+            lambda: self.update_event_detail("skipping")
         )
         self.view.summary_btn.clicked.connect(lambda: self.update_detail("stdout"))
 
@@ -35,6 +40,11 @@ class DetailReportController:
         data = item.data()
         if data["type"] == "playbook":
             self.current_playbook = data["details"]
+            self.raw_output = self.current_playbook["stdout"]
+            self.status_grouped_output = self.extract_all_status_blocks(self.raw_output)
+            self.group_html_by_status = self.convert_grouped_ansi_blocks_to_html(
+                self.status_grouped_output
+            )
             self.update_detail("stdout")
             self.view.summary_btn.setChecked(True)
             for btn in self.view.btn_group.buttons():
@@ -51,32 +61,14 @@ class DetailReportController:
     def update_detail(self, key: str):
         if self.current_playbook:
             _text = f"{self.current_playbook[key]}\nStatus: {self.current_playbook['status']}"
-            if self.current_playbook["harden_control"]:
+            if isinstance(self.current_playbook, SelectedHardenPlaybookModel):
                 _text += f"\nControl: {self.current_playbook['harden_control']}"
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
             self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
 
     def update_event_detail(self, key: str):
-        if (
-            self.current_playbook["events"]  # type: ignore
-            and len(self.current_playbook["events"][key]) != 0  # type: ignore
-        ):
-            _text = "\n".join(
-                f"TASK [{x['event_data']['task']}]\n"
-                + (
-                    self.format_looped_results(
-                        x["event_data"]["host"], x["event_data"]["res"], x["event_data"]
-                    )
-                    if isinstance(x["event_data"].get("res", {}).get("results"), list)
-                    else (
-                        f"\x1b[0;36mskipping: [{x['event_data']['host']}]\x1b[0m"
-                        if x["event_data"].get("event") == "runner_on_skipped"
-                        else x.get("stdout", "")
-                    )
-                )
-                for x in self.current_playbook["events"][key]  # type: ignore
-            )
-            self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
+        if key in self.group_html_by_status.keys():
+            self.view.text_area.setHtml(self.group_html_by_status[key])
         else:
             self.view.text_area.setHtml(
                 Ansi2HTMLConverter().convert(
@@ -85,31 +77,46 @@ class DetailReportController:
             )
         self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
 
-    def format_looped_results(self, ip: str, res: dict, event_data: dict):
-        output_lines = []
-        results = res.get("results", [])
-        for result in results:
-            if result.get("skipped", False):
-                status = "skipping"
-                color = "\x1b[0;36m"  # cyan
-            elif result.get("failed", False):
-                status = "failed"
-                color = "\x1b[0;31m"  # red
-            elif result.get("changed", False):
-                status = "changed"
-                color = "\x1b[0;33m"  # yellow
-            else:
-                status = "ok"
-                color = "\x1b[0;32m"  # green
+    def extract_all_status_blocks(self, ansible_stdout: str, statuses=None) -> dict:
+        if statuses is None:
+            statuses = [
+                "ok",
+                "changed",
+                "skipping",
+                "failed",
+                "unreachable",
+                "rescued",
+                "ignored",
+            ]
 
-            item_lbl = result.get("_ansible_item_label", result.get("item"))
-            item_part = f"(item={item_lbl})" if item_lbl else ""
-            result_str = json.dumps(result, sort_keys=True, ensure_ascii=False)
+        # Exclude PLAY RECAP and anything after it
+        ansible_stdout = re.split(
+            r"^PLAY RECAP \*{5,}.*$", ansible_stdout, maxsplit=1, flags=re.MULTILINE
+        )[0]
 
-            line = f"{color}{status}: [{ip}] => {item_part} => {result_str}\x1b[0m"
-            output_lines.append(line)
+        # Match full task blocks including multiline output using DOTALL
+        task_block_pattern = re.compile(
+            r"(TASK \[.*?\] \*{3,}\n.*?)(?=TASK \[|\Z)", re.DOTALL
+        )
 
-            if result.get("failed") and event_data.get("ignore_errors", False):
-                output_lines.append("\x1b[0;36m...ignoring\x1b[0m")
+        blocks = defaultdict(list)
+        matches = task_block_pattern.findall(ansible_stdout)
 
-        return "\n".join(output_lines)
+        for block in matches:
+            for status in statuses:
+                # Use regex to match status at the beginning of a line for accuracy
+                if re.search(rf"^\s*{re.escape(status)}:", block, re.DOTALL):
+                    blocks[status].append(block)
+                    break  # Only classify into one status group
+
+        return blocks
+
+    def convert_grouped_ansi_blocks_to_html(self, blocks: dict) -> dict:
+        conv = Ansi2HTMLConverter()
+        html_output = {}
+
+        for status, block_list in blocks.items():
+            combined = "\n".join(block_list)
+            html_output[status] = conv.convert(combined)
+
+        return html_output

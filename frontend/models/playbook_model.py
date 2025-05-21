@@ -10,7 +10,6 @@ class PlaybookModel(BaseModel):
     playbook_start: list
     events: dict[str, list]
     recap: list
-    harden_control: str
     stdout: str
 
     def __getitem__(self, key):
@@ -29,7 +28,6 @@ class PlaybookModel(BaseModel):
             and self.playbook_start == other.playbook_start
             and self.events == other.events
             and self.recap == other.recap
-            and self.harden_control == other.harden_control
             and self.stdout == other.stdout
         )
 
@@ -43,7 +41,18 @@ class PlaybookModel(BaseModel):
                 self.playbook_start,
                 self.events,
                 self.recap,
-                self.harden_control,
                 self.stdout,
             )
         )
+
+
+class SelectedHardenPlaybookModel(PlaybookModel):
+    harden_control: str
+
+    def __eq__(self, other: Any) -> bool:
+        if type(self) is not type(other):
+            return NotImplemented
+        return super().__eq__(other) and self.harden_control == other.harden_control
+
+    def __hash__(self) -> int:
+        return hash((super().__hash__(), self.harden_control))
