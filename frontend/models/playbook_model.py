@@ -10,6 +10,7 @@ class PlaybookModel(BaseModel):
     playbook_start: list
     events: dict[str, list]
     recap: list
+    harden_control: str
     stdout: str
 
     def __getitem__(self, key):
@@ -28,6 +29,7 @@ class PlaybookModel(BaseModel):
             and self.playbook_start == other.playbook_start
             and self.events == other.events
             and self.recap == other.recap
+            and self.harden_control == other.harden_control
             and self.stdout == other.stdout
         )
 
@@ -41,6 +43,7 @@ class PlaybookModel(BaseModel):
                 self.playbook_start,
                 self.events,
                 self.recap,
+                self.harden_control,
                 self.stdout,
             )
         )

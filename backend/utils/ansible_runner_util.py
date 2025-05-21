@@ -281,7 +281,7 @@ async def execute_selected_control_on_single_target(
                     inventory=inventory_path,
                     ident=f"{target.host_name}_{target.ip_address}_{SELECTED_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
                     event_handler=event_handler,
-                    extravars=control.dict()["os_version_name"][os_version_name],  # type: ignore
+                    extravars=control["os_version_name"][os_version_name],
                     quiet=True,
                 ),
             )
@@ -307,6 +307,7 @@ async def execute_selected_control_on_single_target(
                     "playbook_start": playbook_start,
                     "events": event_list,
                     "recap": recap,
+                    "harden_control": control["name"],
                     "stdout": runner_result.stdout.read()  # type: ignore
                     if runner_result.stdout  # type: ignore
                     else "No output",

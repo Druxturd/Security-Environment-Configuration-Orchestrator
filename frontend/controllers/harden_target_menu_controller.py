@@ -81,43 +81,8 @@ class HardenTargetMenuController(QObject):
         self.view.scroll_area.update()
         self.view.repaint()
 
-    """
-    def fetch_files(self):
-        try:
-            resp = httpx.get(HARDEN_LIST_URL)
-            if resp.status_code == 200:
-                data = resp.json()
-                data_list = data.get("harden_list", [])
-                data_list.sort()
-                for playbook in data_list:
-                    self.check_box = QCheckBox(playbook)
-                    self.view.check_boxes.append(self.check_box)
-                    self.view.scroll_content_layout.addWidget(self.check_box)
-
-                # Dynamically adjust the height of scrollable content
-                self.view.scroll_content.setFixedHeight(len(self.view.check_boxes) * 25)
-
-                # Refresh the UI
-                self.view.scroll_content.adjustSize()
-                self.view.scroll_area.update()
-                self.view.repaint()
-
-        except httpx.RequestError as e:
-            print(e)
-    """
-
     @asyncSlot()
     async def execute_selected_harden(self):
-        # payload = {
-        #     "playbooks": [cb.text() for cb in self.view.check_boxes if cb.isChecked()],
-        #     "targets": self.model_manager.get_payload(),
-        # }
-
-        # if len(payload["playbooks"]) == 0:
-        #     QMessageBox.information(
-        #         self.main_window, "Playbook", "Please select minimal 1 playbook"
-        #     )
-
         payload = {
             "controls": [
                 cb.property("data") for cb in self.view.check_boxes if cb.isChecked()

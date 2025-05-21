@@ -29,32 +29,70 @@ def list_harden_files():
 @router.post(f"{BASE_HARDEN_URL}/execute")
 async def execute_selected_control_on_target_list(data: SelectedHardenModel):
     grouped_OS = grouping_os(data.targets)
-    all_results = []
 
-    async def execute_selected_control_on_supported_version(os_version_name: str):
-        tasks = []
-        for target in grouped_OS[os_version_name]:
-            tasks.append(
-                execute_selected_control_on_single_target(
-                    os_version_name,
-                    target,
-                    data.controls,  # type: ignore
-                )
-            )  # type: ignore
+    async def execute_selected_control_on_supported_version(
+        os_version_name: str, controls: list[dict]
+    ):
+        tasks = [
+            execute_selected_control_on_single_target(
+                os_version_name,
+                target,
+                controls,
+            )
+            for target in grouped_OS[os_version_name]
+        ]
 
-        all_results.append(await asyncio.gather(*tasks))
+        return await asyncio.gather(*tasks)
+        # tasks = []
+        # for target in grouped_OS[os_version_name]:
+        #     tasks.append(
+        #         execute_selected_control_on_single_target(
+        #             os_version_name,
+        #             target,
+        #             data.controls,  # type: ignore
+        #         )
+        #     )
 
-    if len(grouped_OS["debian_11"]) != 0:
-        await execute_selected_control_on_supported_version("debian_11")
+        # all_results.append(await asyncio.gather(*tasks))
 
-    if len(grouped_OS["debian_12"]) != 0:
-        await execute_selected_control_on_supported_version("debian_12")
+    all_tasks = []
+    for os_version in ["debian_11", "debian_12", "ubuntu_22", "ubuntu_24"]:
+        if not grouped_OS.get(os_version):
+            continue
+        controls = []
+        for control in data.controls:
+            selected_control = control.model_dump()["os_version_name"][os_version]
+            if selected_control:
+                controls.append(control.model_dump())
+        all_tasks.append(
+            execute_selected_control_on_supported_version(os_version, controls)
+        )
 
-    if len(grouped_OS["ubuntu_22"]) != 0:
-        await execute_selected_control_on_supported_version("ubuntu_22")
+    all_results = await asyncio.gather(*all_tasks)
 
-    if len(grouped_OS["ubuntu_24"]) != 0:
-        await execute_selected_control_on_supported_version("ubuntu_24")
+    # if (
+    #     len(grouped_OS["debian_11"]) != 0
+    #     and data.controls.dict()["os_version_name"]["debian_11"]  # type: ignore
+    # ):
+    #     await execute_selected_control_on_supported_version("debian_11")
+
+    # if (
+    #     len(grouped_OS["debian_12"]) != 0
+    #     and data.controls.dict()["os_version_name"]["debian_12"]  # type: ignore
+    # ):
+    #     await execute_selected_control_on_supported_version("debian_12")
+
+    # if (
+    #     len(grouped_OS["ubuntu_22"]) != 0
+    #     and data.controls.dict()["os_version_name"]["ubuntu_22"]  # type: ignore
+    # ):
+    #     await execute_selected_control_on_supported_version("ubuntu_22")
+
+    # if (
+    #     len(grouped_OS["ubuntu_24"]) != 0
+    #     and data.controls.dict()["os_version_name"]["ubuntu_24"]  # type: ignore
+    # ):
+    #     await execute_selected_control_on_supported_version("ubuntu_24")
 
     return {"all_results": all_results}
 

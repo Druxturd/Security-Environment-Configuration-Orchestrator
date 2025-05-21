@@ -23,7 +23,7 @@ def all_patch_files():
 
 
 @router.post(f"{BASE_PATCH_URL}/execute")
-async def execute_port_patch_on_target_list(data: PatchModel):
+async def execute_selected_patch_on_target_list(data: PatchModel):
     tasks = []
 
     for target in data.targets.target_list:
