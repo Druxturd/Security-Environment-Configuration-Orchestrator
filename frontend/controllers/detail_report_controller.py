@@ -1,6 +1,3 @@
-import re
-from collections import defaultdict
-
 from ansi2html import Ansi2HTMLConverter
 from models.detail_report_tree_model import DetailReportModel
 from models.playbook_model import SelectedHardenPlaybookModel
@@ -23,15 +20,12 @@ class DetailReportController:
             self.on_current_changed
         )
         self.view.ok_btn.clicked.connect(lambda: self.update_event_detail("ok"))
-        self.view.changed_btn.clicked.connect(
-            lambda: self.update_event_detail("changed")
-        )
         self.view.failed_btn.clicked.connect(lambda: self.update_event_detail("failed"))
         self.view.unreachable_btn.clicked.connect(
             lambda: self.update_event_detail("unreachable")
         )
         self.view.skipped_btn.clicked.connect(
-            lambda: self.update_event_detail("skipping")
+            lambda: self.update_event_detail("skipped")
         )
         self.view.summary_btn.clicked.connect(lambda: self.update_detail("stdout"))
 
@@ -41,10 +35,6 @@ class DetailReportController:
         if data["type"] == "playbook":
             self.current_playbook = data["details"]
             self.raw_output = self.current_playbook["stdout"]
-            self.status_grouped_output = self.extract_all_status_blocks(self.raw_output)
-            self.group_html_by_status = self.convert_grouped_ansi_blocks_to_html(
-                self.status_grouped_output
-            )
             self.update_detail("stdout")
             self.view.summary_btn.setChecked(True)
             for btn in self.view.btn_group.buttons():
@@ -67,8 +57,12 @@ class DetailReportController:
             self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
 
     def update_event_detail(self, key: str):
-        if key in self.group_html_by_status.keys():
-            self.view.text_area.setHtml(self.group_html_by_status[key])
+        if self.current_playbook["events"] and self.current_playbook["events"][key]:  # type: ignore
+            _text = "\n".join(
+                f"TASK [{x['event_data']['task']}]\n{x['stdout']}"
+                for x in self.current_playbook["events"][key]  # type: ignore
+            )
+            self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
         else:
             self.view.text_area.setHtml(
                 Ansi2HTMLConverter().convert(
@@ -76,47 +70,3 @@ class DetailReportController:
                 )
             )
         self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
-
-    def extract_all_status_blocks(self, ansible_stdout: str, statuses=None) -> dict:
-        if statuses is None:
-            statuses = [
-                "ok",
-                "changed",
-                "skipping",
-                "failed",
-                "unreachable",
-                "rescued",
-                "ignored",
-            ]
-
-        # Exclude PLAY RECAP and anything after it
-        ansible_stdout = re.split(
-            r"^PLAY RECAP \*{5,}.*$", ansible_stdout, maxsplit=1, flags=re.MULTILINE
-        )[0]
-
-        # Match full task blocks including multiline output using DOTALL
-        task_block_pattern = re.compile(
-            r"(TASK \[.*?\] \*{3,}\n.*?)(?=TASK \[|\Z)", re.DOTALL
-        )
-
-        blocks = defaultdict(list)
-        matches = task_block_pattern.findall(ansible_stdout)
-
-        for block in matches:
-            for status in statuses:
-                # Use regex to match status at the beginning of a line for accuracy
-                if re.search(rf"^\s*{re.escape(status)}:", block, re.DOTALL):
-                    blocks[status].append(block)
-                    break  # Only classify into one status group
-
-        return blocks
-
-    def convert_grouped_ansi_blocks_to_html(self, blocks: dict) -> dict:
-        conv = Ansi2HTMLConverter()
-        html_output = {}
-
-        for status, block_list in blocks.items():
-            combined = "\n".join(block_list)
-            html_output[status] = conv.convert(combined)
-
-        return html_output

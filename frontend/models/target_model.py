@@ -20,7 +20,6 @@ class TargetModel(QObject):
         self.ssh_private_key = ssh_private_key
         self.ssh_port = ssh_port
         self.os_version_name = os_version_name
-        self.is_checked = False
 
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):

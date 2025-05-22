@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import (
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -7,6 +8,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+SUPPORTED_OS = ["Debian 11", "Debian 12", "Ubuntu 22", "Ubuntu 24"]
 
 
 class TargetListMenuView(QWidget):
@@ -41,22 +44,49 @@ class TargetListMenuView(QWidget):
         self.upper_mid_layout.addLayout(self.ip_layout)
         self.upper_mid_layout.addLayout(self.host_layout)
 
+        self.ssh_username_layout = QVBoxLayout()
+        self.ssh_username_lbl = QLabel("SSH Username")
+        self.ssh_username_input = QLineEdit()
+        self.ssh_username_layout.addWidget(self.ssh_username_lbl)
+        self.ssh_username_layout.addWidget(self.ssh_username_input)
+
+        self.port_layout = QVBoxLayout()
+        self.port_lbl = QLabel("Port (Default port is 22 if empty)")
+        self.port_input = QLineEdit()
+        self.port_layout.addWidget(self.port_lbl)
+        self.port_layout.addWidget(self.port_input)
+
+        self.os_version_name_layout = QVBoxLayout()
+        self.os_version_lbl = QLabel("OS Version Name")
+        self.os_version_name_combo_box = QComboBox()
+        for i, data in enumerate(SUPPORTED_OS):
+            self.os_version_name_combo_box.insertItem(i, data, data)
+        self.os_version_name_layout.addWidget(self.os_version_lbl)
+        self.os_version_name_layout.addWidget(self.os_version_name_combo_box)
+
+        self.upper_mid_layout_2 = QHBoxLayout()
+        self.upper_mid_layout_2.addLayout(self.ssh_username_layout)
+        self.upper_mid_layout_2.addLayout(self.port_layout)
+        self.upper_mid_layout_2.addLayout(self.os_version_name_layout)
+
         self.key_layout = QHBoxLayout()
         self.key_lbl = QLabel("SSH Private Key")
         self.key_input = QTextEdit()
+        self.key_input.setAcceptRichText(False)
         self.key_layout.addWidget(self.key_lbl)
         self.key_layout.addWidget(self.key_input)
 
         self.middle_layout.addLayout(self.upper_mid_layout)
+        self.middle_layout.addLayout(self.upper_mid_layout_2)
         self.middle_layout.addLayout(self.key_layout)
 
         self.bottom_layout = QHBoxLayout()
         self.back_btn = QPushButton("Back to Main Menu")
-        self.clear_target_btn = QPushButton("Clear Target")
+        self.view_target_list_btn = QPushButton("View Target List")
         self.add_target_btn = QPushButton("Add Target")
         self.total_target_lbl = QLabel("Total Target: ")
         self.bottom_layout.addWidget(self.back_btn)
-        self.bottom_layout.addWidget(self.clear_target_btn)
+        self.bottom_layout.addWidget(self.view_target_list_btn)
         self.bottom_layout.addWidget(self.add_target_btn)
         self.bottom_layout.addWidget(self.total_target_lbl)
 

@@ -9,8 +9,10 @@ from dotenv import load_dotenv
 from models.target_data_manager import TargetDataManager
 from models.target_model import TargetModel
 from views.main_window_view import MainWindow
+from views.show_target_list_view import ShowTargetList
 from views.target_list_menu_view import TargetListMenuView
 
+from controllers.show_target_list_controller import ShowTargetListController
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
@@ -34,15 +36,16 @@ class TargetListMenuController(QObject):
         self.input_error = "Input Error"
         self.error_msg = [
             "IP Address must be fill!",
-            "Host name must be fill!",
-            "SSH Key must be fill",
+            "Host Name must be fill!",
+            "SSH Username must be fill!",
+            "SSH Private Key must be fill!",
         ]
 
         self.view.back_btn.clicked.connect(self.go_to_main_menu)
         self.view.download_template_btn.clicked.connect(self.download_template)
         self.view.upload_excel_btn.clicked.connect(self.upload_excel_file)
         self.view.add_target_btn.clicked.connect(self.add_target)
-        self.view.clear_target_btn.clicked.connect(self.clear_target_list)
+        self.view.view_target_list_btn.clicked.connect(self.display_target_list)
 
         self.update_total_target_counter()
 
@@ -187,22 +190,50 @@ class TargetListMenuController(QObject):
         ip_address = self.view.ip_input.text().strip()
         host_name = self.view.host_input.text().strip()
         key = self.view.key_input.toPlainText().strip()
+        ssh_username = self.view.ssh_username_input.text().strip()
+        port = self.view.port_input.text().strip()
+        os_version_name = str(self.view.os_version_name_combo_box.currentData()).lower()
 
         if not ip_address:
             QMessageBox.warning(self.main_window, self.input_error, self.error_msg[0])
             return
-
         elif not host_name:
             QMessageBox.warning(self.main_window, self.input_error, self.error_msg[1])
             return
-
-        elif not key:
+        elif not ssh_username:
             QMessageBox.warning(self.main_window, self.input_error, self.error_msg[2])
             return
+        elif not key:
+            QMessageBox.warning(self.main_window, self.input_error, self.error_msg[3])
+            return
 
-        newTarget = TargetModel(ip_address, host_name, key)
+        if (
+            key.startswith('"')
+            and key.endswith('"')
+            or key.startswith("'")
+            and key.endswith("'")
+        ):
+            key = key.strip("'\"")
 
-        if self.model_manager.add_new_target(newTarget):
+        if port:
+            new_target = TargetModel(
+                ip_address=ip_address,
+                host_name=host_name,
+                ssh_username=ssh_username,
+                ssh_private_key=key,
+                ssh_port=port,
+                os_version_name=os_version_name,
+            )
+        else:
+            new_target = TargetModel(
+                ip_address=ip_address,
+                host_name=host_name,
+                ssh_username=ssh_username,
+                ssh_private_key=key,
+                os_version_name=os_version_name,
+            )
+
+        if self.model_manager.add_new_target(new_target):
             self.update_total_target_counter()
             QMessageBox.information(
                 self.main_window,
@@ -211,18 +242,27 @@ class TargetListMenuController(QObject):
             )
         else:
             QMessageBox.information(
-                self.main_window, "Add New Target Failed", "Duplicated target list!"
+                self.main_window, "Add New Target Failed", "Duplicated target!"
             )
 
         self.clear_input()
 
     def clear_input(self):
-        self.view.ip_input.clear()
-        self.view.host_input.clear()
-        self.view.key_input.clear()
+        _view = self.view
+        for inp in (
+            _view.ip_input,
+            _view.host_input,
+            _view.ssh_username_input,
+            _view.port_input,
+            _view.key_input,
+        ):
+            inp.clear()
+        _view.os_version_name_combo_box.setCurrentIndex(0)
 
-    def clear_target_list(self):
-        self.model_manager.clear_target_list()
-        QMessageBox.information(
-            self.main_window, "Clear Target Successful", "Target list has been cleared"
+    def display_target_list(self):
+        display_target_list_view = ShowTargetList()
+        display_target_list_controller = ShowTargetListController(
+            display_target_list_view, self.model_manager
         )
+        display_target_list_view.adjustSize()
+        display_target_list_view.exec()

@@ -23,23 +23,6 @@ class TargetDataManager(QObject):
     def get_count_target_list(self) -> int:
         return len(self._target_list)
 
-    def get_count_checked_target(self) -> int:
-        counter = 0
-        for x in self._target_list:
-            if x.is_checked:
-                counter += 1
-        return counter
-
-    def set_all_check_status_true(self):
-        for x in self._target_list:
-            if not x.is_checked:
-                x.is_checked = True
-
-    def reset_check_status(self):
-        for x in self._target_list:
-            if x.is_checked:
-                x.is_checked = False
-
     def add_new_target(self, new_data: TargetModel) -> bool:
         if new_data in self._unique_keys:
             return False
@@ -49,6 +32,12 @@ class TargetDataManager(QObject):
 
         self.target_list_updated.emit()
         return True
+
+    def remove_selected_target(self, target):
+        self._target_list.remove(target)
+        self._unique_keys.remove(target)
+
+        self.target_list_updated.emit()
 
     def clear_target_list(self):
         self._target_list.clear()

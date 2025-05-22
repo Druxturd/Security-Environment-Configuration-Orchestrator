@@ -67,7 +67,6 @@ class DetailReportView(QWidget):
 
         self.summary_btn = QPushButton("Summary")
         self.ok_btn = QPushButton("Ok")
-        self.changed_btn = QPushButton("Changed")
         self.failed_btn = QPushButton("Failed")
         self.unreachable_btn = QPushButton("Unreachable")
         self.skipped_btn = QPushButton("Skipped")
@@ -83,7 +82,6 @@ class DetailReportView(QWidget):
 
         for btn in (
             self.ok_btn,
-            self.changed_btn,
             self.unreachable_btn,
         ):
             self.btn_layout_1.addWidget(btn)
