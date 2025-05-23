@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from models.target_data_manager import TargetDataManager
 from qasync import asyncSlot
 from utils.backend_util import execute_harden
-from utils.harden_files import fetch_all_harden_controls
+from utils.harden_files import SEMI_HARDEN_CONTROL, fetch_all_harden_controls
 from views.harden_target_menu_view import HardenTargetMenuView
 from views.main_window_view import MainWindow
 
@@ -15,6 +15,7 @@ load_dotenv()
 HARDEN_LIST_URL = f"{os.getenv('BACKEND_URL')}/harden"
 EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
 EXECUTE_AUTO_HARDEN_URL = f"{HARDEN_LIST_URL}/auto-execute"
+EXECUTE_SEMI_AUTO_HARDEN_URL = f"{HARDEN_LIST_URL}/semi-auto-execute"
 
 
 class HardenTargetMenuController(QObject):
@@ -35,6 +36,8 @@ class HardenTargetMenuController(QObject):
         self.view.execute_harden_btn.clicked.connect(self.execute_selected_harden)
 
         self.view.auto_harden_btn.clicked.connect(self.execute_auto_harden)
+
+        self.view.semi_harden_btn.clicked.connect(self.execute_semi_auto_harden)
 
         self.update_total_target_counter()
 
@@ -86,14 +89,24 @@ class HardenTargetMenuController(QObject):
 
     @asyncSlot()
     async def execute_auto_harden(self):
-        payload = {
-            "targets": self.model_manager.get_payload()
-        }
+        payload = {"targets": self.model_manager.get_payload()}
         self.view.auto_harden_btn.setEnabled(False)
 
         await execute_harden(self.main_window, EXECUTE_AUTO_HARDEN_URL, payload)
 
         self.view.auto_harden_btn.setEnabled(True)
+
+    @asyncSlot()
+    async def execute_semi_auto_harden(self):
+        payload = {
+            "targets": self.model_manager.get_payload(),
+            "controls": SEMI_HARDEN_CONTROL.CONTROLS.value,
+        }
+        self.view.semi_harden_btn.setEnabled(False)
+
+        await execute_harden(self.main_window, EXECUTE_SEMI_AUTO_HARDEN_URL, payload)
+
+        self.view.semi_harden_btn.setEnabled(True)
 
     def uncheck_all_selected_items(self):
         for cb in self.view.check_boxes:

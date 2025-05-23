@@ -1,5 +1,8 @@
 import httpx
-from models.report_model import ReportModel, SelectedHardenReportModel
+from models.report_model import (
+    ReportModel,
+    SelectedHardenReportModel,
+)
 from views.report_window_view import ReportWindowView
 
 from PySide6.QtCore import Qt
@@ -104,18 +107,28 @@ def _output_report(result):
         report_window = ReportWindowView(report, auto_target_list)
         report_window.exec()
 
-    elif "selected_harden_results" in result:
+    elif "selected_harden_results" in result or "semi_auto_harden_results" in result:
         selected_target_list: list[SelectedHardenReportModel] = []
-        for res in result["selected_harden_results"]:
-            for x in res:
-                selected_target_list.append(
-                    SelectedHardenReportModel(
-                        host=x["host"],
-                        ip=x["ip"],
-                        playbook_results=x["playbook_results"],
+        if "selected_harden_results" in result:
+            for res in result["selected_harden_results"]:
+                for x in res:
+                    selected_target_list.append(
+                        SelectedHardenReportModel(
+                            host=x["host"],
+                            ip=x["ip"],
+                            playbook_results=x["playbook_results"],
+                        )
                     )
-                )
-
+        elif "semi_auto_harden_results" in result:
+            for res in result["semi_auto_harden_results"]:
+                for x in res:
+                    selected_target_list.append(
+                        SelectedHardenReportModel(
+                            host=x["host"],
+                            ip=x["ip"],
+                            playbook_results=x["playbook_results"],
+                        )
+                    )
         report = "\n\n".join(
             f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
             for x in selected_target_list

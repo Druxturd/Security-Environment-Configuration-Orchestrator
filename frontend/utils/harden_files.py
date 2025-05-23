@@ -1700,6 +1700,18 @@ class SECTION_7_HARDEN_CONTROL(Enum):
     }
 
 
+class SEMI_HARDEN_CONTROL(Enum):
+    CONTROLS = {
+        "name": "Disruption High is set to False",
+        "os_version_name": {
+            "debian_11": {"debian11cis_disruption_high": "false"},
+            "debian_12": {"deb12cis_disruption_high": "false"},
+            "ubuntu_22": {"ubtu22cis_disruption_high": "false"},
+            "ubuntu_24": {"ubtu24cis_disruption_high": "false"},
+        },
+    }
+
+
 def fetch_all_harden_controls() -> list[
     SECTION_1_HARDEN_CONTROL
     | SECTION_2_HARDEN_CONTROL
@@ -1723,19 +1735,3 @@ def fetch_all_harden_controls() -> list[
         for y in x
     ]
     return data
-
-
-"""
-data = fetch_all_harden_controls()
-for x in data:
-    print(x.name)
-print(len(data))
-print(data[0].value["os_version_name"]["debian_11"])
-
-if not data[data.index(SECTION_6_HARDEN_CONTROL.CONFIGURE_LOGFILES)].value["os_version_name"]["debian_11"]:
-    print("empty")
-
-for x in data:
-    if isinstance(x, SECTION_7_HARDEN_CONTROL):
-        print(x.name)
-"""

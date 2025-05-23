@@ -22,7 +22,11 @@ class HardenTargetMenuView(QWidget):
         self.upper_layout.addWidget(self.auto_harden_btn)
 
         self.harden_list_layout = QVBoxLayout()
+        self.header_harden_list_layout = QHBoxLayout()
         self.harden_list_lbl = QLabel("Harden List")
+        self.semi_harden_btn = QPushButton("Execute Semi Auto Harden")
+        self.header_harden_list_layout.addWidget(self.harden_list_lbl)
+        self.header_harden_list_layout.addWidget(self.semi_harden_btn)
         self.scroll_area = QScrollArea()
         self.scroll_area.setFixedHeight(200)
 
@@ -33,7 +37,7 @@ class HardenTargetMenuView(QWidget):
         self.scroll_content.setLayout(self.scroll_content_layout)
         self.scroll_area.setWidget(self.scroll_content)
 
-        self.harden_list_layout.addWidget(self.harden_list_lbl)
+        self.harden_list_layout.addLayout(self.header_harden_list_layout)
         self.harden_list_layout.addWidget(self.scroll_area)
 
         self.bottom_layout = QHBoxLayout()

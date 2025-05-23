@@ -4,6 +4,7 @@ import shutil
 from tempfile import NamedTemporaryFile, mkdtemp
 
 import ansible_runner
+from models.harden_model import ControlModel
 from models.target import Target
 
 AUTO_HARDEN_PLAYBOOK_OS_VERSION = {
@@ -131,8 +132,8 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
             shutil.rmtree(runner_dir)
 
 
-async def execute_selected_playbook_on_single_target(
-    playbooks: list[str], target: Target
+async def execute_semi_auto_harden_on_single_target(
+    os_version_name: str, target: Target, controls: ControlModel
 ):
     runner_dir = mkdtemp(prefix="runner_")
     project_dir = os.path.join(runner_dir, "project")
@@ -157,61 +158,64 @@ async def execute_selected_playbook_on_single_target(
     playbook_results = []
 
     try:
-        for playbook in playbooks:
-            playbook_path = os.path.join(os.getcwd(), HARDEN_FILES, playbook)
+        playbook_path = os.path.join(
+            os.getcwd(), "auto_harden", AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]
+        )
 
-            playbook_start = []
-            event_list = {
-                "all": [],
-                "ok": [],
-                "failed": [],
-                "unreachable": [],
-                "skipped": [],
+        playbook_start = []
+        event_list = {
+            "all": [],
+            "ok": [],
+            "failed": [],
+            "unreachable": [],
+            "skipped": [],
+        }
+        recap = []
+
+        def event_handler(event):
+            _event = event.get("event")
+            _event_validation(_event, event, event_list, recap, playbook_start)
+
+        runner_result = await loop.run_in_executor(
+            None,
+            lambda pb=playbook_path: ansible_runner.run(
+                private_data_dir=runner_dir,
+                playbook=pb,
+                inventory=inventory_path,
+                ident=f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
+                event_handler=event_handler,
+                extravars=controls.model_dump()["os_version_name"][os_version_name],
+                quiet=True,
+            ),
+        )
+
+        artifact_dir = os.path.join(
+            runner_dir,
+            "artifacts",
+            f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
+        )
+        rc_path = os.path.join(artifact_dir, "rc")
+
+        if os.path.exists(rc_path):
+            with open(rc_path) as f:
+                rc = int(f.read().strip())
+        else:
+            rc = runner_result.rc
+
+        playbook_results.append(
+            {
+                "name": AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name],
+                "status": runner_result.status,
+                "rc": rc,
+                "playbook_start": playbook_start,
+                "events": event_list,
+                "recap": recap,
+                "harden_control": controls.model_dump()["name"],
+                "stdout": runner_result.stdout.read()  # type: ignore
+                if runner_result.stdout  # type: ignore
+                else "No output",
             }
-            recap = []
-
-            def event_handler(event):
-                _event = event.get("event")
-                _event_validation(_event, event, event_list, recap, playbook_start)
-
-            runner_result = await loop.run_in_executor(
-                None,
-                lambda pb=playbook_path: ansible_runner.run(
-                    private_data_dir=runner_dir,
-                    playbook=pb,
-                    inventory=inventory_path,
-                    ident=f"{target.host_name}_{target.ip_address}_{playbook}",
-                    event_handler=event_handler,
-                    quiet=True,
-                ),
-            )
-
-            artifact_dir = os.path.join(
-                runner_dir,
-                "artifacts",
-                f"{target.host_name}_{target.ip_address}_{playbook}",
-            )
-            rc_path = os.path.join(artifact_dir, "rc")
-
-            if os.path.exists(rc_path):
-                with open(rc_path) as f:
-                    rc = int(f.read().strip())
-            else:
-                rc = runner_result.rc
-
-            playbook_results.append(
-                {
-                    "name": playbook,
-                    "status": runner_result.status,
-                    "rc": rc,
-                    "playbook_start": playbook_start,
-                    "events": event_list,
-                    "recap": recap,
-                    "stdout": runner_result.stdout.read()  # type: ignore
-                    if runner_result.stdout  # type: ignore
-                    else "No output",
-                }
-            )
+        )
 
         return {
             "host": f"{target.host_name}",

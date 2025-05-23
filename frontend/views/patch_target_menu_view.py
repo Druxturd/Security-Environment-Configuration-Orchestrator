@@ -15,11 +15,13 @@ class PatchTargetMenuView(QWidget):
         self.main_layout = QVBoxLayout()
 
         self.patch_content_layout = QVBoxLayout()
+        self.header_patch_layout = QHBoxLayout()
         self.patch_menu_lbl = QLabel("Patch Target Menu")
-        self.patch_content_layout.addWidget(self.patch_menu_lbl)
-
         self.total_target_lbl = QLabel("Total Target(s): ")
-        self.patch_content_layout.addWidget(self.total_target_lbl)
+        self.header_patch_layout.addWidget(self.patch_menu_lbl)
+        self.header_patch_layout.addWidget(self.total_target_lbl)
+
+        self.patch_content_layout.addLayout(self.header_patch_layout)
 
         self.combo_box_layout = QHBoxLayout()
         self.combo_box_lbl = QLabel("Select Playbook:")

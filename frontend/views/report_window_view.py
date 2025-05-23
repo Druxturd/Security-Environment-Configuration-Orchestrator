@@ -1,7 +1,11 @@
 from ansi2html import Ansi2HTMLConverter
 from controllers.detail_report_controller import DetailReportController
 from models.detail_report_tree_model import DetailReportModel
-from models.report_model import ReportModel, SelectedHardenReportModel
+from models.report_model import (
+    ReportModel,
+    SelectedHardenReportModel,
+    SemiHardenReportModel,
+)
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
@@ -17,7 +21,13 @@ from views.detail_report_view import DetailReportView
 
 
 class ReportWindowView(QDialog):
-    def __init__(self, report_text: str, target_list: list[ReportModel] | list[SelectedHardenReportModel]):
+    def __init__(
+        self,
+        report_text: str,
+        target_list: list[ReportModel]
+        | list[SelectedHardenReportModel]
+        | list[SemiHardenReportModel],
+    ):
         super().__init__()
         self.setWindowTitle("Ansible Playbook Report")
         self.setFixedSize(QSize(1280, 720))

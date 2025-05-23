@@ -19,5 +19,10 @@ class SelectedHardenModel(BaseModel):
     targets: TargetList
 
 
+class SemiAutoHardenModel(BaseModel):
+    controls: ControlModel
+    targets: TargetList
+
+
 class AutoHardenModel(BaseModel):
     targets: TargetList

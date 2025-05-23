@@ -26,8 +26,6 @@ class ShowTargetListController(QObject):
             self.view.check_boxes.append(self.check_box)
             self.view.scroll_content_layout.addWidget(self.check_box)
 
-        self.view.scroll_content.setFixedHeight(len(self.view.check_boxes) * 25)
-
         self.view.scroll_content.adjustSize()
         self.view.scroll_area.update()
         self.view.repaint()
