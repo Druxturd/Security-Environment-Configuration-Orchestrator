@@ -56,15 +56,3 @@ class SelectedHardenPlaybookModel(PlaybookModel):
 
     def __hash__(self) -> int:
         return hash((super().__hash__(), self.harden_control))
-
-
-class SemiHardenPlaybookModel(PlaybookModel):
-    harden_control: dict
-
-    def __eq__(self, other: Any) -> bool:
-        if type(self) is not type(other):
-            return NotImplemented
-        return super().__eq__(other) and self.harden_control == other.harden_control
-
-    def __hash__(self) -> int:
-        return hash((super().__hash__(), self.harden_control))

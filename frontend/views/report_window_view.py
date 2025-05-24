@@ -4,7 +4,6 @@ from models.detail_report_tree_model import DetailReportModel
 from models.report_model import (
     ReportModel,
     SelectedHardenReportModel,
-    SemiHardenReportModel,
 )
 
 from PySide6.QtCore import QSize, Qt
@@ -24,9 +23,7 @@ class ReportWindowView(QDialog):
     def __init__(
         self,
         report_text: str,
-        target_list: list[ReportModel]
-        | list[SelectedHardenReportModel]
-        | list[SemiHardenReportModel],
+        target_list: list[ReportModel] | list[SelectedHardenReportModel],
     ):
         super().__init__()
         self.setWindowTitle("Ansible Playbook Report")

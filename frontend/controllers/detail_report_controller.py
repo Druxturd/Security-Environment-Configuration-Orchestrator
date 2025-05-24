@@ -1,6 +1,6 @@
 from ansi2html import Ansi2HTMLConverter
 from models.detail_report_tree_model import DetailReportModel
-from models.playbook_model import SelectedHardenPlaybookModel, SemiHardenPlaybookModel
+from models.playbook_model import SelectedHardenPlaybookModel
 from views.detail_report_view import DetailReportView
 
 from PySide6.QtCore import QModelIndex
@@ -51,9 +51,7 @@ class DetailReportController:
     def update_detail(self, key: str):
         if self.current_playbook:
             _text = f"{self.current_playbook[key]}\nStatus: {self.current_playbook['status']}"
-            if isinstance(
-                self.current_playbook, SelectedHardenPlaybookModel
-            ) or isinstance(self.current_playbook, SemiHardenPlaybookModel):
+            if isinstance(self.current_playbook, SelectedHardenPlaybookModel):
                 _text += f"\nControl: {self.current_playbook['harden_control']}"
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
             self.view.text_area.moveCursor(QTextCursor.MoveOperation.End)
