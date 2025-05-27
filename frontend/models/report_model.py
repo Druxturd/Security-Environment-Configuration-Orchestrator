@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from models.playbook_model import (
+from frontend.models.playbook_model import (
     PlaybookModel,
     SelectedHardenPlaybookModel,
 )

@@ -1,17 +1,17 @@
 import os
 
 from dotenv import load_dotenv
-from models.target_data_manager import TargetDataManager
 from qasync import asyncSlot
-from utils.backend_util import execute_harden
-from utils.harden_files import SEMI_HARDEN_CONTROL, fetch_all_harden_controls
-from views.harden_target_menu_view import HardenTargetMenuView
-from views.main_window_view import MainWindow
 
+from frontend.models.target_data_manager import TargetDataManager
+from frontend.utils.backend_util import execute_harden
+from frontend.utils.harden_files import SEMI_HARDEN_CONTROL, fetch_all_harden_controls
+from frontend.views.harden_target_menu_view import HardenTargetMenuView
+from frontend.views.main_window_view import MainWindow
 from PySide6.QtCore import QObject, Qt
 from PySide6.QtWidgets import QCheckBox, QMessageBox
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 HARDEN_LIST_URL = f"{os.getenv('BACKEND_URL')}/harden"
 EXECUTE_SELECTED_HARDEN_URL = f"{HARDEN_LIST_URL}/execute"
 EXECUTE_AUTO_HARDEN_URL = f"{HARDEN_LIST_URL}/auto-execute"

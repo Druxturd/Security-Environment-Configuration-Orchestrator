@@ -3,8 +3,9 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import APIRouter
-from models.patch_model import PatchModel
-from utils.ansible_runner_util import execute_selected_patch_on_single_target
+
+from backend.models.patch_model import PatchModel
+from backend.utils.ansible_runner_util import execute_selected_patch_on_single_target
 
 router = APIRouter()
 

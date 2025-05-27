@@ -2,13 +2,13 @@ import os
 
 import httpx
 from dotenv import load_dotenv
-from models.target_data_manager import TargetDataManager
 from qasync import asyncSlot
-from utils.backend_util import execute_patch
-from utils.patch_files import PATCH_TYPE
-from views.main_window_view import MainWindow
-from views.patch_target_menu_view import PatchTargetMenuView
 
+from frontend.models.target_data_manager import TargetDataManager
+from frontend.utils.backend_util import execute_patch
+from frontend.utils.patch_files import PATCH_TYPE
+from frontend.views.main_window_view import MainWindow
+from frontend.views.patch_target_menu_view import PatchTargetMenuView
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import (
     QComboBox,
@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 PATCH_LIST_URL = f"{os.getenv('BACKEND_URL')}/patch"
 EXECUTE_PATCH_URL = f"{PATCH_LIST_URL}/execute"
 

@@ -1,4 +1,4 @@
-from models.target import Target, TargetList
+from backend.models.target import Target, TargetList
 
 
 def split_OS(osVersionName: str):

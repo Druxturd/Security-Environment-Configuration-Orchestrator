@@ -1,5 +1,4 @@
-from pages import Page
-
+from frontend.pages import Page
 from PySide6.QtWidgets import (
     QMainWindow,
     QStackedWidget,

@@ -1,6 +1,5 @@
-from models.target_data_manager import TargetDataManager
-from views.show_target_list_view import ShowTargetList
-
+from frontend.models.target_data_manager import TargetDataManager
+from frontend.views.show_target_list_view import ShowTargetList
 from PySide6.QtCore import QObject, Qt
 from PySide6.QtWidgets import QCheckBox, QMessageBox
 

@@ -1,14 +1,16 @@
-from controllers.harden_target_menu_controller import HardenTargetMenuController
-from controllers.main_menu_controller import MainMenuController
-from controllers.patch_target_menu_controller import PatchTargetMenuController
-from controllers.target_list_menu_controller import TargetListMenuController
-from models.target_data_manager import TargetDataManager
-from pages import Page
-from views.harden_target_menu_view import HardenTargetMenuView
-from views.main_menu_view import MainMenuView
-from views.main_window_view import MainWindow
-from views.patch_target_menu_view import PatchTargetMenuView
-from views.target_list_menu_view import TargetListMenuView
+from frontend.controllers.harden_target_menu_controller import (
+    HardenTargetMenuController,
+)
+from frontend.controllers.main_menu_controller import MainMenuController
+from frontend.controllers.patch_target_menu_controller import PatchTargetMenuController
+from frontend.controllers.target_list_menu_controller import TargetListMenuController
+from frontend.models.target_data_manager import TargetDataManager
+from frontend.pages import Page
+from frontend.views.harden_target_menu_view import HardenTargetMenuView
+from frontend.views.main_menu_view import MainMenuView
+from frontend.views.main_window_view import MainWindow
+from frontend.views.patch_target_menu_view import PatchTargetMenuView
+from frontend.views.target_list_menu_view import TargetListMenuView
 
 
 class AppManager:

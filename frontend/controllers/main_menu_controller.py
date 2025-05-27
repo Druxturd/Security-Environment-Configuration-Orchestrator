@@ -1,7 +1,6 @@
-from models.target_data_manager import TargetDataManager
-from views.main_menu_view import MainMenuView
-from views.main_window_view import MainWindow
-
+from frontend.models.target_data_manager import TargetDataManager
+from frontend.views.main_menu_view import MainMenuView
+from frontend.views.main_window_view import MainWindow
 from PySide6.QtWidgets import QMessageBox
 
 

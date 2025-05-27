@@ -1,8 +1,8 @@
 from ansi2html import Ansi2HTMLConverter
-from models.detail_report_tree_model import DetailReportModel
-from models.playbook_model import SelectedHardenPlaybookModel
-from views.detail_report_view import DetailReportView
 
+from frontend.models.detail_report_tree_model import DetailReportModel
+from frontend.models.playbook_model import SelectedHardenPlaybookModel
+from frontend.views.detail_report_view import DetailReportView
 from PySide6.QtCore import QModelIndex
 from PySide6.QtGui import QTextCursor
 

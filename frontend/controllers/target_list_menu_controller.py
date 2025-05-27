@@ -6,17 +6,17 @@ from pathlib import Path
 import httpx
 import pandas as pd
 from dotenv import load_dotenv
-from models.target_data_manager import TargetDataManager
-from models.target_model import TargetModel
-from views.main_window_view import MainWindow
-from views.show_target_list_view import ShowTargetList
-from views.target_list_menu_view import TargetListMenuView
 
-from controllers.show_target_list_controller import ShowTargetListController
+from frontend.controllers.show_target_list_controller import ShowTargetListController
+from frontend.models.target_data_manager import TargetDataManager
+from frontend.models.target_model import TargetModel
+from frontend.views.main_window_view import MainWindow
+from frontend.views.show_target_list_view import ShowTargetList
+from frontend.views.target_list_menu_view import TargetListMenuView
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 TEMPLATE_URL = f"{os.getenv('BACKEND_URL')}/download-template"
 
 

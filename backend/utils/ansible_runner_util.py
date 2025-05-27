@@ -4,8 +4,9 @@ import shutil
 from tempfile import NamedTemporaryFile, mkdtemp
 
 import ansible_runner
-from models.harden_model import ControlModel
-from models.target import Target
+
+from backend.models.harden_model import ControlModel
+from backend.models.target import Target
 
 AUTO_HARDEN_PLAYBOOK_OS_VERSION = {
     "debian_11": "auto_hardening_debian11.yml",

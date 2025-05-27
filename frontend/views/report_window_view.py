@@ -1,11 +1,12 @@
 from ansi2html import Ansi2HTMLConverter
-from controllers.detail_report_controller import DetailReportController
-from models.detail_report_tree_model import DetailReportModel
-from models.report_model import (
+
+from frontend.controllers.detail_report_controller import DetailReportController
+from frontend.models.detail_report_tree_model import DetailReportModel
+from frontend.models.report_model import (
     ReportModel,
     SelectedHardenReportModel,
 )
-
+from frontend.views.detail_report_view import DetailReportView
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QDialog,
@@ -16,7 +17,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from views.detail_report_view import DetailReportView
 
 
 class ReportWindowView(QDialog):

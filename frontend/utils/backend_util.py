@@ -1,10 +1,10 @@
 import httpx
-from models.report_model import (
+
+from frontend.models.report_model import (
     ReportModel,
     SelectedHardenReportModel,
 )
-from views.report_window_view import ReportWindowView
-
+from frontend.views.report_window_view import ReportWindowView
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QProgressDialog
 

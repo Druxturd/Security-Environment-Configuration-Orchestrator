@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from models.target_model import TargetModel
+from frontend.models.target_model import TargetModel
 from PySide6.QtCore import QObject, Signal
 
 

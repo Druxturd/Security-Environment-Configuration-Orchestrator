@@ -1,5 +1,6 @@
-from models.target import TargetList
 from pydantic import BaseModel
+
+from backend.models.target import TargetList
 
 
 class SupportedOSModel(BaseModel):

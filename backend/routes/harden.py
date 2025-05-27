@@ -3,17 +3,18 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import APIRouter
-from models.harden_model import (
+
+from backend.models.harden_model import (
     AutoHardenModel,
     SelectedHardenModel,
     SemiAutoHardenModel,
 )
-from utils.ansible_runner_util import (
+from backend.utils.ansible_runner_util import (
     execute_auto_harden_on_single_target,
     execute_selected_control_on_single_target,
     execute_semi_auto_harden_on_single_target,
 )
-from utils.model_util import grouping_os
+from backend.utils.model_util import grouping_os
 
 router = APIRouter()
 
