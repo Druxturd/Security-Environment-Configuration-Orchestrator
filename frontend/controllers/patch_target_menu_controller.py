@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from models.target_data_manager import TargetDataManager
 from qasync import asyncSlot
 from utils.backend_util import execute_patch
-from utils.patch_files import PATCH_TYPE
+from utils.patch_files import PATCH_TYPE, PATCH_TYPE_TEXT
 from views.main_window_view import MainWindow
 from views.patch_target_menu_view import PatchTargetMenuView
 
@@ -66,7 +66,7 @@ class PatchTargetMenuController(QObject):
                 data_list = data.get("patch_list", [])
                 data_list.sort()
                 for i, playbook in enumerate(data_list):
-                    self.view.playbook_combo_box.insertItem(i, playbook, str(playbook))
+                    self.view.playbook_combo_box.insertItem(i, str(PATCH_TYPE_TEXT.GET.value[playbook]), str(playbook))
 
         except httpx.RequestError as e:
             print(e)
@@ -98,7 +98,7 @@ class PatchTargetMenuController(QObject):
             self.close_ports_header = QLabel(
                 "Please input the desired port(s) you want to close!"
             )
-            self.close_ports_lbl = QLabel("Ports (user comma (,) for multiple ports):")
+            self.close_ports_lbl = QLabel("Ports (use comma (,) for multiple ports):")
             self.close_ports_inp = QLineEdit()
             self.close_ports_layout.addWidget(self.close_ports_header)
             self.close_ports_layout.addWidget(self.close_ports_lbl)
@@ -136,7 +136,7 @@ class PatchTargetMenuController(QObject):
             self.open_ports_header = QLabel(
                 "Please input the desired port(s) you want to open!"
             )
-            self.open_ports_lbl = QLabel("Ports (user comma (,) for multiple ports):")
+            self.open_ports_lbl = QLabel("Ports (use comma (,) for multiple ports):")
             self.open_ports_inp = QLineEdit()
             self.open_ports_layout.addWidget(self.open_ports_header)
             self.open_ports_layout.addWidget(self.open_ports_lbl)
