@@ -2,7 +2,7 @@
 
 Current State of SECOR: Minimum Viable Product (MVP)
 
-Requirement Programming Language: Python 3.13.2
+Built Using Programming Language: Python 3.13.2
 
 Step to run application:
 
