@@ -13,7 +13,7 @@ Step to run application:
 
 How to run backend:
 1. Change directory into backend directory
-2. run "uvicorn main:app --reload"
+2. run "uvicorn main:app"
 
 How to run frontend:
 1. Change directory into frontend directory
