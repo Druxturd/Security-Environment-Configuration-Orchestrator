@@ -72,7 +72,7 @@ async def execute_patch(main_window: QMainWindow, URL: str, payload):
 def _output_report(result):
     if "task_results" in result:
         report = "\n\n".join(
-            f"Host - IP Address: {x['host']} - {x['ip']}\nPlaybook: {y['name']}\nStatus: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}"
+            f"Host - IP Address: {x['host']} - {x['ip']}\nPlaybook: {y['name']}\nOverall Status: {y['status']}\nrc: {y['rc']}\nOutput: {y['stdout']}"
             for x in result["task_results"]
             for y in x["playbook_results"]
         )
@@ -100,7 +100,7 @@ def _output_report(result):
                 )
 
         report = "\n\n".join(
-            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
+            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nOverall Status: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
             for x in auto_target_list
             for y in x.playbook_results
         )
@@ -130,7 +130,7 @@ def _output_report(result):
                         )
                     )
         report = "\n\n".join(
-            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
+            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nOverall Status: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
             for x in selected_target_list
             for y in x.playbook_results
         )

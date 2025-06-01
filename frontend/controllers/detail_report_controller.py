@@ -50,7 +50,7 @@ class DetailReportController:
 
     def update_detail(self, key: str):
         if self.current_playbook:
-            _text = f"{self.current_playbook[key]}\nStatus: {self.current_playbook['status']}"
+            _text = f"{self.current_playbook[key]}\nOverall Status: {self.current_playbook['status']}"
             if isinstance(self.current_playbook, SelectedHardenPlaybookModel):
                 _text += f"\nControl: {self.current_playbook['harden_control']}"
             self.view.text_area.setHtml(Ansi2HTMLConverter().convert(_text))
