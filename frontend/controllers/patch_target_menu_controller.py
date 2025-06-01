@@ -66,7 +66,9 @@ class PatchTargetMenuController(QObject):
                 data_list = data.get("patch_list", [])
                 data_list.sort()
                 for i, playbook in enumerate(data_list):
-                    self.view.playbook_combo_box.insertItem(i, str(PATCH_TYPE_TEXT.GET.value[playbook]), str(playbook))
+                    self.view.playbook_combo_box.insertItem(
+                        i, str(PATCH_TYPE_TEXT.GET.value[playbook]), str(playbook)
+                    )
 
         except httpx.RequestError as e:
             print(e)

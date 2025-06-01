@@ -1,7 +1,7 @@
 from models.target_data_manager import TargetDataManager
 from views.show_target_list_view import ShowTargetList
 
-from PySide6.QtCore import QObject, Qt
+from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QCheckBox, QMessageBox
 
 
@@ -34,11 +34,6 @@ class ShowTargetListController(QObject):
         self.view.total_target_lbl.setText(
             f"Total Target(s): {self.model_manager.get_count_target_list()}"
         )
-
-    def reset_selection(self):
-        for cb in self.view.check_boxes:
-            if cb.isChecked():
-                cb.setCheckState(Qt.CheckState.Unchecked)
 
     def remove_selected_target(self):
         checked_list = []
