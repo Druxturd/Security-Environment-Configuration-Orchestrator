@@ -36,11 +36,12 @@ class ShowTargetListController(QObject):
         )
 
     def remove_selected_target(self):
+        target_list = self.model_manager.get_target_list()
         checked_list = []
         for cb in self.view.check_boxes:
             if cb.isChecked():
                 checked_list.append(cb.text())
-        for target in self.model_manager.get_target_list():
+        for target in target_list[:]:
             if target.to_selected_target_format() in checked_list:
                 self.model_manager.remove_selected_target(target)
         if checked_list:

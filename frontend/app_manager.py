@@ -64,4 +64,3 @@ class AppManager:
         self.main_window.setCentralWidget(self.main_window.stacked_widget)
 
         self.main_window.switch_to_main_menu()
-        # self.main_window.switch_to_harden_target_menu()

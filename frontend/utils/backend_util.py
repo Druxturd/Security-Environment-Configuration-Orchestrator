@@ -130,7 +130,7 @@ def _output_report(result):
                         )
                     )
         report = "\n\n".join(
-            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nOverall Status: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
+            f"Host - IP Address: {x.host} - {x.ip}\nPlaybook: {y.name}\nOverallStatus: {y.status}\nrc: {y.rc}\nOutput: {y.stdout}"
             for x in selected_target_list
             for y in x.playbook_results
         )
