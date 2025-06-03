@@ -38,6 +38,7 @@ class TargetListMenuController(QObject):
             "IP Address must be fill!",
             "Host Name must be fill!",
             "SSH Username must be fill!",
+            "Password must be fill!",
             "SSH Private Key must be fill!",
         ]
 
@@ -113,6 +114,8 @@ class TargetListMenuController(QObject):
             required_columns = {
                 "IP Address",
                 "Host Name",
+                "SSH Username",
+                "Password",
                 "SSH Private Key",
                 "OS Version Name",
             }
@@ -132,6 +135,7 @@ class TargetListMenuController(QObject):
                     _port = "22" if math.isnan(float(_p)) else str(int(float(_p)))
                     _key = str(row["SSH Private Key"]).strip()
                     _os = str(row["OS Version Name"]).strip()
+                    _password = str(row["Password"]).strip()
 
                     if (
                         not _ip
@@ -140,6 +144,7 @@ class TargetListMenuController(QObject):
                         or not _port
                         or not _key
                         or not _os
+                        or not _password
                     ):
                         raise ValueError("Empty value in required column(s)")
 
@@ -159,6 +164,7 @@ class TargetListMenuController(QObject):
                             ssh_port=_port,
                             ssh_private_key=_key,
                             os_version_name=_os,
+                            password=_password,
                         )
                     else:
                         continue
@@ -193,6 +199,7 @@ class TargetListMenuController(QObject):
         ssh_username = self.view.ssh_username_input.text().strip()
         port = self.view.port_input.text().strip()
         os_version_name = str(self.view.os_version_name_combo_box.currentData()).lower()
+        password = self.view.password_input.text().strip()
 
         if not ip_address:
             QMessageBox.warning(self.main_window, self.input_error, self.error_msg[0])
@@ -203,8 +210,11 @@ class TargetListMenuController(QObject):
         elif not ssh_username:
             QMessageBox.warning(self.main_window, self.input_error, self.error_msg[2])
             return
-        elif not key:
+        elif not password:
             QMessageBox.warning(self.main_window, self.input_error, self.error_msg[3])
+            return
+        elif not key:
+            QMessageBox.warning(self.main_window, self.input_error, self.error_msg[4])
             return
 
         if (
@@ -223,6 +233,7 @@ class TargetListMenuController(QObject):
                 ssh_private_key=key,
                 ssh_port=port,
                 os_version_name=os_version_name,
+                password=password,
             )
         else:
             new_target = TargetModel(
@@ -231,6 +242,7 @@ class TargetListMenuController(QObject):
                 ssh_username=ssh_username,
                 ssh_private_key=key,
                 os_version_name=os_version_name,
+                password=password,
             )
 
         if self.model_manager.add_new_target(new_target):
@@ -255,6 +267,7 @@ class TargetListMenuController(QObject):
             _view.ssh_username_input,
             _view.port_input,
             _view.key_input,
+            _view.password_input,
         ):
             inp.clear()
         _view.os_version_name_combo_box.setCurrentIndex(0)

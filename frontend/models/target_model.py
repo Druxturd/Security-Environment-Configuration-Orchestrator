@@ -12,6 +12,7 @@ class TargetModel(QObject):
         ssh_private_key: str = "",
         ssh_port: str = "22",
         os_version_name: str = "",
+        password: str = "",
     ):
         super().__init__()
         self.ip_address = ip_address
@@ -20,6 +21,7 @@ class TargetModel(QObject):
         self.ssh_private_key = ssh_private_key
         self.ssh_port = ssh_port
         self.os_version_name = os_version_name
+        self.password = password
 
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):
@@ -31,6 +33,7 @@ class TargetModel(QObject):
             and self.ssh_private_key == other.ssh_private_key
             and self.ssh_port == other.ssh_port
             and self.os_version_name == other.os_version_name
+            and self.password == other.password
         )
 
     def __hash__(self) -> int:
@@ -43,6 +46,7 @@ class TargetModel(QObject):
                 self.ssh_private_key,
                 self.ssh_port,
                 self.os_version_name,
+                self.password,
             )
         )
 
@@ -54,6 +58,7 @@ class TargetModel(QObject):
             "ssh_private_key": self.ssh_private_key,
             "ssh_port": self.ssh_port,
             "os_version_name": self.os_version_name,
+            "password": self.password,
         }
 
     def to_selected_target_format(self) -> str:

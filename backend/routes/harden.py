@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 from dotenv import load_dotenv
 from fastapi import APIRouter
@@ -18,17 +17,7 @@ from utils.model_util import grouping_os
 router = APIRouter()
 
 load_dotenv()
-FILE_DIR = os.getenv("HARDEN_FILE_DIR")
 BASE_HARDEN_URL = "/harden"
-
-
-@router.get(BASE_HARDEN_URL)
-def list_harden_files():
-    try:
-        files = os.listdir(FILE_DIR)
-        return {"harden_list": files}
-    except FileNotFoundError:
-        return {"error": "File not found"}
 
 
 @router.post(f"{BASE_HARDEN_URL}/execute")

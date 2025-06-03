@@ -40,22 +40,6 @@ class TargetListMenuView(QWidget):
         self.host_layout.addWidget(self.host_lbl)
         self.host_layout.addWidget(self.host_input)
 
-        self.upper_mid_layout = QHBoxLayout()
-        self.upper_mid_layout.addLayout(self.ip_layout)
-        self.upper_mid_layout.addLayout(self.host_layout)
-
-        self.ssh_username_layout = QVBoxLayout()
-        self.ssh_username_lbl = QLabel("SSH Username")
-        self.ssh_username_input = QLineEdit()
-        self.ssh_username_layout.addWidget(self.ssh_username_lbl)
-        self.ssh_username_layout.addWidget(self.ssh_username_input)
-
-        self.port_layout = QVBoxLayout()
-        self.port_lbl = QLabel("Port (Default port is 22 if empty)")
-        self.port_input = QLineEdit()
-        self.port_layout.addWidget(self.port_lbl)
-        self.port_layout.addWidget(self.port_input)
-
         self.os_version_name_layout = QVBoxLayout()
         self.os_version_lbl = QLabel("OS Version Name")
         self.os_version_name_combo_box = QComboBox()
@@ -64,10 +48,35 @@ class TargetListMenuView(QWidget):
         self.os_version_name_layout.addWidget(self.os_version_lbl)
         self.os_version_name_layout.addWidget(self.os_version_name_combo_box)
 
+        self.upper_mid_layout = QHBoxLayout()
+        self.upper_mid_layout.addLayout(self.ip_layout)
+        self.upper_mid_layout.addLayout(self.host_layout)
+        self.upper_mid_layout.addLayout(self.os_version_name_layout)
+
+        self.ssh_username_layout = QVBoxLayout()
+        self.ssh_username_lbl = QLabel("SSH Username")
+        self.ssh_username_input = QLineEdit()
+        self.ssh_username_layout.addWidget(self.ssh_username_lbl)
+        self.ssh_username_layout.addWidget(self.ssh_username_input)
+
+        self.password_layout = QVBoxLayout()
+        self.password_lbl = QLabel("Password")
+        self.password_input = QLineEdit()
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.password_layout.addWidget(self.password_lbl)
+        self.password_layout.addWidget(self.password_input)
+
+        self.port_layout = QVBoxLayout()
+        self.port_lbl = QLabel("Port (Default port is 22 if empty)")
+        self.port_input = QLineEdit()
+        self.port_layout.addWidget(self.port_lbl)
+        self.port_layout.addWidget(self.port_input)
+
+
         self.upper_mid_layout_2 = QHBoxLayout()
         self.upper_mid_layout_2.addLayout(self.ssh_username_layout)
+        self.upper_mid_layout_2.addLayout(self.password_layout)
         self.upper_mid_layout_2.addLayout(self.port_layout)
-        self.upper_mid_layout_2.addLayout(self.os_version_name_layout)
 
         self.key_layout = QHBoxLayout()
         self.key_lbl = QLabel("SSH Private Key")

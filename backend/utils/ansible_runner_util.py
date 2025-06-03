@@ -51,7 +51,7 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
 
     inventory_lines = ["[target]"]
     inventory_lines.append(
-        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path}"
+        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path} ansible_become=true ansible_become_pass={target.password}"
     )
 
     inventory_path = os.path.join(runner_dir, "inventory")
@@ -147,7 +147,7 @@ async def execute_semi_auto_harden_on_single_target(
 
     inventory_lines = ["[target]"]
     inventory_lines.append(
-        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path}"
+        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path} ansible_become=true ansible_become_pass={target.password}"
     )
 
     inventory_path = os.path.join(runner_dir, "inventory")
@@ -245,7 +245,7 @@ async def execute_selected_control_on_single_target(
 
     inventory_lines = ["[target]"]
     inventory_lines.append(
-        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path}"
+        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path} ansible_become=true ansible_become_pass={target.password}"
     )
 
     inventory_path = os.path.join(runner_dir, "inventory")
@@ -346,7 +346,7 @@ async def execute_selected_patch_on_single_target(
 
     inventory_lines = ["[target]"]
     inventory_lines.append(
-        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path}"
+        f"{target.ip_address} ansible_port={target.ssh_port} ansible_user={target.ssh_username} ansible_ssh_private_key_file={key_path} ansible_become=true ansible_become_pass={target.password}"
     )
 
     inventory_path = os.path.join(runner_dir, "inventory")

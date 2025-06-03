@@ -8,6 +8,7 @@ class Target(BaseModel):
     ssh_private_key: str
     ssh_port: str
     os_version_name: str
+    password: str
 
 
 class TargetList(BaseModel):
