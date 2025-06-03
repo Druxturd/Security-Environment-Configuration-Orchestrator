@@ -46,3 +46,4 @@ if __name__ == "__main__":
             loop.run_forever()
         finally:
             loop.run_until_complete(clean_up())
+            loop.close()
