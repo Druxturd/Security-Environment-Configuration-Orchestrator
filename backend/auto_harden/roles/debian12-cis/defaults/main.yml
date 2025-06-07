@@ -1077,7 +1077,7 @@ prelim_max_int_uid: 65533
 # to configuration files by alerting when the files are changed. Review
 # the AIDE quick start guide and AIDE documentation before proceeding.
 # By setting this variable to `true`, all of the settings related to AIDE will be applied!
-deb12cis_config_aide: true
+deb12cis_config_aide: false
 
 # If DB file older than below will automatically rebuild DB
 # e.g. options:1w = 1 week, 1d = 1day 1h = 1 hour
