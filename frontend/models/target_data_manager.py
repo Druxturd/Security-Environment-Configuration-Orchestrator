@@ -5,7 +5,7 @@ from PySide6.QtCore import QObject, Signal
 
 
 class TargetDataManager(QObject):
-    supported_os_version = {"debian": ["11", "12"], "ubuntu": ["22", "24"]}
+    supported_os_version = {"debian": ["12"], "ubuntu": ["22", "24"]}
 
     target_list_updated = Signal()
 

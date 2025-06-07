@@ -39,7 +39,7 @@ async def execute_selected_control_on_target_list(data: SelectedHardenModel):
         return await asyncio.gather(*tasks)
 
     all_tasks = []
-    for os_version in ["debian_11", "debian_12", "ubuntu_22", "ubuntu_24"]:
+    for os_version in ["debian_12", "ubuntu_22", "ubuntu_24"]:
         if not grouped_OS.get(os_version):
             continue
         controls = []
@@ -69,7 +69,7 @@ async def execute_auto_harden_on_target_list(data: AutoHardenModel):
         return await asyncio.gather(*tasks)
 
     all_tasks = []
-    for os_version in ["debian_11", "debian_12", "ubuntu_22", "ubuntu_24"]:
+    for os_version in ["debian_12", "ubuntu_22", "ubuntu_24"]:
         if not grouped_OS.get(os_version):
             continue
         all_tasks.append(execute_auto_harden_on_supported_version(os_version))
@@ -94,7 +94,7 @@ async def execute_semi_auto_harden_on_target_list(data: SemiAutoHardenModel):
         return await asyncio.gather(*tasks)
 
     all_tasks = []
-    for os_version in ["debian_11", "debian_12", "ubuntu_22", "ubuntu_24"]:
+    for os_version in ["debian_12", "ubuntu_22", "ubuntu_24"]:
         if not grouped_OS.get(os_version):
             continue
         all_tasks.append(execute_semi_auto_harden_on_supported_version(os_version))

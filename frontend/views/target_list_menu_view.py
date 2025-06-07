@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-SUPPORTED_OS = ["Debian 11", "Debian 12", "Ubuntu 22", "Ubuntu 24"]
+SUPPORTED_OS = ["Debian 12", "Ubuntu 22", "Ubuntu 24"]
 
 
 class TargetListMenuView(QWidget):
@@ -71,7 +71,6 @@ class TargetListMenuView(QWidget):
         self.port_input = QLineEdit()
         self.port_layout.addWidget(self.port_lbl)
         self.port_layout.addWidget(self.port_input)
-
 
         self.upper_mid_layout_2 = QHBoxLayout()
         self.upper_mid_layout_2.addLayout(self.ssh_username_layout)

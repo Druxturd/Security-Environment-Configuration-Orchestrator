@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 
 class SupportedOSModel(BaseModel):
-    debian_11: dict
     debian_12: dict
     ubuntu_22: dict
     ubuntu_24: dict

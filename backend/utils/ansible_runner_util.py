@@ -8,13 +8,11 @@ from models.harden_model import ControlModel
 from models.target import Target
 
 AUTO_HARDEN_PLAYBOOK_OS_VERSION = {
-    "debian_11": "auto_hardening_debian11.yml",
     "debian_12": "auto_hardening_debian12.yml",
     "ubuntu_22": "auto_hardening_ubuntu22.yml",
     "ubuntu_24": "auto_hardening_ubuntu24.yml",
 }
 SELECTED_HARDEN_PLAYBOOK_OS_VERSION = {
-    "debian_11": "selected_hardening_debian11.yml",
     "debian_12": "selected_hardening_debian12.yml",
     "ubuntu_22": "selected_hardening_ubuntu22.yml",
     "ubuntu_24": "selected_hardening_ubuntu24.yml",
@@ -60,6 +58,7 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
 
     loop = asyncio.get_running_loop()
     playbook_results = []
+    all_success = True
 
     try:
         playbook_path = os.path.join(
@@ -88,7 +87,7 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
                 inventory=inventory_path,
                 ident=f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
                 event_handler=event_handler,
-                quiet=True,
+                # quiet=True,
             ),
         )
 
@@ -119,6 +118,9 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
             }
         )
 
+        if rc != 0:
+            all_success = False
+
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
@@ -126,10 +128,13 @@ async def execute_auto_harden_on_single_target(os_version_name: str, target: Tar
         }
 
     finally:
-        if os.path.exists(key_path):
-            os.remove(key_path)
-        if os.path.exists(runner_dir):
-            shutil.rmtree(runner_dir)
+        if all_success:
+            if os.path.exists(key_path):
+                os.remove(key_path)
+            if os.path.exists(runner_dir):
+                shutil.rmtree(runner_dir)
+        else:
+            print(f"⚠️ Skipping cleanup for debugging, {runner_dir}.")
 
 
 async def execute_semi_auto_harden_on_single_target(
@@ -156,6 +161,7 @@ async def execute_semi_auto_harden_on_single_target(
 
     loop = asyncio.get_running_loop()
     playbook_results = []
+    all_success = True
 
     try:
         playbook_path = os.path.join(
@@ -185,7 +191,7 @@ async def execute_semi_auto_harden_on_single_target(
                 ident=f"{target.host_name}_{target.ip_address}_{AUTO_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
                 event_handler=event_handler,
                 extravars=controls.model_dump()["os_version_name"][os_version_name],
-                quiet=True,
+                # quiet=True,
             ),
         )
 
@@ -217,6 +223,9 @@ async def execute_semi_auto_harden_on_single_target(
             }
         )
 
+        if rc != 0:
+            all_success = False
+
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
@@ -224,10 +233,13 @@ async def execute_semi_auto_harden_on_single_target(
         }
 
     finally:
-        if os.path.exists(key_path):
-            os.remove(key_path)
-        if os.path.exists(runner_dir):
-            shutil.rmtree(runner_dir)
+        if all_success:
+            if os.path.exists(key_path):
+                os.remove(key_path)
+            if os.path.exists(runner_dir):
+                shutil.rmtree(runner_dir)
+        else:
+            print(f"⚠️ Skipping cleanup for debugging, {runner_dir}.")
 
 
 async def execute_selected_control_on_single_target(
@@ -254,6 +266,7 @@ async def execute_selected_control_on_single_target(
 
     loop = asyncio.get_running_loop()
     playbook_results = []
+    all_success = True
 
     try:
         for control in controls:
@@ -286,7 +299,7 @@ async def execute_selected_control_on_single_target(
                     ident=f"{target.host_name}_{target.ip_address}_{SELECTED_HARDEN_PLAYBOOK_OS_VERSION[os_version_name]}",
                     event_handler=event_handler,
                     extravars=control["os_version_name"][os_version_name],
-                    quiet=True,
+                    # quiet=True,
                 ),
             )
 
@@ -318,6 +331,9 @@ async def execute_selected_control_on_single_target(
                 }
             )
 
+            if rc != 0:
+                all_success = False
+
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
@@ -325,10 +341,13 @@ async def execute_selected_control_on_single_target(
         }
 
     finally:
-        if os.path.exists(key_path):
-            os.remove(key_path)
-        if os.path.exists(runner_dir):
-            shutil.rmtree(runner_dir)
+        if all_success:
+            if os.path.exists(key_path):
+                os.remove(key_path)
+            if os.path.exists(runner_dir):
+                shutil.rmtree(runner_dir)
+        else:
+            print(f"⚠️ Skipping cleanup for debugging, {runner_dir}.")
 
 
 async def execute_selected_patch_on_single_target(
@@ -355,6 +374,7 @@ async def execute_selected_patch_on_single_target(
 
     loop = asyncio.get_running_loop()
     playbook_results = []
+    all_success = True
 
     try:
         playbook_path = os.path.join(os.getcwd(), PATCH_FILES, playbook)
@@ -382,7 +402,7 @@ async def execute_selected_patch_on_single_target(
                 ident=f"{target.host_name}_{target.ip_address}_{playbook}",
                 event_handler=event_handler,
                 extravars=extravars,
-                quiet=True,
+                # quiet=True,
             ),
         )
 
@@ -413,6 +433,9 @@ async def execute_selected_patch_on_single_target(
             }
         )
 
+        if rc != 0:
+            all_success = False
+
         return {
             "host": f"{target.host_name}",
             "ip": f"{target.ip_address}",
@@ -420,10 +443,13 @@ async def execute_selected_patch_on_single_target(
         }
 
     finally:
-        if os.path.exists(key_path):
-            os.remove(key_path)
-        if os.path.exists(runner_dir):
-            shutil.rmtree(runner_dir)
+        if all_success:
+            if os.path.exists(key_path):
+                os.remove(key_path)
+            if os.path.exists(runner_dir):
+                shutil.rmtree(runner_dir)
+        else:
+            print(f"⚠️ Skipping cleanup for debugging, {runner_dir}.")
 
 
 def _event_validation(_event, event, event_list, recap, playbook_start):
