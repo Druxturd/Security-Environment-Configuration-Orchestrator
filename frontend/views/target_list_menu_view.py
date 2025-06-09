@@ -80,6 +80,13 @@ class TargetListMenuView(QWidget):
         self.key_layout = QHBoxLayout()
         self.key_lbl = QLabel("SSH Private Key")
         self.key_input = QTextEdit()
+        self.key_input.setStyleSheet("""
+            QTextEdit {
+                color: transparent;
+                selection-color: transparent;
+                selection-background-color: lightgray; /* or match your background */
+            }
+        """)
         self.key_input.setAcceptRichText(False)
         self.key_layout.addWidget(self.key_lbl)
         self.key_layout.addWidget(self.key_input)

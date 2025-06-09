@@ -18,7 +18,7 @@ class HardenTargetMenuView(QWidget):
         self.harden_menu_lbl = QLabel("Harden Target Menu")
         self.auto_harden_btn_layout = QVBoxLayout()
         self.auto_harden_btn = QPushButton("Execute Auto Harden")
-        self.semi_harden_btn = QPushButton("Execute Semi Auto Harden")
+        self.semi_harden_btn = QPushButton("Execute Low Disruptive Harden")
         self.auto_harden_btn_layout.addWidget(self.auto_harden_btn)
         self.auto_harden_btn_layout.addWidget(self.semi_harden_btn)
 
